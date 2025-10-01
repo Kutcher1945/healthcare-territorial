@@ -159,20 +159,19 @@ export default function DetailCard({ buildingData, showDetailCard, setShowDetail
     const colors = getColorClasses(color);
 
     return (
-      <div className="group relative overflow-hidden rounded-lg bg-white border border-[#e8e8e8] p-2.5 transition-all duration-200 hover:shadow-md hover:border-[#c1d3ff]">
+      <div className="group relative rounded-lg bg-white border border-gray-200 p-2 transition-all duration-200 hover:shadow-sm hover:border-blue-300">
         <div className="flex items-center gap-2">
-          <div className={`relative rounded-md p-1.5 ${colors.bg} border ${colors.border} transition-transform group-hover:scale-105 duration-200`}>
-            <div className={`absolute inset-0 bg-gradient-to-br ${colors.gradient} opacity-0 group-hover:opacity-10 transition-opacity duration-200 rounded-md`}></div>
+          <div className={`flex-shrink-0 rounded-md p-1.5 ${colors.bg} transition-transform group-hover:scale-105 duration-200`}>
             {itemLoading ? (
-              <Loader2 className={`h-3.5 w-3.5 ${colors.icon} animate-spin relative z-10`} />
+              <Loader2 className={`h-3.5 w-3.5 ${colors.icon} animate-spin`} />
             ) : (
-              <Icon className={`h-3.5 w-3.5 ${colors.icon} relative z-10`} />
+              <Icon className={`h-3.5 w-3.5 ${colors.icon}`} />
             )}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="text-[10px] font-semibold text-[#283353] uppercase tracking-wide truncate leading-tight">{title}</p>
-            <p className="text-xs font-bold text-[#1b1b1b] mt-0.5">
-              {itemLoading ? <div className="h-3.5 w-16 bg-gray-200 rounded animate-pulse"></div> : (value ?? "—")}
+            <p className="text-[10px] text-gray-600 truncate leading-tight">{title}</p>
+            <p className="text-xs font-semibold text-gray-900 leading-tight mt-0.5">
+              {itemLoading ? <div className="h-3 w-16 bg-gray-200 rounded animate-pulse"></div> : (value ?? "—")}
             </p>
           </div>
         </div>
@@ -181,30 +180,28 @@ export default function DetailCard({ buildingData, showDetailCard, setShowDetail
   }
 
   const CollapsibleSection = ({ title, sectionKey, children, icon: Icon }) => (
-    <div className="space-y-2">
+    <div className="rounded-lg overflow-hidden bg-white border border-gray-200 shadow-sm">
       <button
         onClick={() => toggleSection(sectionKey)}
-        className="flex items-center justify-between w-full text-left group bg-[#ebf1ff] hover:bg-[#e1eaff] rounded-lg p-2 transition-all duration-200 border border-[#c1d3ff] hover:border-[#3772ff]"
+        className="flex w-full items-center justify-between gap-2 p-2.5 text-left transition-all duration-200 hover:bg-gray-50 group"
       >
-        <div className="flex items-center gap-2">
-          <div className="p-1 rounded-md bg-white border border-[#c1d3ff] group-hover:border-[#3772ff] transition-colors">
-            <Icon className="h-3.5 w-3.5 text-[#3772ff]" />
+        <div className="flex items-center gap-2 flex-1 min-w-0">
+          <div className="rounded-md bg-blue-50 p-1.5 transition-transform group-hover:scale-105 duration-200">
+            <Icon className="h-3.5 w-3.5 text-blue-600" />
           </div>
-          <h3 className="text-[10px] font-bold text-[#283353] uppercase tracking-wide">{title}</h3>
+          <h3 className="text-xs font-semibold text-gray-900 truncate">{title}</h3>
         </div>
-        {collapsedSections[sectionKey] ? (
-          <ChevronDown className="h-4 w-4 text-[#283353] transition-all duration-200 group-hover:text-[#3772ff]" />
-        ) : (
-          <ChevronUp className="h-4 w-4 text-[#283353] transition-all duration-200 group-hover:text-[#3772ff]" />
-        )}
+        <div className={`transition-transform duration-200 text-gray-400 ${!collapsedSections[sectionKey] ? "rotate-180" : ""}`}>
+          <ChevronDown className="h-3.5 w-3.5" />
+        </div>
       </button>
 
       <div
         className={`transition-all duration-300 ease-in-out overflow-hidden ${
-          collapsedSections[sectionKey] ? "max-h-0 opacity-0" : "max-h-[1000px] opacity-100"
+          collapsedSections[sectionKey] ? "max-h-0 opacity-0" : "max-h-[2000px] opacity-100"
         }`}
       >
-        <div className="space-y-2">{children}</div>
+        <div className="p-2 pt-0 space-y-1.5 bg-gray-50">{children}</div>
       </div>
     </div>
   )
@@ -212,64 +209,84 @@ export default function DetailCard({ buildingData, showDetailCard, setShowDetail
   return (
     <>
       {showDetailCard && (
-        <div className="h-full flex flex-col bg-[#eaebee] border-r-2 border-[#bcc0ca] shadow-2xl">
-          {/* Header */}
-          <div className="relative overflow-hidden bg-gradient-to-br from-[#3772ff] to-[#2956bf] p-3 border-b-2 border-[#2956bf]">
-            <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNjAiIGhlaWdodD0iNjAiIHZpZXdCb3g9IjAgMCA2MCA2MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZyBmaWxsPSJub25lIiBmaWxsLXJ1bGU9ImV2ZW5vZGQiPjxnIGZpbGw9IiNmZmYiIGZpbGwtb3BhY2l0eT0iMC4wNSI+PHBhdGggZD0iTTM2IDE0YzMuMzEgMCA2IDIuNjkgNiA2cy0yLjY5IDYtNiA2LTYtMi42OS02LTYgMi42OS02IDYtNnptMCAxMGMyLjIxIDAgNC0xLjc5IDQtNHMtMS43OS00LTQtNGMtMi4yMSAwLTQgMS43OS00IDRzMS43OSA0IDQgNHoiLz48L2c+PC9nPjwvc3ZnPg==')] opacity-20"></div>
+        <div className="h-full flex flex-col bg-gradient-to-br from-[#3772ff] via-[#2956bf] to-[#1e3a8a] shadow-2xl">
+          {/* Modern Header with Glass Effect */}
+          <div className="relative bg-white/10 backdrop-blur-md border-b border-white/20">
+            {/* Subtle top glow */}
+            <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-white/40 via-white/60 to-white/40"></div>
 
-            <div className="relative flex items-start justify-between">
-              <div className="flex items-start gap-2.5 flex-1 min-w-0">
-                <div className="relative flex-shrink-0">
-                  <div className="absolute inset-0 rounded-xl bg-white opacity-20 blur-md"></div>
-                  <div className="relative flex h-10 w-10 items-center justify-center rounded-xl bg-white shadow-lg">
-                    {isLoading ? (
-                      <Loader2 className="h-5 w-5 text-[#3772ff] animate-spin" />
-                    ) : (
-                      <Hospital className="h-5 w-5 text-[#3772ff]" />
-                    )}
-                  </div>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <h2 className="text-sm font-bold text-white mb-1 line-clamp-2 leading-tight drop-shadow-sm">
-                    {isLoading ? (
-                      <div className="h-4 w-32 bg-white/20 rounded animate-pulse"></div>
-                    ) : (
-                      detailCardData.name || buildingData.name || "Неизвестная поликлиника"
-                    )}
-                  </h2>
-                  <div className="flex items-center gap-1 text-[10px] text-white/90 mb-1">
-                    <MapPin className="h-3 w-3 flex-shrink-0" />
-                    <span className="truncate font-medium">{buildingData.district} район</span>
-                  </div>
-                  <div className="inline-flex items-center gap-1 px-1.5 py-0.5 bg-white/10 backdrop-blur-sm rounded-full border border-white/20">
-                    <span className="text-[9px] text-white/80">ID:</span>
-                    <span className="text-[9px] font-semibold text-white">{buildingData.id}</span>
-                  </div>
-                </div>
-              </div>
-              <div className="flex items-center gap-0.5 flex-shrink-0">
+            <div className="p-4">
+              {/* Action buttons - top right */}
+              <div className="flex justify-end gap-1 mb-3">
                 {error && (
                   <button
                     onClick={handleRetry}
-                    className="rounded-lg p-1.5 text-white/80 hover:bg-white/20 hover:text-white transition-all duration-200"
+                    className="p-2 rounded-lg text-white/70 hover:text-white hover:bg-white/20 transition-all duration-200"
                     title="Повторить загрузку"
                   >
-                    <RefreshCw className="h-3.5 w-3.5" />
+                    <RefreshCw className="h-4 w-4" />
                   </button>
                 )}
                 <button
                   onClick={handleClose}
-                  className="rounded-lg p-1.5 text-white/80 hover:bg-red-500/20 hover:text-white transition-all duration-200"
+                  className="p-2 rounded-lg text-white/70 hover:text-white hover:bg-red-500/30 transition-all duration-200"
                   title="Закрыть"
+                  aria-label="Закрыть панель"
                 >
-                  <X className="h-3.5 w-3.5" />
+                  <X className="h-4 w-4" />
                 </button>
+              </div>
+
+              {/* Clinic Info */}
+              <div className="flex flex-col items-start text-left w-full">
+                {/* Title - with icon and decorative styling */}
+                <div className="flex items-center gap-3 w-full mb-3">
+                  {/* Icon Badge */}
+                  <div className="relative flex-shrink-0">
+                    <div className="absolute inset-0 bg-white/30 rounded-xl blur-lg"></div>
+                    <div className="relative w-12 h-12 bg-white rounded-xl shadow-lg flex items-center justify-center transform transition-transform hover:scale-105 duration-200">
+                      {isLoading ? (
+                        <Loader2 className="h-6 w-6 text-[#3772ff] animate-spin" />
+                      ) : (
+                        <Hospital className="h-6 w-6 text-[#3772ff]" />
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Title with decorative underline */}
+                  <div className="flex-1 min-w-0">
+                    <h2 className="text-lg font-bold text-white leading-tight mb-1 drop-shadow-lg">
+                      {isLoading ? (
+                        <div className="h-6 w-48 bg-white/20 rounded-lg animate-pulse"></div>
+                      ) : (
+                        <span className="relative inline-block">
+                          {detailCardData.name || buildingData.name || "Неизвестная поликлиника"}
+                          {/* Decorative underline */}
+                          <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-white/60 via-white/80 to-transparent rounded-full"></span>
+                        </span>
+                      )}
+                    </h2>
+                    <p className="text-xs text-white/80 font-medium">Медицинское учреждение</p>
+                  </div>
+                </div>
+
+                {/* Meta info chips - enhanced */}
+                <div className="flex flex-wrap items-center gap-2">
+                  <div className="group inline-flex items-center gap-2 px-3 py-1.5 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30 hover:bg-white/30 hover:border-white/50 transition-all duration-200">
+                    <MapPin className="h-4 w-4 text-white group-hover:scale-110 transition-transform" />
+                    <span className="text-xs font-semibold text-white">{buildingData.district}</span>
+                  </div>
+                  <div className="group inline-flex items-center gap-2 px-3 py-1.5 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30 hover:bg-white/30 hover:border-white/50 transition-all duration-200">
+                    <Building className="h-4 w-4 text-white group-hover:scale-110 transition-transform" />
+                    <span className="text-xs font-semibold text-white">ID: {buildingData.id}</span>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
 
-          {/* Content - Scrollable */}
-          <div className="flex-1 overflow-y-auto p-3 space-y-3 detail-card-scroll">
+          {/* Content - Compact layout to fit on one screen */}
+          <div className="flex-1 overflow-y-auto p-3 space-y-2.5 detail-card-scroll">
             {/* {error && (
               <div className="rounded-lg border border-red-200 bg-red-50 p-3">
                 <div className="flex items-center gap-2">
