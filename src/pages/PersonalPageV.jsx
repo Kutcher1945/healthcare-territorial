@@ -68,7 +68,7 @@ export default function PersonalPage() {
                     : "bg-white/20 text-white hover:bg-white/30"
                 }`}
               >
-                Врачи
+                Пациенты
               </button>
               <button
                 onClick={() => setActiveTable("patient")}
@@ -78,7 +78,7 @@ export default function PersonalPage() {
                     : "bg-white/20 text-white hover:bg-white/30"
                 }`}
               >
-                Пациенты
+                Врачи
               </button>
             </div>
           </div>

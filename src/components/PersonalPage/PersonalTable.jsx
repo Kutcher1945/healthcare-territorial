@@ -185,7 +185,7 @@ export default function PersonalTable({ selectedDistrict, searchTerm, setSearchT
                   <SortIcon columnKey="gp_service_workload_per_gp" />
                 </div>
               </th>
-              <th
+              {/* <th
                 className="px-4 py-3 text-center text-white font-semibold border-r border-blue-500 cursor-pointer hover:bg-blue-700 transition-colors"
                 onClick={() => handleSort('pediatric_service_local_nurses_physical')}
               >
@@ -193,8 +193,8 @@ export default function PersonalTable({ selectedDistrict, searchTerm, setSearchT
                   Медсестры (педиатрия)
                   <SortIcon columnKey="pediatric_service_local_nurses_physical" />
                 </div>
-              </th>
-              <th
+              </th> */}
+              {/* <th
                 className="px-4 py-3 text-center text-white font-semibold border-r border-blue-500 cursor-pointer hover:bg-blue-700 transition-colors"
                 onClick={() => handleSort('therapeutic_service_local_nurses_physical')}
               >
@@ -202,8 +202,8 @@ export default function PersonalTable({ selectedDistrict, searchTerm, setSearchT
                   Медсестры (терапия)
                   <SortIcon columnKey="therapeutic_service_local_nurses_physical" />
                 </div>
-              </th>
-              <th
+              </th> */}
+              {/* <th
                 className="px-4 py-3 text-center text-white font-semibold cursor-pointer hover:bg-blue-700 transition-colors"
                 onClick={() => handleSort('gp_service_local_nurses_physical')}
               >
@@ -211,7 +211,7 @@ export default function PersonalTable({ selectedDistrict, searchTerm, setSearchT
                   Медсестры (ВОП)
                   <SortIcon columnKey="gp_service_local_nurses_physical" />
                 </div>
-              </th>
+              </th> */}
             </tr>
           </thead>
           <tbody>
@@ -238,21 +238,21 @@ export default function PersonalTable({ selectedDistrict, searchTerm, setSearchT
                       {fixedNum(item.gp_service_workload_per_gp)}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-center text-slate-700 border-b border-slate-200">
+                  {/* <td className="px-4 py-3 text-center text-slate-700 border-b border-slate-200">
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
                       {fixedNum(item.pediatric_service_local_nurses_physical)}
                     </span>
-                  </td>
-                  <td className="px-4 py-3 text-center text-slate-700 border-b border-slate-200">
+                  </td> */}
+                  {/* <td className="px-4 py-3 text-center text-slate-700 border-b border-slate-200">
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
                       {fixedNum(item.therapeutic_service_local_nurses_physical)}
                     </span>
-                  </td>
-                  <td className="px-4 py-3 text-center text-slate-700 border-b border-slate-200">
+                  </td> */}
+                  {/* <td className="px-4 py-3 text-center text-slate-700 border-b border-slate-200">
                     <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
                       {fixedNum(item.gp_service_local_nurses_physical)}
                     </span>
-                  </td>
+                  </td> */}
                 </tr>
               </React.Fragment>
             ))}

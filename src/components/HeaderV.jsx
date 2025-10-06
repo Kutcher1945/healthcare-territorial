@@ -3,6 +3,8 @@
 import { Link, useLocation } from "react-router-dom"
 import { HeartPulse, MapPinned, Menu, X, ChevronDown, Activity } from "lucide-react"
 import { useState, useEffect } from "react"
+import {Dialog, DialogContent, DialogHeader, DialogTitle} from "./ui/dialog"
+import DoctorsCapacityMethodology from "./Methodology/DoctorsCapacityMethodology"
 
 export default function Header({ setSelectedDistrict, selectedDistrict }) {
   const [openDropDown, setOpenDropDown] = useState(false)
@@ -10,6 +12,7 @@ export default function Header({ setSelectedDistrict, selectedDistrict }) {
   const [isScrolled, setIsScrolled] = useState(false)
   const location = useLocation()
   const isActive = (path) => location.pathname === path
+  const [isMethodologyOpen, setIsMethodologyOpen] = useState(false)
 
   useEffect(() => {
     const handleScroll = () => {
@@ -53,6 +56,7 @@ export default function Header({ setSelectedDistrict, selectedDistrict }) {
   ]
 
   return (
+    <>
     <header
       className={`sticky top-0 z-50 w-full transition-all duration-300 ${
         isScrolled
@@ -127,6 +131,14 @@ export default function Header({ setSelectedDistrict, selectedDistrict }) {
         <div className="flex items-center gap-3">
           {/* Navigation */}
           <nav className="hidden lg:flex items-center gap-2">
+            {/* {location.pathname !== "/analytics" && ( */}
+              <button
+                onClick={() => setIsMethodologyOpen(true)}
+                className="rounded-md border border-gray-300 px-3 py-1.5 text-xs hover:bg-gray-50"
+              >
+                Методология
+              </button>
+            {/* )} */}
             {navigationItems.map((item) => {
               const Icon = item.icon
               return (
@@ -221,5 +233,17 @@ export default function Header({ setSelectedDistrict, selectedDistrict }) {
         </div>
       )}
     </header>
+
+    <Dialog open={isMethodologyOpen} onOpenChange={setIsMethodologyOpen}>
+      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto text-left">
+        <DialogHeader className="sticky top-0 bg-white shadow-sm">
+          <DialogTitle className="text-2xl">
+            Методология расчета мощности и дефицита врачей в поликлиниках города Алматы
+          </DialogTitle>
+        </DialogHeader>
+        <div className="mt-4"><DoctorsCapacityMethodology/></div>
+      </DialogContent>
+    </Dialog>
+    </>
   )
 }
