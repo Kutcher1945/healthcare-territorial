@@ -111,6 +111,10 @@ export default function PersonalTable({ selectedDistrict, searchTerm, setSearchT
             ? "bg-red-100 text-red-800"
             : "bg-green-100 text-green-800"
     }
+    const vopNeeded = (value) => {
+      if (value == null || isNaN(Number(value)) || value === "") return "-"
+      return value < 0 ? 0 : value
+    }
 
   return (
     <div className="h-full flex flex-col bg-white">
@@ -185,33 +189,15 @@ export default function PersonalTable({ selectedDistrict, searchTerm, setSearchT
                   <SortIcon columnKey="gp_service_workload_per_gp" />
                 </div>
               </th>
-              {/* <th
+              <th
                 className="px-4 py-3 text-center text-white font-semibold border-r border-blue-500 cursor-pointer hover:bg-blue-700 transition-colors"
-                onClick={() => handleSort('pediatric_service_local_nurses_physical')}
+                onClick={() => handleSort('vop_needed')}
               >
                 <div className="flex items-center justify-center">
-                  Медсестры (педиатрия)
-                  <SortIcon columnKey="pediatric_service_local_nurses_physical" />
+                  Дефицит ВОП
+                  <SortIcon columnKey="vop_needed" />
                 </div>
-              </th> */}
-              {/* <th
-                className="px-4 py-3 text-center text-white font-semibold border-r border-blue-500 cursor-pointer hover:bg-blue-700 transition-colors"
-                onClick={() => handleSort('therapeutic_service_local_nurses_physical')}
-              >
-                <div className="flex items-center justify-center">
-                  Медсестры (терапия)
-                  <SortIcon columnKey="therapeutic_service_local_nurses_physical" />
-                </div>
-              </th> */}
-              {/* <th
-                className="px-4 py-3 text-center text-white font-semibold cursor-pointer hover:bg-blue-700 transition-colors"
-                onClick={() => handleSort('gp_service_local_nurses_physical')}
-              >
-                <div className="flex items-center justify-center">
-                  Медсестры (ВОП)
-                  <SortIcon columnKey="gp_service_local_nurses_physical" />
-                </div>
-              </th> */}
+              </th>
             </tr>
           </thead>
           <tbody>
@@ -238,21 +224,11 @@ export default function PersonalTable({ selectedDistrict, searchTerm, setSearchT
                       {fixedNum(item.gp_service_workload_per_gp)}
                     </span>
                   </td>
-                  {/* <td className="px-4 py-3 text-center text-slate-700 border-b border-slate-200">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                      {fixedNum(item.pediatric_service_local_nurses_physical)}
+                  <td className="px-4 py-3 text-center text-slate-700 border-b border-slate-200">
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 `}>
+                      {vopNeeded(item.vop_needed)}
                     </span>
-                  </td> */}
-                  {/* <td className="px-4 py-3 text-center text-slate-700 border-b border-slate-200">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                      {fixedNum(item.therapeutic_service_local_nurses_physical)}
-                    </span>
-                  </td> */}
-                  {/* <td className="px-4 py-3 text-center text-slate-700 border-b border-slate-200">
-                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                      {fixedNum(item.gp_service_local_nurses_physical)}
-                    </span>
-                  </td> */}
+                  </td>
                 </tr>
               </React.Fragment>
             ))}

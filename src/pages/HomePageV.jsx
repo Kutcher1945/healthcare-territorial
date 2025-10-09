@@ -1,9 +1,9 @@
 "use client"
 
 import { useState } from "react"
-import Map from "../components/MapV"
-import DetailCard from "../components/DetailCardV"
-import Indicators from "../components/IndicatorsV"
+import Map from "../components/HomePage/MapV"
+import DetailCard from "../components/HomePage/DetailCardV"
+import Indicators from "../components/HomePage/IndicatorsV"
 
 export default function HomePage({ selectedDistrict }) {
   const [buildingData, setBuildingData] = useState([])

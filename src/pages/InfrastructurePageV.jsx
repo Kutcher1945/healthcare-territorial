@@ -1,14 +1,15 @@
 "use client"
 
 import { useState } from "react"
-import DistrictHistogram from "../components/DistrictHistogramV"
-import YearHistogram from "../components/YearHistogramV"
-import Diagram from "../components/DiagramV"
-import InfraTable from "../components/InfraTableV"
+import DistrictHistogram from "../components/InfrastructurePage/DistrictHistogramV"
+import YearHistogram from "../components/InfrastructurePage/YearHistogramV"
+import Diagram from "../components/InfrastructurePage/DiagramV"
+import InfraTable from "../components/InfrastructurePage/InfraTableV"
 
 export default function InfrastructurePage() {
   const [selectedDistrict, setSelectedDistrict] = useState("")
-
+  const [selectedDecade, setSelectedDecade] = useState("")
+  
   return (
     <div className="h-full bg-[#eaebee] p-6 overflow-y-auto">
       <div>
@@ -34,17 +35,17 @@ export default function InfrastructurePage() {
             />
           </div>
           <div className="transition-all duration-200 hover:scale-[1.02]">
-            <Diagram selectedDistrict={selectedDistrict} />
+            <Diagram selectedDistrict={selectedDistrict} selectedDecade={selectedDecade}/>
           </div>
           <div className="transition-all duration-200 hover:scale-[1.02]">
-            <YearHistogram selectedDistrict={selectedDistrict} />
+            <YearHistogram selectedDistrict={selectedDistrict} onDecadeSelect={setSelectedDecade} />
           </div>
         </div>
 
         {/* Infrastructure Table */}
         <div className="bg-white rounded-lg shadow-lg border-2 border-[#c1d3ff] overflow-hidden">
           <div className="h-[calc(100vh-500px)] min-h-[400px]">
-            <InfraTable selectedDistrict={selectedDistrict} />
+            <InfraTable selectedDistrict={selectedDistrict} selectedDecade={selectedDecade}/>
           </div>
         </div>
       </div>

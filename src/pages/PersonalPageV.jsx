@@ -1,8 +1,8 @@
 "use client"
 
 import { useState } from "react"
-import DistrictTable from "../components/DistrictTableV"
-import PersonalHistogram from "../components/PersonalHistogramV"
+import DistrictTable from "../components/PersonalPage/DistrictTableV"
+import PersonalHistogram from "../components/PersonalPage/PersonalHistogramV"
 import PersonalTable from "../components/PersonalPage/PersonalTable"
 import PersonalTablePatient from "../components/PersonalPage/PersonalTablePatient"
 
@@ -68,7 +68,7 @@ export default function PersonalPage() {
                     : "bg-white/20 text-white hover:bg-white/30"
                 }`}
               >
-                Пациенты
+                Врачи
               </button>
               <button
                 onClick={() => setActiveTable("patient")}
@@ -78,7 +78,7 @@ export default function PersonalPage() {
                     : "bg-white/20 text-white hover:bg-white/30"
                 }`}
               >
-                Врачи
+                Медсестры
               </button>
             </div>
           </div>
