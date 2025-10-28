@@ -236,7 +236,7 @@ export default function DetailCard({ buildingData, showDetailCard, setShowDetail
 
                   {/* Title with decorative underline */}
                   <div className="flex-1 min-w-0">
-                    <h3 className="text-lg font-bold text-black leading-tight mb-1 drop-shadow-lg">
+                    <h3 className="text-m font-bold text-black leading-tight mb-1 drop-shadow-lg">
                       {isLoading ? (
                         <div className="h-6 w-48 bg-white/20 rounded-lg animate-pulse"></div>
                       ) : (
