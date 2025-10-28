@@ -1,9 +1,9 @@
 "use client"
 
 import { Link, useLocation } from "react-router-dom"
-import { HeartPulse, MapPinned, Menu, X, ChevronDown, Activity } from "lucide-react"
+import { HeartPulse, MapPinned, Menu, X, ChevronDown, Activity, User, Users } from "lucide-react"
 import { useState, useEffect } from "react"
-import {Dialog, DialogContent, DialogHeader, DialogTitle} from "../ui/dialog"
+import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose} from "../ui/dialog"
 import DoctorsCapacityMethodology from "../Methodology/DoctorsCapacityMethodology"
 
 export default function Header({ setSelectedDistrict, selectedDistrict }) {
@@ -52,7 +52,8 @@ export default function Header({ setSelectedDistrict, selectedDistrict }) {
   const navigationItems = [
     { to: "/", label: "Главная", icon: Activity, color: "text-blue-500" },
     { to: "/infrastructure", label: "Инфраструктура", icon: HeartPulse, color: "text-green-500" },
-    { to: "/personal", label: "Персонал", icon: MapPinned, color: "text-purple-500" },
+    { to: "/personal", label: "Персонал", icon: Users, color: "text-purple-500" },
+    { to: "/recomendations", label: "Рекомендации", icon: MapPinned, color: "text-purple-500" },
   ]
 
   return (
@@ -236,10 +237,11 @@ export default function Header({ setSelectedDistrict, selectedDistrict }) {
 
     <Dialog open={isMethodologyOpen} onOpenChange={setIsMethodologyOpen}>
       <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto text-left">
-        <DialogHeader className="sticky top-0 bg-white shadow-sm">
+        <DialogHeader className="sticky top-0 bg-white shadow-sm z-50">
           <DialogTitle className="text-2xl">
             Методология расчета мощности и дефицита врачей в поликлиниках города Алматы
           </DialogTitle>
+          <DialogClose onOpenChange={setIsMethodologyOpen} />
         </DialogHeader>
         <div className="mt-4"><DoctorsCapacityMethodology/></div>
       </DialogContent>
