@@ -209,33 +209,14 @@ export default function DetailCard({ buildingData, showDetailCard, setShowDetail
   return (
     <>
       {showDetailCard && (
-        <div className="h-full flex flex-col bg-gradient-to-br from-[#3772ff] via-[#2956bf] to-[#1e3a8a] shadow-2xl">
+        // <div className="h-full flex flex-col bg-gradient-to-br from-[#3772ff] via-[#2956bf] to-[#1e3a8a] shadow-2xl">
+        <div className="h-full flex flex-col bg-white shadow-2xl">
           {/* Modern Header with Glass Effect */}
           <div className="relative bg-white/10 backdrop-blur-md border-b border-white/20">
             {/* Subtle top glow */}
             <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-white/40 via-white/60 to-white/40"></div>
 
-            <div className="p-4">
-              {/* Action buttons - top right */}
-              <div className="flex justify-end gap-1 mb-3">
-                {error && (
-                  <button
-                    onClick={handleRetry}
-                    className="p-2 rounded-lg text-white/70 hover:text-white hover:bg-white/20 transition-all duration-200"
-                    title="Повторить загрузку"
-                  >
-                    <RefreshCw className="h-4 w-4" />
-                  </button>
-                )}
-                <button
-                  onClick={handleClose}
-                  className="p-2 rounded-lg text-white/70 hover:text-white hover:bg-red-500/30 transition-all duration-200"
-                  title="Закрыть"
-                  aria-label="Закрыть панель"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
+            <div className="p-4 border-b flex items-start justify-between">
 
               {/* Clinic Info */}
               <div className="flex flex-col items-start text-left w-full">
@@ -255,32 +236,52 @@ export default function DetailCard({ buildingData, showDetailCard, setShowDetail
 
                   {/* Title with decorative underline */}
                   <div className="flex-1 min-w-0">
-                    <h2 className="text-lg font-bold text-white leading-tight mb-1 drop-shadow-lg">
+                    <h3 className="text-lg font-bold text-black leading-tight mb-1 drop-shadow-lg">
                       {isLoading ? (
                         <div className="h-6 w-48 bg-white/20 rounded-lg animate-pulse"></div>
                       ) : (
                         <span className="relative inline-block">
                           {detailCardData.name || buildingData.name || "Неизвестная поликлиника"}
                           {/* Decorative underline */}
-                          <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-white/60 via-white/80 to-transparent rounded-full"></span>
+                          <span className="absolute bottom-0 left-0 w-full h-0.5 bg-gradient-to-r from-black/60 via-black/80 to-transparent rounded-full"></span>
                         </span>
                       )}
-                    </h2>
-                    <p className="text-xs text-white/80 font-medium">Медицинское учреждение</p>
+                    </h3>
+                    <p className="text-xs text-black/80 font-medium">Медицинское учреждение</p>
                   </div>
                 </div>
 
                 {/* Meta info chips - enhanced */}
                 <div className="flex flex-wrap items-center gap-2">
-                  <div className="group inline-flex items-center gap-2 px-3 py-1.5 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30 hover:bg-white/30 hover:border-white/50 transition-all duration-200">
-                    <MapPin className="h-4 w-4 text-white group-hover:scale-110 transition-transform" />
-                    <span className="text-xs font-semibold text-white">{buildingData.district}</span>
+                  <div className="group inline-flex items-center gap-2 px-3 py-1.5 bg-white/20 backdrop-blur-sm rounded-lg border border-gray/30 hover:bg-gray/30 hover:border-gray/50 transition-all duration-200">
+                    <MapPin className="h-4 w-4 text-black group-hover:scale-110 transition-transform" />
+                    <span className="text-xs font-semibold text-black">{buildingData.district}</span>
                   </div>
-                  <div className="group inline-flex items-center gap-2 px-3 py-1.5 bg-white/20 backdrop-blur-sm rounded-lg border border-white/30 hover:bg-white/30 hover:border-white/50 transition-all duration-200">
-                    <Building className="h-4 w-4 text-white group-hover:scale-110 transition-transform" />
-                    <span className="text-xs font-semibold text-white">ID: {buildingData.id}</span>
+                  <div className="group inline-flex items-center gap-2 px-3 py-1.5 bg-white/20 backdrop-blur-sm rounded-lg border border-gray/30 hover:bg-gray/30 hover:border-gray/50 transition-all duration-200">
+                    <Building className="h-4 w-4 text-black group-hover:scale-110 transition-transform" />
+                    <span className="text-xs font-semibold text-black">ID: {buildingData.id}</span>
                   </div>
                 </div>
+              </div>
+              {/* Action buttons - top right */}
+              <div className="flex justify-end gap-1 mb-3">
+                {error && (
+                  <button
+                    onClick={handleRetry}
+                    className="p-2 rounded-lg text-white/70 hover:text-white hover:bg-white/20 transition-all duration-200"
+                    title="Повторить загрузку"
+                  >
+                    <RefreshCw className="h-4 w-4" />
+                  </button>
+                )}
+                <button
+                  onClick={handleClose}
+                  className="p-2 rounded-lg text-black/70 hover:text-black hover:bg-gray-500/30 transition-all duration-200"
+                  title="Закрыть"
+                  aria-label="Закрыть панель"
+                >
+                  <X className="h-4 w-4" />
+                </button>
               </div>
             </div>
           </div>
