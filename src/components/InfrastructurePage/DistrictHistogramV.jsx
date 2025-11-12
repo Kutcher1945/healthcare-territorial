@@ -39,7 +39,7 @@ export default function DistrictHistogram({ selectedDistrict, onDistrictSelect }
     )
   }
 
-  const label = "Количество поликлиник по районам"
+  const label = "Количество поликлиник по районам "
 
   return (
     <div className="histogram-container bg-white rounded-lg p-4 shadow-lg border-2 border-[#c1d3ff] h-[380px] overflow-visible hover:shadow-xl transition-all duration-300">
