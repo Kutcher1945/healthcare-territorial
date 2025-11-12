@@ -53,7 +53,7 @@ export default function Header({ setSelectedDistrict, selectedDistrict }) {
     { to: "/", label: "Главная", icon: Activity, color: "text-blue-500" },
     { to: "/infrastructure", label: "Инфраструктура", icon: HeartPulse, color: "text-green-500" },
     { to: "/personal", label: "Персонал", icon: Users, color: "text-purple-500" },
-    // { to: "/recomendations", label: "Рекомендации", icon: MapPinned, color: "text-purple-500" },
+    { to: "/recomendations", label: "Рекомендации", icon: MapPinned, color: "text-purple-500" },
   ]
 
   return (
