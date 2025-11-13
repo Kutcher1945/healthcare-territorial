@@ -5,7 +5,6 @@ import {
   User,
   Users,
   Hospital,
-  AlertTriangle,
   Gauge,
   Ruler,
   AlertCircle,
@@ -17,7 +16,6 @@ import {
   TrendingUp,
   Building,
   ChevronDown,
-  ChevronUp,
   Venus,
   Mars,
 } from "lucide-react"
@@ -94,7 +92,7 @@ export default function DetailCard({ buildingData, showDetailCard, setShowDetail
 
   const handleRetry = () => {
     if (buildingData?.id) {
-      const event = new Event("retry")
+      // const event = new Event("retry")
       // Trigger useEffect by updating a dependency
       setError(null)
       setIsLoading(true)

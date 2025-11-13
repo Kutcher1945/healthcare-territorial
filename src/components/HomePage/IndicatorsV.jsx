@@ -1,4 +1,4 @@
-import { Stethoscope, Building2, Activity, Users, User, Heart, Shield, Plus } from "lucide-react";
+import { Stethoscope, Building2, Activity, Users, User } from "lucide-react";
 import { useState, useEffect } from "react";
 
 export default function Indicators({ totalCount, totalPopulation, avgVisit, avgPerson, selectedDistrict }) {
