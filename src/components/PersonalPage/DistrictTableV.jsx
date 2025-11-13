@@ -13,7 +13,6 @@ export default function DistrictTable({ selectedDistrict, onDistrictSelect }) {
   const [tableData, setTableData] = useState([])
   const [tableDataTotals, setTableDataTotals] = useState({})
   const [vopData, setVopData] = useState([])
-  const [vopTotals, setVopTotals] = useState({})
   const [totalDeficit, setTotalDeficit] = useState(0)
   const [sortConfig, setSortConfig] = useState({ key: null, direction: null }) 
 
@@ -34,7 +33,6 @@ export default function DistrictTable({ selectedDistrict, onDistrictSelect }) {
         )
         const vopJson = await vopResponse.json()
         setVopData(vopJson.results)
-        setVopTotals(vopJson.totals)
 
         // Compute total deficit
         const total = vopJson.results.reduce((acc, item) => acc + calcDeficitVop(item), 0)

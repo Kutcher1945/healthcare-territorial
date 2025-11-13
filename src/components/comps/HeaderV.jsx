@@ -1,7 +1,7 @@
 "use client"
 
 import { Link, useLocation } from "react-router-dom"
-import { HeartPulse, MapPinned, Menu, X, ChevronDown, Activity, User, Users } from "lucide-react"
+import { HeartPulse, MapPinned, Menu, X, ChevronDown, Activity, Users } from "lucide-react"
 import { useState, useEffect } from "react"
 import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose} from "../ui/dialog"
 import DoctorsCapacityMethodology from "../Methodology/DoctorsCapacityMethodology"

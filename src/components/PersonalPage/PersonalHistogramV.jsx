@@ -32,29 +32,6 @@ export default function PersonalHistogram({ selectedDistrict }) {
     setHistoData(filteredData)
   }, [allData, selectedDistrict])
 
-  const CustomTick = ({ x, y, payload }) => {
-    const name = payload.value
-    const parts = name.split(" ")
-    let first = parts[0]
-    if (first.length > 7) {
-      first = first.slice(0, 7) + "..."
-    }
-    const second = parts[1] || ""
-
-    return (
-      <text x={x} y={y + 10} textAnchor="middle" fontSize={12} fill="#666">
-        <tspan x={x} dy="0">
-          {first}
-        </tspan>
-        {second && (
-          <tspan x={x} dy="14">
-            {second}
-          </tspan>
-        )}
-      </text>
-    )
-  }
-
   const formatMillions = (value) => {
     if (!value && value !== 0) return ""
     // Convert to millions, round to 2 decimals

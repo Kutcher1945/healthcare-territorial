@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import { useMapInitialization } from '../../hooks/useMapInitialization';
 import { useHealthcareData } from '../../hooks/useHealthcareData';
 import { MapControls } from '../comps/MapControls';
@@ -29,7 +29,6 @@ export default function MapView({
   const { mapRef, isLoading: mapLoading, zoomIn, zoomOut, resetView } = useMapInitialization(mapContainer);
   const { fetchHealthcareData, isLoading: dataLoading } = useHealthcareData();
 
-  const [selectedMarker, setSelectedMarker] = useState(null);
   const selectedMarkerRef = useRef(null); // Track current selected marker
   const polygonMappingRef = useRef({});
   const popupRef = useRef(null);
@@ -42,7 +41,6 @@ export default function MapView({
 
     const fetchAndRender = async () => {
       // Reset selection when changing district
-      setSelectedMarker(null);
       selectedMarkerRef.current = null;
 
       try {
@@ -93,8 +91,7 @@ export default function MapView({
               polygonMappingRef.current
             );
 
-            // Update both state and ref
-            setSelectedMarker(newMarkerId);
+            // Update ref
             selectedMarkerRef.current = newMarkerId;
 
             setBuildingData(feature.properties);
@@ -139,7 +136,7 @@ export default function MapView({
     };
 
     fetchAndRender();
-  }, [selectedDistrict, fetchHealthcareData, setBuildingData, setShowDetailCard, setTotalCount, setTotalPopulation, setAvgVisit, setAvgPerson]);
+  }, [selectedDistrict, fetchHealthcareData, setBuildingData, setShowDetailCard, setTotalCount, setTotalPopulation, setAvgVisit, setAvgPerson, mapRef]);
 
   return (
     <div className="relative w-full h-full">
