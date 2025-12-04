@@ -170,15 +170,15 @@ export default function DeathMoTable({ moData }) {
                                 </th>
                                 <th className="px-4 py-3 text-left border-b border-gray-100 font-semibold text-gov-text-primary">
                                     {/* {headers.needed} */}
-                                    Нидед Терапевт
+                                    Нужно Терапевт
                                 </th>
                                 <th className="px-4 py-3 text-left border-b border-gray-100 font-semibold text-gov-text-primary">
                                     {/* {headers.deficit} */}
-                                    Нидед ВОП
+                                    Нужно ВОП
                                 </th>
                                 <th className="px-4 py-3 text-left border-b border-gray-100 font-semibold text-gov-text-primary">
                                     {/* {headers.deficit} */}
-                                    Нидед Педиатр
+                                    Нужно Педиатр
                                 </th>
                                 <th className="px-4 py-3 text-left border-b border-gray-100 font-semibold text-gov-text-primary">
                                     Приоритетная оценка
