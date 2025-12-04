@@ -10,7 +10,6 @@ export default function YearHistogram({ selectedDistrict, onDecadeSelect  }) {
   const [selectedDecade, setSelectedDecade] = useState("")
   const label = "Годы постройки зданий"
 
-  // Fetch all buildings with district info
   useEffect(() => {
     async function fetchData() {
       try {
@@ -20,14 +19,12 @@ export default function YearHistogram({ selectedDistrict, onDecadeSelect  }) {
         const data_json = await response.json()
         const results = data_json.results || []
 
-        // Build year-district mapping from buildings API
         const buildingsResponse = await fetch(
           "https://admin.smartalmaty.kz/api/v1/healthcare/buildings-analysis/?limit=100",
         )
         const buildingsData = await buildingsResponse.json()
         const buildings = buildingsData.results || buildingsData || []
 
-        // Create mapping: min -> district
         const minToDistrict = {}
         results.forEach(item => {
           if (item.id) {
@@ -35,7 +32,6 @@ export default function YearHistogram({ selectedDistrict, onDecadeSelect  }) {
           }
         })
 
-        // Add district to buildings
         const enrichedBuildings = buildings.map(b => ({
           ...b,
           district: minToDistrict[b.min] || null,
@@ -50,7 +46,6 @@ export default function YearHistogram({ selectedDistrict, onDecadeSelect  }) {
     fetchData()
   }, [])
 
-  // Process data based on selected district
   useEffect(() => {
     if (allBuildingsData.length === 0) return
 
@@ -97,74 +92,75 @@ export default function YearHistogram({ selectedDistrict, onDecadeSelect  }) {
     const newDecade = clickedDecade === selectedDecade ? "" : clickedDecade
     setSelectedDecade(newDecade)
     if (onDecadeSelect) {
-      onDecadeSelect(newDecade) // send to parent
+      onDecadeSelect(newDecade) 
     }
   }
 
   return (
-    <div className="histogram-container bg-white rounded-lg p-4 shadow-lg border-2 border-[#c1d3ff] h-[380px] overflow-visible hover:shadow-xl transition-all duration-300">
-      <div className="mb-3">
-        <h3 className="text-sm font-bold text-[#1b1b1b] uppercase tracking-wide flex items-center gap-2">
+    // FIX 1: Added 'flex flex-col h-full'
+    <div className="histogram-container bg-white rounded-lg p-4 shadow-lg h-full flex flex-col overflow-hidden hover:shadow-xl transition-all duration-300">
+      
+      {/* Title - flex-none */}
+      <div className="mb-3 flex-none">
+        <h3 className="text-sm text-left font-bold text-[#1b1b1b] uppercase tracking-wide flex items-center gap-2">
           {label}
         </h3>
       </div>
 
-      <ResponsiveContainer width="100%" height="100%">
-        <BarChart
-          data={histoData}
-          margin={{ top: 20, right: 10, left: 10, bottom: 60 }}
-        >
-          <CartesianGrid strokeDasharray="3 3" stroke="#e8e8e8" />
-          <Tooltip
-            contentStyle={{
-              backgroundColor: "white",
-              border: "2px solid #c1d3ff",
-              borderRadius: "8px",
-              boxShadow: "0 10px 25px rgba(55, 114, 255, 0.15)",
-              fontSize: "12px",
-            }}
-          />
-          <Bar
-            dataKey="count"
-            radius={[8, 8, 0, 0]}
-            // onClick={(barData) => {
-            //   const clickedDecade = barData?.payload?.decade
-            //   if (!clickedDecade) return
-            //   setSelectedDecade(clickedDecade === selectedDecade ? "" : clickedDecade)
-            // }}
-            onClick={handleBarClick}
+      {/* FIX 2: Wrapper with flex-1 min-h-0 */}
+      <div className="flex-1 w-full min-h-0">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart
+            data={histoData}
+            margin={{ top: 20, right: 10, left: 10, bottom: 40 }}
           >
-            {histoData.map((entry, index) => (
-              <Cell
-                key={`cell-${index}`}
-                fill={
-                  !selectedDecade || entry.decade === selectedDecade
-                    ? "url(#yearBlueGradient)"
-                    : "#e8e8e8"
-                }
-                style={{ cursor: 'pointer' }}
-              />
-            ))}
-            <LabelList dataKey="count" position="insideTop" fill="#fff" fontSize={11} fontWeight="700" />
-          </Bar>
-          <XAxis
-            dataKey="decade"
-            axisLine={false}
-            tickLine={false}
-            height={60}
-            interval={0}
-            angle={-25}
-            textAnchor="end"
-            style={{ fontSize: '11px', fill: '#283353' }}
-          />
-          <defs>
-            <linearGradient id="yearBlueGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#3772ff" />
-              <stop offset="100%" stopColor="#2956bf" />
-            </linearGradient>
-          </defs>
-        </BarChart>
-      </ResponsiveContainer>
+            <CartesianGrid strokeDasharray="3 3" stroke="#e8e8e8" />
+            <Tooltip
+              contentStyle={{
+                backgroundColor: "white",
+                border: "2px solid #c1d3ff",
+                borderRadius: "8px",
+                boxShadow: "0 10px 25px rgba(55, 114, 255, 0.15)",
+                fontSize: "12px",
+              }}
+            />
+            <Bar
+              dataKey="count"
+              radius={[8, 8, 0, 0]}
+              onClick={handleBarClick}
+            >
+              {histoData.map((entry, index) => (
+                <Cell
+                  key={`cell-${index}`}
+                  fill={
+                    !selectedDecade || entry.decade === selectedDecade
+                      ? "url(#yearBlueGradient)"
+                      : "#e8e8e8"
+                  }
+                  style={{ cursor: 'pointer' }}
+                />
+              ))}
+              <LabelList dataKey="count" position="insideTop" fill="#fff" fontSize={11} fontWeight="700" />
+            </Bar>
+            <XAxis
+              dataKey="decade"
+              axisLine={false}
+              tickLine={false}
+              height={50}
+              interval={0}
+              angle={-25}
+              textAnchor="end"
+              style={{ fontSize: '11px', fill: '#283353' }}
+            />
+            <defs>
+              <linearGradient id="yearBlueGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#3772ff" />
+                <stop offset="100%" stopColor="#2956bf" />
+              </linearGradient>
+            </defs>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   )
 }

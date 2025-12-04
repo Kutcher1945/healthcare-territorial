@@ -203,7 +203,7 @@ export default function InfraTable({ selectedDistrict, selectedDecade }) {
   const SortIcon = ({ columnKey }) => {
     if (sortConfig.key !== columnKey) {
       // return <span className="ml-1 text-white/50"><ChevronUp className="w-4 h-4"/><ChevronDown className="w-4 h-4"/></span>
-      return <span className="ml-1 text-white/50"><ChevronUp className="w-4 h-4"/></span>
+      return <span className="ml-1"><ChevronUp className="w-4 h-4"/></span>
     }
     return (
       <span className="ml-1">
@@ -232,14 +232,14 @@ export default function InfraTable({ selectedDistrict, selectedDecade }) {
   return (
     <div className="h-full flex flex-col bg-white">
       {/* Search Bar */}
-      <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
+      <div className="p-4 border-b border-gray-200">
         <div className="relative">
           <input
             type="text"
             placeholder="Поиск по названию..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full px-4 py-2 pl-10 border-2 border-blue-300 rounded-lg focus:outline-none focus:border-blue-500 text-sm"
+            className="w-full px-4 py-2 pl-10 border-2 rounded-lg focus:outline-none focus:border-blue-500 text-sm"
           />
           <svg
             className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"
@@ -272,11 +272,11 @@ export default function InfraTable({ selectedDistrict, selectedDecade }) {
 
       <div className="flex-1 overflow-y-auto">
         <table className="w-full border-collapse">
-          <thead className="sticky top-0 bg-gradient-to-r from-blue-600 to-indigo-600">
+          <thead className="sticky top-0 bg-white">
             <tr>
-              <th className="px-4 py-3 text-left text-white font-semibold border-r border-blue-500">Название</th>
+              <th className="px-4 py-3 text-left font-semibold">Название</th>
               <th
-                className="px-4 py-3 text-center text-white font-semibold border-r border-blue-500 cursor-pointer hover:bg-blue-700 transition-colors"
+                className="px-4 py-3 text-center font-semibold cursor-pointer transition-colors"
                 onClick={() => handleSort('index')}
               >
                 <div className="flex items-center justify-center">
@@ -285,7 +285,7 @@ export default function InfraTable({ selectedDistrict, selectedDecade }) {
                 </div>
               </th>
               <th
-                className="px-4 py-3 text-center text-white font-semibold border-r border-blue-500 cursor-pointer hover:bg-blue-700 transition-colors"
+                className="px-4 py-3 text-center font-semibold cursor-pointer transition-colors"
                 onClick={() => handleSort('buildingVolume')}
               >
                 <div className="flex items-center justify-center">
@@ -294,7 +294,7 @@ export default function InfraTable({ selectedDistrict, selectedDecade }) {
                 </div>
               </th>
               <th
-                className="px-4 py-3 text-center text-white font-semibold border-r border-blue-500 cursor-pointer hover:bg-blue-700 transition-colors"
+                className="px-4 py-3 text-center font-semibold cursor-pointer transition-colors"
                 onClick={() => handleSort('totalArea')}
               >
                 <div className="flex items-center justify-center">
@@ -303,7 +303,7 @@ export default function InfraTable({ selectedDistrict, selectedDecade }) {
                 </div>
               </th>
               <th
-                className="px-4 py-3 text-center text-white font-semibold border-r border-blue-500 cursor-pointer hover:bg-blue-700 transition-colors"
+                className="px-4 py-3 text-center font-semibold cursor-pointer transition-colors"
                 onClick={() => handleSort('totalPopulation')}
               >
                 <div className="flex items-center justify-center">
@@ -312,7 +312,7 @@ export default function InfraTable({ selectedDistrict, selectedDecade }) {
                 </div>
               </th>
               <th 
-                className="px-4 py-3 text-center text-white font-semibold border-r border-blue-500 cursor-pointer hover:bg-blue-700 transition-colors"
+                className="px-4 py-3 text-center font-semibold cursor-pointer transition-colors"
                 onClick={() => handleSort('visit')}
               >
                 <div className="flex items-center justify-center">
@@ -320,7 +320,7 @@ export default function InfraTable({ selectedDistrict, selectedDecade }) {
                   <SortIcon columnKey="totalArea" />
                 </div>
               </th>
-              <th className="px-4 py-3 text-center text-white font-semibold border-r border-blue-500 relative">
+              <th className="px-4 py-3 text-center font-semibold relative">
                 <div className="flex items-center justify-center">
                   Используемая часть здания
                   <button
@@ -348,7 +348,7 @@ export default function InfraTable({ selectedDistrict, selectedDecade }) {
                   </div>
                 )}
               </th>
-              <th className="px-4 py-3 text-center text-white font-semibold border-r border-blue-500 relative">
+              <th className="px-4 py-3 text-center font-semibold relative">
                 <div className="flex items-center justify-center">
                   Право собственности
                   <button

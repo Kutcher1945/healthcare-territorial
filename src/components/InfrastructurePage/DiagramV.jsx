@@ -119,9 +119,9 @@ export default function Diagram({ selectedDistrict, selectedDecade }) {
   }, [allBuildingsData, selectedDistrict, selectedDecade])
 
   return (
-    <div className="histogram-container bg-white rounded-lg p-4 shadow-lg border-2 border-[#c1d3ff] h-[380px] flex flex-col">
-      <div className="mb-3">
-        <h3 className="text-sm font-bold text-[#1b1b1b] uppercase tracking-wide text-center">
+    <div className="histogram-container bg-white rounded-lg p-4 shadow-lg h-full overflow-hidden flex flex-col hover:shadow-xl transition-all duration-300">
+      <div className="mb-3 flex-none">
+        <h3 className="text-sm text-left font-bold text-[#1b1b1b] uppercase tracking-wide text-center">
           Распределение медицинских организаций
         </h3>
         {selectedDecade && selectedDecade !== "Все" && (
@@ -132,7 +132,7 @@ export default function Diagram({ selectedDistrict, selectedDecade }) {
           </p>
         )}
       </div>
-      <div className="flex-1">
+      <div className="flex-1 min-h-0">
         <ResponsiveContainer width="100%" height="100%">
           <PieChart>
             <Pie

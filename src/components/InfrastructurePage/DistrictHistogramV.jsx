@@ -42,70 +42,76 @@ export default function DistrictHistogram({ selectedDistrict, onDistrictSelect }
   const label = "Количество поликлиник по районам "
 
   return (
-    <div className="histogram-container bg-white rounded-lg p-4 shadow-lg border-2 border-[#c1d3ff] h-[380px] overflow-visible hover:shadow-xl transition-all duration-300">
-      <div className="mb-3">
-        <h3 className="text-sm font-bold text-[#1b1b1b] uppercase tracking-wide">{label}</h3>
+    // FIX 1: Added 'flex flex-col h-full'
+    <div className="histogram-container bg-white rounded-lg p-4 shadow-lg h-full flex flex-col overflow-hidden hover:shadow-xl transition-all duration-300">
+      
+      {/* Title section does not grow (flex-none) */}
+      <div className="mb-3 flex-none">
+        <h3 className="text-sm text-left font-bold text-[#1b1b1b] uppercase tracking-wide">{label}</h3>
       </div>
 
-      <ResponsiveContainer width="100%" height="100%">
-        <BarChart
-          data={histoData}
-          margin={{ top: 20, right: 10, left: 20, bottom: 60 }}
-        >
-          <CartesianGrid strokeDasharray="3 3" stroke="#e8e8e8" />
-          <Tooltip
-            contentStyle={{
-              backgroundColor: "white",
-              border: "2px solid #c1d3ff",
-              borderRadius: "8px",
-              boxShadow: "0 10px 25px rgba(55, 114, 255, 0.15)",
-              fontSize: "12px",
-            }}
-          />
-          <Bar
-            dataKey="count"
-            radius={[8, 8, 0, 0]}
-            onClick={(histoData) => {
-              const clickedDistrict = histoData?.payload?.district
-              if (!clickedDistrict) return
-
-              if (clickedDistrict === selectedDistrict) {
-                onDistrictSelect("")
-              } else {
-                onDistrictSelect(clickedDistrict)
-              }
-            }}
+      {/* FIX 2: Added wrapper div with 'flex-1 min-h-0'. This forces the chart to fill remaining height. */}
+      <div className="flex-1 w-full min-h-0">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart
+            data={histoData}
+            margin={{ top: 20, right: 10, left: 30, bottom: 40 }} // Adjusted bottom margin
           >
-            {histoData.map((entry, index) => (
-              <Cell
-                key={`cell-${index}`}
-                fill={
-                  !selectedDistrict || entry.district === selectedDistrict
-                    ? "url(#blueGradient)"
-                    : "#e8e8e8"
-                }
-                style={{ cursor: 'pointer' }}
-              />
-            ))}
+            <CartesianGrid strokeDasharray="3 3" stroke="#e8e8e8" />
+            <Tooltip
+              contentStyle={{
+                backgroundColor: "white",
+                border: "2px solid #c1d3ff",
+                borderRadius: "8px",
+                boxShadow: "0 10px 25px rgba(55, 114, 255, 0.15)",
+                fontSize: "12px",
+              }}
+            />
+            <Bar
+              dataKey="count"
+              radius={[8, 8, 0, 0]}
+              onClick={(histoData) => {
+                const clickedDistrict = histoData?.payload?.district
+                if (!clickedDistrict) return
 
-            <LabelList dataKey="count" position="insideTop" fill="#fff" fontSize={11} fontWeight="700" />
-          </Bar>
-          <XAxis
-            dataKey="district"
-            axisLine={false}
-            tickLine={false}
-            height={70}
-            interval={0}
-            tick={<CustomTick />}
-          />
-          <defs>
-            <linearGradient id="blueGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#3772ff" />
-              <stop offset="100%" stopColor="#2956bf" />
-            </linearGradient>
-          </defs>
-        </BarChart>
-      </ResponsiveContainer>
+                if (clickedDistrict === selectedDistrict) {
+                  onDistrictSelect("")
+                } else {
+                  onDistrictSelect(clickedDistrict)
+                }
+              }}
+            >
+              {histoData.map((entry, index) => (
+                <Cell
+                  key={`cell-${index}`}
+                  fill={
+                    !selectedDistrict || entry.district === selectedDistrict
+                      ? "url(#blueGradient)"
+                      : "#e8e8e8"
+                  }
+                  style={{ cursor: 'pointer' }}
+                />
+              ))}
+
+              <LabelList dataKey="count" position="insideTop" fill="#fff" fontSize={11} fontWeight="700" />
+            </Bar>
+            <XAxis
+              dataKey="district"
+              axisLine={false}
+              tickLine={false}
+              height={60}
+              interval={0}
+              tick={<CustomTick />}
+            />
+            <defs>
+              <linearGradient id="blueGradient" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#3772ff" />
+                <stop offset="100%" stopColor="#2956bf" />
+              </linearGradient>
+            </defs>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   )
 }
