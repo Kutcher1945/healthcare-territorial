@@ -7,10 +7,10 @@ export default function DeathMoTable({ moData }) {
     const [priorityFilter, setPriorityFilter] = useState("all") // State for filter
 
     // State for dynamic column headers
-    const [headers, setHeaders] = useState({ 
-        needed: "Нужен ВОП", 
-        deficit: "Дефицит ВОП" 
-    })
+    // const [headers, setHeaders] = useState({ 
+    //     needed: "Нужен ВОП", 
+    //     deficit: "Дефицит ВОП" 
+    // })
 
     useEffect(() => {
         async function fetchData() {
@@ -39,7 +39,7 @@ export default function DeathMoTable({ moData }) {
                 // 2. Prepare Data Array
                 let resultData = [];
                 if (moData && moData.id) {
-                    resultData = [json]; // Wrap single object in array
+                    resultData = [json]; 
                 } else {
                     resultData = json.results || [];
                 }
@@ -47,7 +47,7 @@ export default function DeathMoTable({ moData }) {
                 setData(resultData);
 
                 // 3. Update Column Headers based on the data
-                updateHeaders(resultData);
+                // updateHeaders(resultData);
 
             } catch (err) {
                 console.error("Failed to fetch stats", err);
@@ -59,32 +59,32 @@ export default function DeathMoTable({ moData }) {
     }, [moData, priorityFilter]) // Re-run when Map Selection OR Filter changes
 
     // Helper to calculate headers
-    const updateHeaders = (currentData) => {
-        let newHeaders = { needed: "Нужен ВОП", deficit: "Дефицит ВОП" };
+    // const updateHeaders = (currentData) => {
+    //     let newHeaders = { needed: "Нужен ВОП", deficit: "Дефицит ВОП" };
 
-        if (currentData && currentData.length > 0) {
-            const type = currentData[0].profile_type;
-            if (type === "adult") {
-                newHeaders = { needed: "Нужен Терапевт", deficit: "Дефицит Терапевт" };
-            } else if (type === "pediatric") {
-                newHeaders = { needed: "Нужен Педиатр", deficit: "Дефицит Педиатр" };
-            } else {
-                newHeaders = { needed: "Нужен ВОП", deficit: "Дефицит ВОП" };
-            }
-        }
-        setHeaders(newHeaders);
-    };
+    //     if (currentData && currentData.length > 0) {
+    //         const type = currentData[0].profile_type;
+    //         if (type === "adult") {
+    //             newHeaders = { needed: "Нужен Терапевт", deficit: "Дефицит Терапевт" };
+    //         } else if (type === "pediatric") {
+    //             newHeaders = { needed: "Нужен Педиатр", deficit: "Дефицит Педиатр" };
+    //         } else {
+    //             newHeaders = { needed: "Нужен ВОП", deficit: "Дефицит ВОП" };
+    //         }
+    //     }
+    //     setHeaders(newHeaders);
+    // };
 
     // Helper to get row values
-    const getStats = (item) => {
-        if (item.profile_type === "adult") {
-            return { needed: item.needed_therap, deficit: item.deficit_therap };
-        } else if (item.profile_type === "pediatric") {
-            return { needed: item.needed_peds, deficit: item.deficit_peds };
-        } else {
-            return { needed: item.needed_vop, deficit: item.deficit_vop };
-        }
-    };
+    // const getStats = (item) => {
+    //     if (item.profile_type === "adult") {
+    //         return { needed: item.needed_therap, deficit: item.deficit_therap };
+    //     } else if (item.profile_type === "pediatric") {
+    //         return { needed: item.needed_peds, deficit: item.deficit_peds };
+    //     } else {
+    //         return { needed: item.needed_vop, deficit: item.deficit_vop };
+    //     }
+    // };
 
     const getStatus = (item) => {
         if (item === "understaffed") return "явно не хватает";
@@ -127,10 +127,10 @@ export default function DeathMoTable({ moData }) {
 
     return (
         <div className="histogram-container bg-white rounded-xl shadow-md border border-gray-300 h-full flex flex-col overflow-hidden">
-            <div className="p-4 border-b border-gray-100 flex justify-between items-center bg-white sticky top-0 z-20">
-                <h3 className="text-sm font-bold text-[#1b1b1b] uppercase tracking-wide">
+            <div className="p-4 border-b border-gray-100 flex justify-end items-center bg-white sticky top-0 z-20">
+                {/* <h3 className="text-sm font-bold text-[#1b1b1b] uppercase tracking-wide">
                     Материнская смерть по МО
-                </h3>
+                </h3> */}
 
                 <div className="flex items-center gap-2">
                     {/* CONDITION: Show Filter only if NO specific map point is selected */}
@@ -169,10 +169,16 @@ export default function DeathMoTable({ moData }) {
                                     Название МО
                                 </th>
                                 <th className="px-4 py-3 text-left border-b border-gray-100 font-semibold text-gov-text-primary">
-                                    {headers.needed}
+                                    {/* {headers.needed} */}
+                                    Нидед Терапевт
                                 </th>
                                 <th className="px-4 py-3 text-left border-b border-gray-100 font-semibold text-gov-text-primary">
-                                    {headers.deficit}
+                                    {/* {headers.deficit} */}
+                                    Нидед ВОП
+                                </th>
+                                <th className="px-4 py-3 text-left border-b border-gray-100 font-semibold text-gov-text-primary">
+                                    {/* {headers.deficit} */}
+                                    Нидед Педиатр
                                 </th>
                                 <th className="px-4 py-3 text-left border-b border-gray-100 font-semibold text-gov-text-primary">
                                     Приоритетная оценка
@@ -181,46 +187,50 @@ export default function DeathMoTable({ moData }) {
                                     Приоритетный уровень
                                 </th>
                                 <th className="px-4 py-3 text-left border-b border-gray-100 font-semibold text-gov-text-primary">
-                                    Педиатр
-                                </th>
-                                <th className="px-4 py-3 text-left border-b border-gray-100 font-semibold text-gov-text-primary">
                                     Терапевт
                                 </th>
                                 <th className="px-4 py-3 text-left border-b border-gray-100 font-semibold text-gov-text-primary">
                                     ВОП
+                                </th>
+                                <th className="px-4 py-3 text-left border-b border-gray-100 font-semibold text-gov-text-primary">
+                                    Педиатр
                                 </th>
                             </tr>
                         </thead>
                         <tbody>
                             {data && data.length > 0 ? (
                                 data.map((item, i) => {
-                                    const { needed, deficit } = getStats(item);
+                                    // const { needed, deficit } = getStats(item);
                                     return (
                                         <tr key={i} className="hover:bg-slate-50 transition-colors border-b border-gray-50 last:border-0">
                                             <td className="px-4 py-3 text-left text-gov-text-primary font-medium">
                                                 {item.name}
                                             </td>
                                             <td className="px-4 py-3 text-gray-600">
-                                                {needed}
+                                                {/* {needed} */}
+                                                {item.deficit_therap || '-'}
                                             </td>
-                                            <td className="px-4 py-3 font-semibold text-gray-800">
-                                                {deficit}
+                                            <td className="px-4 py-3 text-gray-800">
+                                                {item.deficit_vop || '-'}
+                                            </td>
+                                            <td className="px-4 py-3 text-gray-800">
+                                                {item.deficit_peds || '-'}
                                             </td>
                                             <td className="px-4 py-3 text-gray-600">
-                                                {item.priority_score}
+                                                {item.priority_score || '-'}
                                             </td>
                                             <td className="px-4 py-3">
-                                                {renderPriorityBadge(item.priority_level)}
+                                                {renderPriorityBadge(item.priority_level) || '-'}
                                             </td>
-                                            <td className="px-4 py-3 text-left text-xs text-gray-500">
-                                                {getStatus(item.pediatrics_match_status)}
-                                            </td>
-                                            <td className="px-4 py-3 text-left text-xs text-gray-500">
-                                                {getStatus(item.therapists_match_status)}
-                                            </td>
-                                            <td className="px-4 py-3 text-left text-xs text-gray-500">
-                                                {getStatus(item.vop_match_status)}
-                                            </td>
+                                            <td className="px-4 py-3 text-gray-600">
+                                                {item.therap_count || '-'}
+                                            </td>  
+                                            <td className="px-4 py-3 text-gray-600">
+                                                {item.vop_count || '-'}
+                                            </td>  
+                                            <td className="px-4 py-3 text-gray-600">
+                                                {item.peds_count || '-'}
+                                            </td>  
                                         </tr>
                                     );
                                 })

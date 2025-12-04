@@ -59,7 +59,7 @@ export default function Header({ setSelectedDistrict, selectedDistrict }) {
   return (
     <>
     <header
-      className={`sticky top-0 z-50 w-full transition-all duration-300 ${
+      className={`pl-4 pr-4 sticky top-0 z-50 w-full transition-all duration-300 ${
         isScrolled
           ? "bg-white shadow-md border-b-2 border-[#c1d3ff]"
           : "bg-white border-b border-[#e8e8e8]"
@@ -96,7 +96,7 @@ export default function Header({ setSelectedDistrict, selectedDistrict }) {
                 <Link
                   key={item.to}
                   to={item.to}
-                  className={`rounded-md px-6 py-1.5 text-xs font-semibold transition-colors ${
+                  className={`rounded-md px-4 py-1.5 text-xs font-semibold transition-colors ${
                     isActive(item.to)
                       ? "bg-[#236FFF] text-white"
                       : "bg-transparent text-gray-700 hover:bg-gray-100"
