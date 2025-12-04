@@ -132,7 +132,6 @@ export const createPopup = (map, feature, lngLat) => {
         />
         <h5 class="font-semibold text-[12px] mb-1 text-gray-800">${feature.properties.name}</h5>
         <p class="text-[10px] text-gray-600 mb-2 text-left pl-5"> <b class="text-black">Адрес:</b> ${feature.properties.address}</p>
-        <p class="text-[10px] text-gray-600 mb-2 text-left pl-5"> <b class="text-black">Адрес:</b> ${feature.properties.id}</p>
       </div>
     `)
     .addTo(map);

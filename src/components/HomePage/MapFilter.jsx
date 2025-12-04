@@ -16,22 +16,10 @@ export default function MapFilter({
   avgPerson
 }) {
   const [filtersHidden, setFiltersHidden] = useState(false);
-  const [openSections, setOpenSections] = useState({
-    risk: true,
-    social: true,
-    building: true,
-  });
 
   const allDistricts = [
-    "Все районы",
-    "Алатауский",
-    "Алмалинский",
-    "Ауэзовский",
-    "Бостандыкский",
-    "Жетысуский",
-    "Медеуский",
-    "Наурызбайский",
-    "Турксибский",
+    "Все районы", "Алатауский", "Алмалинский", "Ауэзовский",
+    "Бостандыкский", "Жетысуский", "Медеуский", "Наурызбайский", "Турксибский",
   ];
 
   useEffect(() => {
@@ -39,14 +27,6 @@ export default function MapFilter({
       setSelectedDistrict(["Все районы"]);
     }
   }, [selectedDistrict, setSelectedDistrict]);
-
-
-  const handleRiskLevelChange = (level) => {
-    setEnginNodes((prev) => ({
-      ...prev,
-      [level]: !prev[level],
-    }));
-  };
 
   const handleDistrictChange = (city) => {
     if (city === "Все районы") {
@@ -56,18 +36,10 @@ export default function MapFilter({
         let updated = prev.includes(city)
           ? prev.filter((c) => c !== city)
           : [...prev.filter((c) => c !== "Все районы"), city];
-
         return updated.length === 0 ? ["Все районы"] : updated;
       });
     }
   };
-
-  const toggleSection = (section) => {
-    setOpenSections((prev) => ({ ...prev, [section]: !prev[section] }));
-  };
-
-  // small text + scrollable div style
-  const sectionStyle = "space-y-1 text-xs max-h-44 overflow-y-auto";
 
   const labelWithArrow = (children) => (
     <span className="flex items-center space-x-1">
@@ -76,24 +48,26 @@ export default function MapFilter({
     </span>
   );
 
-  const formatNumber = (num) => num?.toLocaleString("ru-RU");
-
  return (
-  <>
-    <div className="flex flex-col max-h-[80vh] bg-white/95 backdrop-blur-sm rounded-xl border shadow-lg overflow-hidden">
-      {/* Sticky Header + District Selector */}
-      <div className="sticky top-0 z-20 bg-white/95 backdrop-blur-sm border-b">
-        <div className="flex items-center justify-between px-4 pt-3 pb-2 font-semibold text-base border-b-0">
+  <div className="relative">
+    {/* 
+       ROOT CONTAINER: 
+       - max-h-[95vh]: Limits height to screen size.
+       - flex flex-col: Establishes vertical stacking.
+    */}
+    <div className="flex flex-col w-full bg-white/95 backdrop-blur-sm rounded-xl border shadow-lg overflow-hidden max-h-[calc(100dvh-20px)]">
+      
+      {/* --- 1. GLOBAL HEADER (Fixed) --- */}
+      <div className="flex-none bg-white/95 backdrop-blur-sm border-b z-20">
+        <div className="flex items-center justify-between px-4 pt-3 pb-2 font-semibold text-base">
           <span>Фильтры</span>
-
-          {/* 🔹 Иконка для сворачивания фильтров */}
           <button
             onClick={() => setFiltersHidden(!filtersHidden)}
-            className="text-gray-600 hover:text-gray-900 transition-transform"
+            className="text-gray-600 hover:text-gray-900 transition-transform p-1"
             title={filtersHidden ? "Показать фильтры" : "Скрыть фильтры"}
           >
             <svg
-              className={`w-4 h-4 transform transition-transform duration-300 ${
+              className={`w-5 h-5 transform transition-transform duration-300 ${
                 filtersHidden ? "rotate-180" : ""
               }`}
               fill="none"
@@ -106,7 +80,7 @@ export default function MapFilter({
           </button>
         </div>
 
-        {/* Районы — всегда видимая часть */}
+        {/* District Selector */}
         <div className="px-4 pb-3">
           <div className="relative">
             <div
@@ -126,12 +100,7 @@ export default function MapFilter({
                 stroke="currentColor"
                 viewBox="0 0 24 24"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 9l-7 7-7-7"
-                />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
               </svg>
             </div>
 
@@ -159,27 +128,40 @@ export default function MapFilter({
         </div>
       </div>
 
-      {/* 🔹 Скрываемая часть (с анимацией) */}
+      {/* 
+         --- 2. CONTENT WRAPPER (Collapsible) --- 
+         This wrapper handles the hide/show animation.
+         Inside, it's a Flex Column itself.
+      */}
       <div
-        className={`transition-all duration-500 ease-in-out ${
-          filtersHidden ? "max-h-0 opacity-0 overflow-hidden" : "max-h-[600px] opacity-100 overflow-y-auto"
+        className={`flex flex-col min-h-0 transition-all duration-500 ease-in-out ${
+          filtersHidden ? "max-h-0 opacity-0 overflow-hidden" : "max-h-screen opacity-100"
         }`}
       >
-      <MapFilterIndicators
-        totalCount={totalCount}
-        totalPopulation={totalPopulation}
-        avgVisit={avgVisit}
-        avgPerson={avgPerson}
-        selectedDistrict={selectedDistrict}
-      />
+        
+        {/* A. INDICATORS (FIXED / NON-SCROLLABLE) */}
+        {/* flex-none ensures this div stays its natural height and doesn't shrink/grow */}
+        <div className="flex-none bg-white z-10 shadow-sm relative">
+            <MapFilterIndicators
+                totalCount={totalCount}
+                totalPopulation={totalPopulation}
+                avgVisit={avgVisit}
+                avgPerson={avgPerson}
+                selectedDistrict={selectedDistrict}
+            />
+        </div>
+        
+        {/* B. DETAILED INFO (SCROLLABLE) */}
+        {/* flex-1 ensures this takes all remaining space. overflow-y-auto puts the scrollbar HERE. */}
+        <div className="flex-1 overflow-y-auto">
+            {buildingData?.id && (
+                <DetailedInfo buildingData={buildingData}/>
+            )}
+        </div>
+
+      </div>
       
-      {buildingData?.id && (
-        <DetailedInfo buildingData={buildingData}/>
-      )}
-
     </div>
-    </div>
-  </>
+  </div>
   );
-
 }
