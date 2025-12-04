@@ -1,4 +1,5 @@
 import maplibregl from 'maplibre-gl';
+import { MapPinned } from 'lucide-react';
 
 export const clearFeatureStates = (map, polygonMapping) => {
   if (!map.getSource('policlinic-polygons')) return;
@@ -53,7 +54,7 @@ export const setupPolygonLayers = (map, polygons) => {
           0.1,
         ],
       },
-    });
+    }); 
 
     map.addLayer({
       id: 'policlinic-polygons-outline',
@@ -129,9 +130,9 @@ export const createPopup = (map, feature, lngLat) => {
           class="w-full h-28 object-cover rounded-md mb-2 shadow-sm"
           onerror="this.src='data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 width=%27200%27 height=%27100%27%3E%3Crect fill=%27%23ddd%27 width=%27200%27 height=%27100%27/%3E%3Ctext fill=%27%23999%27 x=%2750%25%27 y=%2750%25%27 text-anchor=%27middle%27 dy=%27.3em%27%3ENo Image%3C/text%3E%3C/svg%3E'"
         />
-        <h3 class="font-semibold text-sm mb-1 text-gray-800">${feature.properties.name}</h3>
-        <p class="text-xs text-gray-600 mb-2">${feature.properties.address}</p>
-        <p class="text-xs text-blue-600 font-medium">📍 Нажмите для подробностей</p>
+        <h5 class="font-semibold text-[12px] mb-1 text-gray-800">${feature.properties.name}</h5>
+        <p class="text-[10px] text-gray-600 mb-2 text-left pl-5"> <b class="text-black">Адрес:</b> ${feature.properties.address}</p>
+        <p class="text-[10px] text-gray-600 mb-2 text-left pl-5"> <b class="text-black">Адрес:</b> ${feature.properties.id}</p>
       </div>
     `)
     .addTo(map);

@@ -41,13 +41,23 @@ export const useHealthcareData = () => {
     setIsLoading(true);
     setError(null);
 
-    const districtFilter = selectedDistrict !== 'Все районы'
-      ? `districts=${selectedDistrict}&`
-      : '';
+    // const districtFilter = selectedDistrict !== 'Все районы'
+    //   ? `districts=${selectedDistrict}&`
+    //   : '';
+    const validDistricts = Array.isArray(selectedDistrict)
+      ? selectedDistrict.filter((d) => d !== "Все районы")
+      : [];
+
+    const districtQuery =
+      validDistricts.length > 0
+        ? `districts=${encodeURIComponent(validDistricts.join(","))}&`
+        : "";
+
+
 
     try {
       const response = await fetch(
-        `${API_BASE_URL}?${districtFilter}limit=1000`
+        `${API_BASE_URL}?${districtQuery}limit=1000`
       );
 
       if (!response.ok) {
@@ -71,6 +81,8 @@ export const useHealthcareData = () => {
           totalPopulation: data.total_population,
           avgVisit: data.avg_overall_coverage_ratio,
           avgPerson: data.avg_per_1_person,
+          vopNeeded: data.vop_needed,
+          vopCount: data.vop_count,
         },
       };
     } catch (err) {
@@ -129,7 +141,7 @@ const processHealthcareData = (data) => {
           id: item.id,
           name: item.name,
           address: item.full_address,
-          color: ['#DCDCDC'],
+          color: ['#DCDCDC'], 
           original_color: ['#DCDCDC'],
         },
       });

@@ -2,9 +2,9 @@
 
 import { useEffect, useRef } from 'react';
 import { useMapInitialization } from '../../hooks/useMapInitialization';
-import { useHealthcareData } from '../../hooks/useHealthcareData';
+import { useRecomendationsData } from '../../hooks/useRecomendationsData';
 import { MapControls } from '../comps/MapControls';
-import { MapLegend } from '../comps/MapLegend';
+import { MapLegend } from './MapLegend';
 import { LoadingOverlay } from '../comps/LoadingOverlay';
 import {
   clearFeatureStates,
@@ -15,8 +15,8 @@ import {
 } from '../../utils/mapLayers';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
-export default function MapView({
-  setBuildingData,
+export default function MapViewRecomendations({
+  setMoData,
   setShowDetailCard,
   showDetailCard,
   selectedDistrict,
@@ -27,7 +27,7 @@ export default function MapView({
 }) {
   const mapContainer = useRef(null);
   const { mapRef, isLoading: mapLoading, zoomIn, zoomOut, resetView } = useMapInitialization(mapContainer);
-  const { fetchHealthcareData, isLoading: dataLoading } = useHealthcareData();
+  const { fetchHealthcareData, isLoading: dataLoading } = useRecomendationsData();
 
   const selectedMarkerRef = useRef(null); // Track current selected marker
   const polygonMappingRef = useRef({});
@@ -94,7 +94,7 @@ export default function MapView({
             // Update ref
             selectedMarkerRef.current = newMarkerId;
 
-            setBuildingData(feature.properties);
+            setMoData(feature.properties);
             setShowDetailCard(true);
 
             // Fly to location
@@ -114,7 +114,7 @@ export default function MapView({
             map.getCanvas().style.cursor = '';
           };
 
-          // Remove existing listeners 
+          // Remove existing listeners
           map.off('click', 'policlinic-points-circle', handlePointClick);
           map.off('mouseenter', 'policlinic-points-circle', handleMouseEnter);
           map.off('mouseleave', 'policlinic-points-circle', handleMouseLeave);
@@ -136,7 +136,7 @@ export default function MapView({
     };
 
     fetchAndRender();
-  }, [selectedDistrict, fetchHealthcareData, setBuildingData, setShowDetailCard, setTotalCount, setTotalPopulation, setAvgVisit, setAvgPerson, mapRef]);
+  }, [selectedDistrict, fetchHealthcareData, setMoData, setShowDetailCard, setTotalCount, setTotalPopulation, setAvgVisit, setAvgPerson, mapRef]);
 
   return (
     <div className="relative w-full h-full">

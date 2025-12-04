@@ -1,6 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
+import { Filter, ChevronUp, ChevronDown } from "lucide-react";
 
 export default function InfraTable({ selectedDistrict, selectedDecade }) {
   const [merged, setMerged] = useState([])
@@ -201,11 +202,12 @@ export default function InfraTable({ selectedDistrict, selectedDecade }) {
 
   const SortIcon = ({ columnKey }) => {
     if (sortConfig.key !== columnKey) {
-      return <span className="ml-1 text-white/50">⇅</span>
+      // return <span className="ml-1 text-white/50"><ChevronUp className="w-4 h-4"/><ChevronDown className="w-4 h-4"/></span>
+      return <span className="ml-1 text-white/50"><ChevronUp className="w-4 h-4"/></span>
     }
     return (
       <span className="ml-1">
-        {sortConfig.direction === 'asc' ? '↑' : '↓'}
+        {sortConfig.direction === 'asc' ? <ChevronUp className="w-4 h-4"/> : <ChevronDown className="w-4 h-4"/>}
       </span>
     )
   }
@@ -309,7 +311,7 @@ export default function InfraTable({ selectedDistrict, selectedDecade }) {
                   <SortIcon columnKey="totalArea" />
                 </div>
               </th>
-              <th
+              <th 
                 className="px-4 py-3 text-center text-white font-semibold border-r border-blue-500 cursor-pointer hover:bg-blue-700 transition-colors"
                 onClick={() => handleSort('visit')}
               >
@@ -325,7 +327,7 @@ export default function InfraTable({ selectedDistrict, selectedDecade }) {
                     onClick={() => setShowUsedPartFilter(!showUsedPartFilter)}
                     className="ml-2 hover:bg-white/20 rounded px-2 py-1 transition-colors"
                   >
-                    🔽
+                    <Filter className="w-4 h-4 text-white"/>
                   </button>
                 </div>
                 {showUsedPartFilter && (
@@ -353,7 +355,7 @@ export default function InfraTable({ selectedDistrict, selectedDecade }) {
                     onClick={() => setShowOwnershipFilter(!showOwnershipFilter)}
                     className="ml-2 hover:bg-white/20 rounded px-2 py-1 transition-colors"
                   >
-                    🔽
+                    <Filter className="w-4 h-4 text-white"/>
                   </button>
                 </div>
                 {showOwnershipFilter && (

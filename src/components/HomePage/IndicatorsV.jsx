@@ -19,7 +19,6 @@ export default function Indicators({ totalCount, totalPopulation, avgVisit, avgP
     return fin;
   }
 
-  console.log(selectedDistrict)
 
     useEffect(() => {
         async function fetchData() {

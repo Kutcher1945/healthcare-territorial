@@ -128,7 +128,7 @@ export default function DetailCard({ buildingData, showDetailCard, setShowDetail
           })
       }, 100)
     }
-  }
+  } 
 
     const formatNumber = (num) => {
       if (isNaN(num)) return "";

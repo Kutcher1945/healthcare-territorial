@@ -2,16 +2,17 @@
 
 import { useState } from "react"
 import Map from "../components/HomePage/MapV"
-import DetailCard from "../components/HomePage/DetailCardV"
-import Indicators from "../components/HomePage/IndicatorsV"
+import MapFilter from "../components/HomePage/MapFilter"
 
-export default function HomePage({ selectedDistrict }) {
+export default function HomePage() {
   const [buildingData, setBuildingData] = useState([])
   const [showDetailCard, setShowDetailCard] = useState(true)
   const [totalCount, setTotalCount] = useState(0)
   const [totalPopulation, setTotalPopulation] = useState(0)
   const [avgVisit, setAvgVisit] = useState(0)
   const [avgPerson, setAvgPerson] = useState(0)
+  const [selectedDistrict, setSelectedDistrict] = useState(["Все районы"])
+  const [districtDropdownOpen, setDistrictDropdownOpen] = useState(false)
 
   // Handle click outside sidebar to close (mobile only)
   const handleBackdropClick = () => {
@@ -23,7 +24,7 @@ export default function HomePage({ selectedDistrict }) {
   return (
     <div className="relative h-full w-full overflow-hidden">
       {/* Indicators - Bottom right, stacked above legend on both mobile and desktop */}
-      <div className="absolute bottom-[280px] right-3 md:right-4 z-40">
+      {/* <div className="absolute bottom-[280px] right-3 md:right-4 z-40">
         <Indicators
           totalCount={totalCount}
           totalPopulation={totalPopulation}
@@ -31,7 +32,7 @@ export default function HomePage({ selectedDistrict }) {
           avgPerson={avgPerson}
           selectedDistrict={selectedDistrict}
         />
-      </div>
+      </div> */}
 
       {/* Backdrop overlay - click to close (mobile only) */}
       {showDetailCard && buildingData?.id && (
@@ -42,7 +43,7 @@ export default function HomePage({ selectedDistrict }) {
       )}
 
       {/* Detail Card - Desktop: always visible, Mobile: drawer style */}
-      <div
+      {/* <div
         className={`absolute left-0 top-0 z-30 h-full transition-transform duration-300 ease-in-out ${
           showDetailCard || !buildingData?.id ? 'translate-x-0' : 'md:translate-x-0 -translate-x-full'
         }`}
@@ -56,7 +57,6 @@ export default function HomePage({ selectedDistrict }) {
             />
           </div>
 
-          {/* Arrow toggle button - mobile only */}
           {buildingData?.id && (
             <button
               onClick={() => setShowDetailCard(!showDetailCard)}
@@ -81,7 +81,7 @@ export default function HomePage({ selectedDistrict }) {
             </button>
           )}
         </div>
-      </div>
+      </div> */}
 
       {/* Map - Full screen */}
       <div className="h-full w-full">
@@ -94,6 +94,22 @@ export default function HomePage({ selectedDistrict }) {
           setTotalPopulation={setTotalPopulation}
           setAvgVisit={setAvgVisit}
           setAvgPerson={setAvgPerson}
+        />
+      </div>
+
+      <div className="absolute top-[40px] left-4 z-20 w-80">
+        <MapFilter
+          // enginNodes={enginNodes} 
+          // setEnginNodes={setEnginNodes}
+          selectedDistrict={selectedDistrict}
+          setSelectedDistrict={setSelectedDistrict}
+          districtDropdownOpen={districtDropdownOpen}
+          setDistrictDropdownOpen={setDistrictDropdownOpen}
+          buildingData={buildingData}
+          totalCount={totalCount}
+          totalPopulation={totalPopulation}
+          avgVisit={avgVisit}
+          avgPerson={avgPerson}
         />
       </div>
     </div>
