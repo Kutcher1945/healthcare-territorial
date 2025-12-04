@@ -4,7 +4,6 @@ import DeathMoTable from "../components/RecomendationsPage/DeathMoTable.jsx"
 import MapViewRecomendations from "../components/RecomendationsPage/MapViewRecomendations"
 
 export default function RecomendationPage() {
-  // Change initial state to null
   const [moData, setMoData] = useState(null)
   
   const [showDetailCard, setShowDetailCard] = useState(true)
@@ -15,24 +14,26 @@ export default function RecomendationPage() {
   const [selectedDistrict, setSelectedDistrict] = useState(["Все районы"])
   
   return (
-    <div className="w-full h-screen bg-gradient-to-br from-[#f5f6fa] to-[#eaebee] flex flex-col">
-      <div className="px-4 sm:px-6 pt-2 flex flex-col sm:flex-row justify-between gap-3 items-start sm:items-center relative z-20">
-        <div className="grid grid-cols-2 gap-8">
-          <div className="h-screen rounded-lg overflow-hidden shadow-lg">
-            <MapViewRecomendations
-              setMoData={setMoData}
-              setShowDetailCard={setShowDetailCard}
-              showDetailCard={showDetailCard}
-              selectedDistrict={selectedDistrict}
-              setTotalCount={setTotalCount}
-              setTotalPopulation={setTotalPopulation}
-              setAvgVisit={setAvgVisit}
-              setAvgPerson={setAvgPerson}
-            />
-          </div>
-          <div className="rounded-lg overflow-hidden shadow-lg">
-            <DeathMoTable moData={moData}/>
-          </div>
+
+    <div className="w-full min-h-screen bg-gradient-to-br from-[#f5f6fa] to-[#eaebee] flex flex-col p-4 sm:p-6">
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+        
+        <div className="w-full h-[500px] lg:h-[85vh] rounded-xl overflow-hidden shadow-lg sticky top-4">
+          <MapViewRecomendations
+            setMoData={setMoData}
+            setShowDetailCard={setShowDetailCard}
+            showDetailCard={showDetailCard}
+            selectedDistrict={selectedDistrict}
+            setTotalCount={setTotalCount}
+            setTotalPopulation={setTotalPopulation}
+            setAvgVisit={setAvgVisit}
+            setAvgPerson={setAvgPerson}
+          />
+        </div>
+
+        <div className="w-full h-fit max-h-[500px] lg:max-h-[85vh] rounded-xl shadow-lg flex flex-col">
+          <DeathMoTable moData={moData}/>
         </div>
       </div>
     </div>
