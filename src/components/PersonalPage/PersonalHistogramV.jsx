@@ -2,7 +2,6 @@
 
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LabelList } from "recharts"
 import { useState, useEffect } from "react"
-import "../../App.css"
 
 export default function PersonalHistogram({ selectedDistrict }) {
   const [histoData, setHistoData] = useState([])
@@ -13,63 +12,67 @@ export default function PersonalHistogram({ selectedDistrict }) {
       try {
         const response = await fetch("https://admin.smartalmaty.kz/api/v1/healthcare/org-capacity/count_by_district/")
         const data_json = await response.json()
-        const data = data_json.results
-        setAllData(data)
+        setAllData(data_json.results)
+        
+        // Initial set if no district selected
+        if(!selectedDistrict) {
+            setHistoData(data_json.results)
+        }
       } catch (error) {
         console.error("Failed to fetch histo data", error)
       }
     }
     fetchData()
-  }, [])
+  }, []) // Empty dependency to load once
 
+  // Filter effect
   useEffect(() => {
     if (allData.length === 0) return
-
     const filteredData = selectedDistrict
       ? allData.filter(item => item.district === selectedDistrict)
       : allData
-
     setHistoData(filteredData)
   }, [allData, selectedDistrict])
 
   const formatMillions = (value) => {
     if (!value && value !== 0) return ""
-    // Convert to millions, round to 2 decimals
     const inMillions = value / 1_000_000
     return `${inMillions.toFixed(2)} млн`
   }
 
   return (
+    // w-full h-full fills the 'absolute inset-0' parent from PersonalPage
     <div className="w-full h-full">
-      <ResponsiveContainer width="100%" height={375}>
-        <BarChart data={histoData} margin={{ top: 20, right: 0, left: 0, bottom: 0 }}>
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart data={histoData} margin={{ top: 20, right: 10, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
           <XAxis 
             dataKey="district" 
-            // tick={<CustomTick />} 
             axisLine={false} 
             tickLine={false} 
-            height={80} 
+            height={60} 
             interval={0} 
-            tick={{ fontSize: 12, fill: "#666", angle: -35, textAnchor: "end" }}
+            tick={{ fontSize: 10, fill: "#666", angle: -35, textAnchor: "end" }}
           />
-          <YAxis yAxisId="left" orientation="left" stroke="#64748b" />
+          <YAxis yAxisId="left" orientation="left" stroke="#64748b" tick={{ fontSize: 11 }} />
           <YAxis
             yAxisId="right"
             orientation="right"
             tickFormatter={(v) => formatMillions(v)}
             domain={[0, 0.5]}
             stroke="#64748b"
+            tick={{ fontSize: 11 }}
           />
           <Tooltip
             contentStyle={{
               backgroundColor: "white",
               border: "1px solid #e2e8f0",
-              borderRadius: "12px",
-              boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
+              borderRadius: "8px",
+              fontSize: "12px",
+              padding: "8px"
             }}
           />
-          <Legend />
+          <Legend wrapperStyle={{ fontSize: "12px" }} />
 
           <Bar yAxisId="left" dataKey="peds_count" stackId="a" fill="url(#lightBlueGradient)" radius={[2, 2, 0, 0]} name="Педиатров">
             <LabelList dataKey="peds_count" position="center" fill="white" fontSize={10} fontWeight="600" />

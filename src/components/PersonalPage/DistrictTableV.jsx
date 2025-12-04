@@ -126,11 +126,11 @@ export default function DistrictTable({ selectedDistrict, onDistrictSelect }) {
     <div className="h-full flex flex-col bg-white">
       <div className="flex-1 overflow-y-auto">
         <table className="w-full border-collapse">
-          <thead className="sticky top-0 bg-gradient-to-r from-[#3772ff] to-[#2956bf]">
+          <thead className="sticky top-0 bg-white">
             <tr>
-              <th className="px-4 py-3 text-left text-white font-semibold border-r border-blue-500">Район</th>
+              <th className="px-4 py-3 text-left font-semibold">Район</th>
               <th
-                className="px-4 py-3 text-center text-white font-semibold border-r border-blue-500 cursor-pointer hover:bg-blue-700 transition-colors"
+                className="px-4 py-3 text-center font-semibold cursor-pointer transition-colors"
                 onClick={() => handleSort('clinic_count')}
               >
                 <div className="flex items-center justify-center">
@@ -139,7 +139,7 @@ export default function DistrictTable({ selectedDistrict, onDistrictSelect }) {
                 </div>
               </th>
               <th
-                className="px-4 py-3 text-center text-white font-semibold border-r border-blue-500 cursor-pointer hover:bg-blue-700 transition-colors"
+                className="px-4 py-3 text-center font-semibold cursor-pointer transition-colors"
                 onClick={() => handleSort('population')}
               >
                 <div className="flex items-center justify-center">
@@ -148,7 +148,7 @@ export default function DistrictTable({ selectedDistrict, onDistrictSelect }) {
                 </div>
               </th>
               <th
-                className="px-4 py-3 text-center text-white font-semibold border-r border-blue-500 cursor-pointer hover:bg-blue-700 transition-colors"
+                className="px-4 py-3 text-center font-semibold cursor-pointer transition-colors"
                 onClick={() => handleSort('visits')}
               >
                 <div className="flex items-center justify-center">
@@ -157,7 +157,7 @@ export default function DistrictTable({ selectedDistrict, onDistrictSelect }) {
                 </div>
               </th>
               <th
-                className="px-4 py-3 text-center text-white font-semibold border-r border-blue-500 cursor-pointer hover:bg-blue-700 transition-colors"
+                className="px-4 py-3 text-center font-semibold cursor-pointer transition-colors"
                 onClick={() => handleSort('per_person')}
               >
                 <div className="flex items-center justify-center">
@@ -166,7 +166,7 @@ export default function DistrictTable({ selectedDistrict, onDistrictSelect }) {
                 </div>
               </th>
               <th
-                className="px-4 py-3 text-center text-white font-semibold cursor-pointer hover:bg-blue-700 transition-colors"
+                className="px-4 py-3 text-center font-semibold cursor-pointer transition-colors"
                 onClick={() => handleSort('deficit')}
               >
                 <div className="flex items-center justify-center">

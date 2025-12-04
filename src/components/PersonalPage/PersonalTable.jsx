@@ -77,7 +77,7 @@ export default function PersonalTable({ selectedDistrict, searchTerm, setSearchT
 
   const SortIcon = ({ columnKey }) => {
     if (sortConfig.key !== columnKey) {
-      return <span className="ml-1 text-white/50">⇅</span>
+      return <span className="ml-1">⇅</span>
     }
     return (
       <span className="ml-1">
@@ -119,14 +119,14 @@ export default function PersonalTable({ selectedDistrict, searchTerm, setSearchT
   return (
     <div className="h-full flex flex-col bg-white">
       {/* Search Bar */}
-      <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
+      <div className="p-4 border-b border-gray-200">
         <div className="relative">
           <input
             type="text"
             placeholder="Поиск по названию поликлиники..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full px-4 py-2 pl-10 border-2 border-blue-300 rounded-lg focus:outline-none focus:border-blue-500 text-sm"
+            className="w-full px-4 py-2 pl-10 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-sm"
           />
           <svg
             className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"
@@ -159,11 +159,11 @@ export default function PersonalTable({ selectedDistrict, searchTerm, setSearchT
 
       <div className="flex-1 overflow-y-auto">
         <table className="w-full border-collapse">
-          <thead className="sticky top-0 bg-gradient-to-r from-[#3772ff] to-[#2956bf]">
+          <thead className="sticky top-0">
             <tr>
-              <th className="px-4 py-3 text-left text-white font-semibold border-r border-blue-500">Название поликлиники</th>
+              <th className="px-4 py-3 text-left font-semibold bg-white">Название поликлиники</th>
               <th
-                className="px-4 py-3 text-center text-white font-semibold border-r border-blue-500 cursor-pointer hover:bg-blue-700 transition-colors"
+                className="px-4 py-3 text-center font-semibold bg-white cursor-pointer transition-colors"
                 onClick={() => handleSort('pediatric_service_workload_per_pediatrician')}
               >
                 <div className="flex items-center justify-center">
@@ -172,7 +172,7 @@ export default function PersonalTable({ selectedDistrict, searchTerm, setSearchT
                 </div>
               </th>
               <th
-                className="px-4 py-3 text-center text-white font-semibold border-r border-blue-500 cursor-pointer hover:bg-blue-700 transition-colors"
+                className="px-4 py-3 text-center font-semibold bg-white cursor-pointer transition-colors"
                 onClick={() => handleSort('therapeutic_service_workload_per_therapist')}
               >
                 <div className="flex items-center justify-center">
@@ -181,7 +181,7 @@ export default function PersonalTable({ selectedDistrict, searchTerm, setSearchT
                 </div>
               </th>
               <th
-                className="px-4 py-3 text-center text-white font-semibold border-r border-blue-500 cursor-pointer hover:bg-blue-700 transition-colors"
+                className="px-4 py-3 text-center font-semibold bg-white cursor-pointer transition-colors"
                 onClick={() => handleSort('gp_service_workload_per_gp')}
               >
                 <div className="flex items-center justify-center">
@@ -190,7 +190,7 @@ export default function PersonalTable({ selectedDistrict, searchTerm, setSearchT
                 </div>
               </th>
               <th
-                className="px-4 py-3 text-center text-white font-semibold border-r border-blue-500 cursor-pointer hover:bg-blue-700 transition-colors"
+                className="px-4 py-3 text-center font-semibold bg-white cursor-pointer transition-colors"
                 onClick={() => handleSort('vop_needed')}
               >
                 <div className="flex items-center justify-center">

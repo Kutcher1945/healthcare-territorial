@@ -135,14 +135,14 @@ export default function PersonalTablePatient({ selectedDistrict, searchTerm, set
   return (
     <div className="h-full flex flex-col bg-white">
       {/* Search Bar */}
-      <div className="p-4 border-b border-gray-200 bg-gradient-to-r from-blue-50 to-indigo-50">
+      <div className="p-4 border-b border-gray-200">
         <div className="relative">
           <input
             type="text"
             placeholder="Поиск по названию поликлиники..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full px-4 py-2 pl-10 border-2 border-blue-300 rounded-lg focus:outline-none focus:border-blue-500 text-sm"
+            className="w-full px-4 py-2 pl-10 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-sm"
           />
           <svg
             className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"
@@ -175,11 +175,11 @@ export default function PersonalTablePatient({ selectedDistrict, searchTerm, set
 
       <div className="flex-1 overflow-y-auto">
         <table className="w-full border-collapse">
-          <thead className="sticky top-0 bg-gradient-to-r from-[#3772ff] to-[#2956bf]">
+          <thead className="sticky top-0 bg-white">
             <tr>
-              <th className="px-4 py-3 text-left text-white font-semibold border-r border-blue-500">Название поликлиники</th>
+              <th className="px-4 py-3 text-left font-semibold">Название поликлиники</th>
               <th
-                className="px-4 py-3 text-center text-white font-semibold border-r border-blue-500 cursor-pointer hover:bg-blue-700 transition-colors"
+                className="px-4 py-3 text-center font-semibold cursor-pointer transition-colors"
                 onClick={() => handleSort('pediatric_service_nurse_to_doctor_ratio')}
               >
                 <div className="flex items-center justify-center">
@@ -188,7 +188,7 @@ export default function PersonalTablePatient({ selectedDistrict, searchTerm, set
                 </div>
               </th>
               <th
-                className="px-4 py-3 text-center text-white font-semibold border-r border-blue-500 cursor-pointer hover:bg-blue-700 transition-colors"
+                className="px-4 py-3 text-center font-semibold cursor-pointer transition-colors"
                 onClick={() => handleSort('therapeutic_service_nurse_to_doctor_ratio')}
               >
                 <div className="flex items-center justify-center">
@@ -197,7 +197,7 @@ export default function PersonalTablePatient({ selectedDistrict, searchTerm, set
                 </div>
               </th>
               <th
-                className="px-4 py-3 text-center text-white font-semibold border-r border-blue-500 cursor-pointer hover:bg-blue-700 transition-colors"
+                className="px-4 py-3 text-center font-semibold cursor-pointer transition-colors"
                 onClick={() => handleSort('gp_service_nurse_to_doctor_ratio')}
               >
                 <div className="flex items-center justify-center">
