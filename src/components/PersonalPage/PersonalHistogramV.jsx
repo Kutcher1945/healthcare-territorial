@@ -1,6 +1,7 @@
 "use client"
 
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LabelList } from "recharts"
+// 1. Add ComposedChart and Line to imports
+import { ComposedChart, Line, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LabelList } from "recharts"
 import { useState, useEffect } from "react"
 
 export default function PersonalHistogram({ selectedDistrict }) {
@@ -14,7 +15,6 @@ export default function PersonalHistogram({ selectedDistrict }) {
         const data_json = await response.json()
         setAllData(data_json.results)
         
-        // Initial set if no district selected
         if(!selectedDistrict) {
             setHistoData(data_json.results)
         }
@@ -23,9 +23,8 @@ export default function PersonalHistogram({ selectedDistrict }) {
       }
     }
     fetchData()
-  }, []) // Empty dependency to load once
+  }, [])
 
-  // Filter effect
   useEffect(() => {
     if (allData.length === 0) return
     const filteredData = selectedDistrict
@@ -36,16 +35,18 @@ export default function PersonalHistogram({ selectedDistrict }) {
 
   const formatMillions = (value) => {
     if (!value && value !== 0) return ""
+    // Assuming value is raw number (e.g. 250000), this converts to 0.25
     const inMillions = value / 1_000_000
     return `${inMillions.toFixed(2)} млн`
   }
 
   return (
-    // w-full h-full fills the 'absolute inset-0' parent from PersonalPage
     <div className="w-full h-full">
       <ResponsiveContainer width="100%" height="100%">
-        <BarChart data={histoData} margin={{ top: 20, right: 10, left: 0, bottom: 0 }}>
+        {/* 2. Change BarChart to ComposedChart */}
+        <ComposedChart data={histoData} margin={{ top: 20, right: 10, left: 0, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+          
           <XAxis 
             dataKey="district" 
             axisLine={false} 
@@ -54,15 +55,25 @@ export default function PersonalHistogram({ selectedDistrict }) {
             interval={0} 
             tick={{ fontSize: 10, fill: "#666", angle: -35, textAnchor: "end" }}
           />
-          <YAxis yAxisId="left" orientation="left" stroke="#64748b" tick={{ fontSize: 11 }} />
+
+          {/* Left Axis: For the Bars (Doctor Counts) */}
+          <YAxis 
+            yAxisId="left" 
+            orientation="left" 
+            stroke="#64748b" 
+            tick={{ fontSize: 11 }} 
+          />
+
+          {/* Right Axis: For the Line (Population) */}
+          {/* I removed the domain={[0, 0.5]} so it auto-scales to the actual population size */}
           <YAxis
             yAxisId="right"
             orientation="right"
             tickFormatter={(v) => formatMillions(v)}
-            domain={[0, 0.5]}
-            stroke="#64748b"
-            tick={{ fontSize: 11 }}
+            stroke="#ff0000" // Colored red to match the line
+            tick={{ fontSize: 11, fill: "#ff0000" }}
           />
+
           <Tooltip
             contentStyle={{
               backgroundColor: "white",
@@ -74,6 +85,7 @@ export default function PersonalHistogram({ selectedDistrict }) {
           />
           <Legend wrapperStyle={{ fontSize: "12px" }} />
 
+          {/* Bars linked to Left Axis */}
           <Bar yAxisId="left" dataKey="peds_count" stackId="a" fill="url(#lightBlueGradient)" radius={[2, 2, 0, 0]} name="Педиатров">
             <LabelList dataKey="peds_count" position="center" fill="white" fontSize={10} fontWeight="600" />
           </Bar>
@@ -83,6 +95,17 @@ export default function PersonalHistogram({ selectedDistrict }) {
           <Bar yAxisId="left" dataKey="therap_count" stackId="a" fill="url(#darkBlueGradient)" radius={[2, 2, 0, 0]} name="Терапевтов">
             <LabelList dataKey="therap_count" position="center" fill="white" fontSize={10} fontWeight="600" />
           </Bar>
+
+          {/* 3. New Line linked to Right Axis */}
+          <Line 
+            yAxisId="right" 
+            type="monotone" 
+            dataKey="total_population" 
+            stroke="#ff0000" 
+            strokeWidth={3}
+            dot={{ r: 4, fill: "#ff0000" }}
+            name="Население"
+          />
 
           <defs>
             <linearGradient id="lightBlueGradient" x1="0" y1="0" x2="0" y2="1">
@@ -98,7 +121,7 @@ export default function PersonalHistogram({ selectedDistrict }) {
               <stop offset="100%" stopColor="#1d3d8f" />
             </linearGradient>
           </defs>
-        </BarChart>
+        </ComposedChart>
       </ResponsiveContainer>
     </div>
   )
