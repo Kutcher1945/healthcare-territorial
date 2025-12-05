@@ -1,10 +1,14 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+// 1. Import Icons from lucide-react
+import { ChevronUp, ChevronDown } from "lucide-react"; 
 
 export default function DeathMoTable({ moData }) {
     const [data, setData] = useState([])
     const [priorityFilter, setPriorityFilter] = useState("all") 
+
+    const [sortConfig, setSortConfig] = useState({ key: null, direction: null })
 
     useEffect(() => {
         async function fetchData() {
@@ -43,6 +47,55 @@ export default function DeathMoTable({ moData }) {
 
         fetchData();
     }, [moData, priorityFilter]) 
+
+    const sortedData = useMemo(() => {
+        let sortableItems = [...data];
+        if (sortConfig.key !== null) {
+            sortableItems.sort((a, b) => {
+                let aVal = a[sortConfig.key];
+                let bVal = b[sortConfig.key];
+
+                // Convert to numbers for priority_score
+                if (sortConfig.key === 'priority_score') {
+                    // Handle cases where data might be null or '-'
+                    aVal = (aVal === null || aVal === undefined || aVal === '-') ? -1 : Number(aVal);
+                    bVal = (bVal === null || bVal === undefined || bVal === '-') ? -1 : Number(bVal);
+                }
+
+                if (aVal < bVal) {
+                    return sortConfig.direction === 'asc' ? -1 : 1;
+                }
+                if (aVal > bVal) {
+                    return sortConfig.direction === 'asc' ? 1 : -1;
+                }
+                return 0;
+            });
+        }
+        return sortableItems;
+    }, [data, sortConfig]);
+
+    const handleSort = (key) => {
+        if (sortConfig.key === key) {
+            if (sortConfig.direction === 'asc') {
+                setSortConfig({ key, direction: 'desc' });
+            } else if (sortConfig.direction === 'desc') {
+                setSortConfig({ key: null, direction: null }); // Reset to default
+            }
+        } else {
+            setSortConfig({ key, direction: 'asc' });
+        }
+    };
+
+    const SortIcon = ({ columnKey }) => {
+        if (sortConfig.key !== columnKey) {
+            return <span className="ml-1"><ChevronUp className="w-4 h-4"/></span>
+        }
+        return (
+            <span className="ml-1">
+                {sortConfig.direction === 'asc' ? <ChevronUp className="w-4 h-4"/> : <ChevronDown className="w-4 h-4"/>}
+            </span>
+        )
+    }
 
     const renderPriorityBadge = (level) => {
         let styles = "";
@@ -122,9 +175,18 @@ export default function DeathMoTable({ moData }) {
                             <th className="px-4 py-3 text-left border-b border-gray-100 font-semibold text-gov-text-primary">
                                 Нужно Педиатр
                             </th>
-                            <th className="px-4 py-3 text-left border-b border-gray-100 font-semibold text-gov-text-primary">
-                                Приоритетная оценка
+                            
+                            {/* 6. Updated Header for Priority Score */}
+                            <th 
+                                className="px-4 py-3 text-left border-b border-gray-100 font-semibold text-gov-text-primary cursor-pointer transition-colors hover:bg-gray-100"
+                                onClick={() => handleSort('priority_score')}
+                            >
+                                <div className="flex items-center">
+                                    Приоритетная оценка
+                                    <SortIcon columnKey="priority_score" />
+                                </div>
                             </th>
+
                             <th className="px-4 py-3 text-left border-b border-gray-100 font-semibold text-gov-text-primary">
                                 Приоритетный уровень
                             </th>
@@ -140,8 +202,9 @@ export default function DeathMoTable({ moData }) {
                         </tr>
                     </thead>
                     <tbody>
-                        {data && data.length > 0 ? (
-                            data.map((item, i) => (
+                        {/* 7. Map over sortedData instead of data */}
+                        {sortedData && sortedData.length > 0 ? (
+                            sortedData.map((item, i) => (
                                 <tr key={i} className="hover:bg-slate-50 transition-colors border-b border-gray-50 last:border-0">
                                     <td className="px-4 py-3 text-left text-gov-text-primary font-medium">
                                         {item.name}
