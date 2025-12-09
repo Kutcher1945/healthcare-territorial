@@ -19,7 +19,7 @@ export const MapLegend = () => {
 
   return (
     // <div className="absolute bottom-4 left-4 md:bottom-6 md:left-auto md:right-4 z-20 bg-white/95 backdrop-blur-md p-2.5 md:p-3 rounded-lg shadow-lg md:max-w-none">
-    <div className="absolute bottom-10 left-0 p-3 rounded-lg border bg-white/50 backdrop-blur-md">
+    <div className="absolute bottom-0 left-0 p-3 rounded-lg border bg-white/50 backdrop-blur-md">
       <div className="font-bold text-[#1b1b1b] mb-2 md:mb-2.5 text-xs md:text-sm">
         Легенда по загруженности
       </div>

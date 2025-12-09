@@ -16,7 +16,7 @@ export const MapLegend = () => {
       range: '(>1.00)',
     },
   ];
-
+ 
   return (
     // <div className="absolute bottom-4 left-4 md:bottom-6 md:left-auto md:right-4 z-20 bg-white/95 backdrop-blur-md p-2.5 md:p-3 rounded-lg shadow-lg md:max-w-none">
     <div className="absolute bottom-0 right-0 p-3 rounded-lg border bg-white/50 backdrop-blur-md">
