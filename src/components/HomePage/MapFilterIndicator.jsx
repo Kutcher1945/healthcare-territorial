@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 
 export default function MapFilterIndicators({ totalCount, totalPopulation, avgVisit, avgPerson, selectedDistrict }) {
-  const [vopData, setVopData] = useState([]);
+  // const [vopData, setVopData] = useState([]);
 
   const formatPopulation = (value) => {
     if (value >= 1_000_000) return `${(value / 1_000_000).toFixed(2)} млн`;
@@ -11,11 +11,11 @@ export default function MapFilterIndicators({ totalCount, totalPopulation, avgVi
 
   const formatAvgPerson = (value) => Math.ceil(value * 100) / 100;
 
-  const calcDeficitVop = (data) => {
-    const sum = (data.peds_count * 800) + (data.vop_count * 1700) + (data.therap_count * 2200);
-    const diff = data.total_population - sum;
-    return Math.ceil(diff / 1700);
-  };
+  // const calcDeficitVop = (data) => {
+  //   const sum = (data.peds_count * 800) + (data.vop_count * 1700) + (data.therap_count * 2200);
+  //   const diff = data.total_population - sum;
+  //   return Math.ceil(diff / 1700);
+  // };
 
   useEffect(() => {
     async function fetchData() {
@@ -25,7 +25,7 @@ export default function MapFilterIndicators({ totalCount, totalPopulation, avgVi
           `https://admin.smartalmaty.kz/api/v1/healthcare/org-capacity/count_by_district/?${filter}`
         );
         const data = await response.json();
-        setVopData(data.totals);
+        // setVopData(data.totals);
       } catch (err) {
         console.error("Failed to fetch deficit data", err);
       }

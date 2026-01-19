@@ -23,7 +23,7 @@ export default function PersonalHistogram({ selectedDistrict }) {
       }
     }
     fetchData()
-  }, [])
+  })
 
   useEffect(() => {
     if (allData.length === 0) return

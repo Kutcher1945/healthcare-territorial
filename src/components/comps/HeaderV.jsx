@@ -91,7 +91,7 @@ export default function Header({ setSelectedDistrict, selectedDistrict }) {
               </button>
             {/* )} */}
             {navigationItems.map((item) => {
-              const Icon = item.icon
+              // const Icon = item.icon
               return (
                 <Link
                   key={item.to}
@@ -163,7 +163,7 @@ export default function Header({ setSelectedDistrict, selectedDistrict }) {
         <div className="lg:hidden border-t border-[#e8e8e8] bg-white animate-in slide-in-from-top-2 duration-300">
           <div className="py-3 px-4 space-y-2">
             {navigationItems.map((item) => {
-              const Icon = item.icon
+              // const Icon = item.icon
               return (
                 <Link
                   key={item.to}

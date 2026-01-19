@@ -24,13 +24,6 @@ export default function DetailedInfoRight({ buildingData }) {
     return `(${((part / total) * 100).toFixed(1)}%)`.replace('.', ',');
   };
 
-  const formatWithPercent = (count, total) => {
-     // Helper to match the image format: "869 - (100%)"
-     // If you prefer the previous separated lines, you can revert this, 
-     // but the image shows them inline. I will keep your structure (subValue) 
-     // but apply the colors requested.
-  };
-
   // --- DATA FETCHING ---
   useEffect(() => {
     async function fetchData() {

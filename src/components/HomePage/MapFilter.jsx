@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import MapFilterIndicators from "./MapFilterIndicator";
-import DetailedInfo from "./DetailedInfo";
+// import DetailedInfo from "./DetailedInfo";
 
 export default function MapFilter({
   setSelectedDistrict,
