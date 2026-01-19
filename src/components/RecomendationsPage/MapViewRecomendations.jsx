@@ -17,13 +17,13 @@ import 'maplibre-gl/dist/maplibre-gl.css';
 
 export default function MapViewRecomendations({
   setMoData,
-  setShowDetailCard,
-  showDetailCard,
+  // setShowDetailCard,
+  // showDetailCard,
   selectedDistrict,
-  setTotalCount,
-  setTotalPopulation,
-  setAvgVisit,
-  setAvgPerson,
+  // setTotalCount,
+  // setTotalPopulation,
+  // setAvgVisit,
+  // setAvgPerson,
 }) {
   const mapContainer = useRef(null);
   const { mapRef, isLoading: mapLoading, zoomIn, zoomOut, resetView } = useMapInitialization(mapContainer);
@@ -44,13 +44,13 @@ export default function MapViewRecomendations({
       selectedMarkerRef.current = null;
 
       try {
-        const data = await fetchHealthcareData(selectedDistrict);
+        const data = await fetchHealthcareData("Все районы");
 
         // Update stats
-        setTotalCount(data.stats.totalCount);
-        setTotalPopulation(data.stats.totalPopulation);
-        setAvgVisit(data.stats.avgVisit);
-        setAvgPerson(data.stats.avgPerson);
+        // setTotalCount(data.stats.totalCount);
+        // setTotalPopulation(data.stats.totalPopulation);
+        // setAvgVisit(data.stats.avgVisit);
+        // setAvgPerson(data.stats.avgPerson);
 
         const addOrUpdateLayers = () => {
           const map = mapRef.current;
@@ -95,7 +95,7 @@ export default function MapViewRecomendations({
             selectedMarkerRef.current = newMarkerId;
 
             setMoData(feature.properties);
-            setShowDetailCard(true);
+            // setShowDetailCard(true);
 
             // Fly to location
             map.flyTo({
@@ -136,7 +136,7 @@ export default function MapViewRecomendations({
     };
 
     fetchAndRender();
-  }, [selectedDistrict, fetchHealthcareData, setMoData, setShowDetailCard, setTotalCount, setTotalPopulation, setAvgVisit, setAvgPerson, mapRef]);
+  }, [selectedDistrict, fetchHealthcareData, setMoData, mapRef]);
 
   return (
     <div className="relative w-full h-full">

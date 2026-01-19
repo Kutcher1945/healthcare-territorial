@@ -24,17 +24,6 @@ export default function HomePage() {
 
   return (
     <div className="relative h-full w-full overflow-hidden">
-      {/* Indicators - Bottom right, stacked above legend on both mobile and desktop */}
-      {/* <div className="absolute bottom-[280px] right-3 md:right-4 z-40">
-        <Indicators
-          totalCount={totalCount}
-          totalPopulation={totalPopulation}
-          avgVisit={avgVisit}
-          avgPerson={avgPerson}
-          selectedDistrict={selectedDistrict}
-        />
-      </div> */}
-
       {/* Backdrop overlay - click to close (mobile only) */}
       {showDetailCard && buildingData?.id && (
         <div

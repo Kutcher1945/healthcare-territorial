@@ -1,6 +1,5 @@
 "use client"
 
-// 1. Add ComposedChart and Line to imports
 import { ComposedChart, Line, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LabelList } from "recharts"
 import { useState, useEffect } from "react"
 
@@ -23,7 +22,7 @@ export default function PersonalHistogram({ selectedDistrict }) {
       }
     }
     fetchData()
-  })
+  }, [selectedDistrict])
 
   useEffect(() => {
     if (allData.length === 0) return

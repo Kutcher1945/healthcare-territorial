@@ -1,5 +1,4 @@
 import maplibregl from 'maplibre-gl';
-import { MapPinned } from 'lucide-react';
 
 export const clearFeatureStates = (map, polygonMapping) => {
   if (!map.getSource('policlinic-polygons')) return;

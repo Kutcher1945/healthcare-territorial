@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+// import { useEffect } from "react";
 
 export default function MapFilterIndicators({ totalCount, totalPopulation, avgVisit, avgPerson, selectedDistrict }) {
   // const [vopData, setVopData] = useState([]);
@@ -17,21 +17,21 @@ export default function MapFilterIndicators({ totalCount, totalPopulation, avgVi
   //   return Math.ceil(diff / 1700);
   // };
 
-  useEffect(() => {
-    async function fetchData() {
-      const filter = selectedDistrict !== "Все районы" ? `district=${selectedDistrict}` : "";
-      try {
-        const response = await fetch(
-          `https://admin.smartalmaty.kz/api/v1/healthcare/org-capacity/count_by_district/?${filter}`
-        );
-        const data = await response.json();
-        // setVopData(data.totals);
-      } catch (err) {
-        console.error("Failed to fetch deficit data", err);
-      }
-    }
-    fetchData();
-  }, [selectedDistrict]);
+  // useEffect(() => {
+  //   async function fetchData() {
+  //     const filter = selectedDistrict !== "Все районы" ? `district=${selectedDistrict}` : "";
+  //     try {
+  //       const response = await fetch(
+  //         `https://admin.smartalmaty.kz/api/v1/healthcare/org-capacity/count_by_district/?${filter}`
+  //       );
+  //       // const data = await response.json();
+  //       // setVopData(data.totals);
+  //     } catch (err) {
+  //       console.error("Failed to fetch deficit data", err);
+  //     }
+  //   }
+  //   fetchData();
+  // }, [selectedDistrict]);
 
   return (
     <div className="space-y-2 text-xs bg-white/95 p-3">

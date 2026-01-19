@@ -6,12 +6,12 @@ import MapViewRecomendations from "../components/RecomendationsPage/MapViewRecom
 export default function RecomendationPage() {
   const [moData, setMoData] = useState(null)
   
-  const [showDetailCard, setShowDetailCard] = useState(true)
-  const [totalCount, setTotalCount] = useState(0)
-  const [totalPopulation, setTotalPopulation] = useState(0)
-  const [avgVisit, setAvgVisit] = useState(0)
-  const [avgPerson, setAvgPerson] = useState(0)
-  const [selectedDistrict, setSelectedDistrict] = useState(["Все районы"])
+  // const [showDetailCard, setShowDetailCard] = useState(true)
+  // const [totalCount, setTotalCount] = useState(0)
+  // const [totalPopulation, setTotalPopulation] = useState(0)
+  // const [avgVisit, setAvgVisit] = useState(0)
+  // const [avgPerson, setAvgPerson] = useState(0)
+  // const [selectedDistrict, setSelectedDistrict] = useState(["Все районы"])
   
   return (
 
@@ -22,13 +22,13 @@ export default function RecomendationPage() {
         <div className="w-full h-[500px] lg:h-[85vh] rounded-xl overflow-hidden shadow-lg sticky top-4">
           <MapViewRecomendations
             setMoData={setMoData}
-            setShowDetailCard={setShowDetailCard}
-            showDetailCard={showDetailCard}
-            selectedDistrict={selectedDistrict}
-            setTotalCount={setTotalCount}
-            setTotalPopulation={setTotalPopulation}
-            setAvgVisit={setAvgVisit}
-            setAvgPerson={setAvgPerson}
+            // setShowDetailCard={setShowDetailCard}
+            // showDetailCard={showDetailCard}
+            // selectedDistrict={selectedDistrict}
+            // setTotalCount={setTotalCount}
+            // setTotalPopulation={setTotalPopulation}
+            // setAvgVisit={setAvgVisit}
+            // setAvgPerson={setAvgPerson}
           />
         </div>
 
