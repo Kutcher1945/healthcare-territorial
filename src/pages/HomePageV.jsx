@@ -3,6 +3,7 @@
 import { useState } from "react"
 import Map from "../components/HomePage/MapV"
 import MapFilter from "../components/HomePage/MapFilter"
+import DetailedInfoRight from "../components/HomePage/DetailedInfoRight"
 
 export default function HomePage() {
   const [buildingData, setBuildingData] = useState([])
@@ -110,6 +111,11 @@ export default function HomePage() {
           totalPopulation={totalPopulation}
           avgVisit={avgVisit}
           avgPerson={avgPerson}
+        />
+      </div>
+      <div className="absolute top-[40px] right-4 z-20 w-80">
+        <DetailedInfoRight
+          buildingData={buildingData}
         />
       </div>
     </div>

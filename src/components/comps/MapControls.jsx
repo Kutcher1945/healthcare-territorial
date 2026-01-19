@@ -2,7 +2,7 @@ import { ZoomIn, ZoomOut, RotateCcw } from 'lucide-react';
 
 export const MapControls = ({ onZoomIn, onZoomOut, onReset }) => {
   return (
-    <div className="absolute top-3 right-3 md:top-4 md:right-4 z-20 flex flex-col gap-1.5 md:gap-2">
+    <div className="absolute bottom-3 right-3 md:bottom-4 md:right-4 z-20 flex flex-row gap-1.5 md:gap-2">
       <button
         onClick={onZoomIn}
         className="bg-white hover:bg-gray-50 border border-gray-200 rounded-lg p-2 md:p-2.5 shadow-md hover:shadow-lg transition-all duration-200"

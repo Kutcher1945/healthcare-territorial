@@ -3,13 +3,14 @@
 import { useState, useEffect } from "react";
 import { Loader2, RefreshCw, MapPin, Info } from "lucide-react";
 
-export default function DetailedInfo({ buildingData }) {
+export default function DetailedInfoRight({ buildingData }) {
   // --- STATE MANAGEMENT ---
   const [detailCardData, setDetailCardData] = useState({});
   const [data5month, setData5month] = useState({});
   const [buildingAnalysis, setBuildingAnalysis] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [filtersHidden, setFiltersHidden] = useState(false);
 
   // --- HELPER FUNCTIONS ---
   const formatNumber = (num) => {
@@ -105,14 +106,38 @@ export default function DetailedInfo({ buildingData }) {
   const totalGender = maleCount + femaleCount;
 
   return (
-      <div className="space-y-3 text-xs bg-white/95 p-3 border-t pb-20">
+    <>
+    {buildingData?.id && (
+    <div className="relative">
+    <div className="flex flex-col w-full bg-white/95 backdrop-blur-sm rounded-xl border shadow-lg overflow-hidden max-h-[calc(100dvh-20px)]">
+    
+      <div className="space-y-3 text-xs bg-white/95 p-3">
         
         {/* Header Section */}
         <div className="flex items-start justify-between p-3 rounded-lg">
           <div className="w-full">
+            <div className="flex items-center justify-between font-semibold text-base">
             <h3 className="font-bold text-left text-sm leading-tight mb-1">
               {buildingData.name || "Поликлиника"}
             </h3>
+            <button
+              onClick={() => setFiltersHidden(!filtersHidden)}
+              className="text-gray-600 hover:text-gray-900 transition-transform p-1"
+              title={filtersHidden ? "Показать показатели" : "Скрыть показатели"}
+            >
+              <svg
+                className={`w-5 h-5 transform transition-transform duration-300 ${
+                  filtersHidden ? "rotate-180" : ""
+                }`}
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2}
+                viewBox="0 0 24 24"
+              >
+                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </button>
+            </div>
             <p className="text-gray-400 text-[10px] mb-1 text-left">Медицинское учреждение</p>
             <div className="flex items-center text-gray-500 gap-1">
               <MapPin className="w-3 h-3 text-red-600" />
@@ -143,6 +168,11 @@ export default function DetailedInfo({ buildingData }) {
         </div>
 
         {/* SECTION: MAIN INDICATORS (Black Text) */}
+        <div
+        className={`flex flex-col space-y-3 min-h-0 transition-all duration-500 ease-in-out ${
+          filtersHidden ? "max-h-0 opacity-0 overflow-hidden" : "max-h-screen opacity-100"
+        }`}
+      >
         <div className="text-left font-semibold text-gray-900 mt-2">Основные показатели:</div>
         <div className="grid grid-cols-2 gap-2">
           <StatCard 
@@ -232,7 +262,11 @@ export default function DetailedInfo({ buildingData }) {
                 Данные предоставляются Министерством Здравоохранения.
              </p>
         </div>
-
+        </div>
       </div>
+      </div>
+      </div>
+    )}
+    </>
   );
 }

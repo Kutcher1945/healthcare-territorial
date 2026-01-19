@@ -153,11 +153,11 @@ export default function MapFilter({
         
         {/* B. DETAILED INFO (SCROLLABLE) */}
         {/* flex-1 ensures this takes all remaining space. overflow-y-auto puts the scrollbar HERE. */}
-        <div className="flex-1 overflow-y-auto">
+        {/* <div className="flex-1 overflow-y-auto">
             {buildingData?.id && (
                 <DetailedInfo buildingData={buildingData}/>
             )}
-        </div>
+        </div> */}
 
       </div>
       
