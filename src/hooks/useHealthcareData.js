@@ -1,43 +1,35 @@
 import { useState, useCallback } from 'react';
 import wellknown from 'wellknown';
 
-const API_BASE_URL = 'https://admin.smartalmaty.kz/api/v1/healthcare/territorial-division-map/';
+// const API_BASE_URL = 'https://admin.smartalmaty.kz/api/v1/healthcare/territorial-division-map/';
 
-// const PROXY_URL = '/api_proxy/v1/healthcare/territorial-division-map/';
-// const DIRECT_URL = 'https://admin.smartalmaty.kz/api/v1/healthcare/territorial-division-map/';
+const PROXY_URL = '/api_proxy/v1/healthcare/territorial-division-map/';
+const DIRECT_URL = 'https://admin.smartalmaty.kz/api/v1/healthcare/territorial-division-map/';
+const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
 
-// const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-
-// const API_BASE_URL = isLocal ? DIRECT_URL : PROXY_URL;
+const API_BASE_URL = isLocal ? DIRECT_URL : PROXY_URL;
 
 const getCoverageColor = (ratio) => {
-  // Convert to number if string
   let numRatio = typeof ratio === 'string' ? parseFloat(ratio) : ratio;
 
-  // Handle invalid values
   if (isNaN(numRatio) || numRatio === null || numRatio === undefined) {
     console.warn('Invalid coverage ratio:', ratio);
-    return '#808080'; // Gray for invalid/missing data
+    return '#808080';
   }
 
-  // If the value is > 10, it's likely a percentage (e.g., 96.48 instead of 0.9648)
-  // Convert percentage to decimal: 96.48 → 0.9648
   if (numRatio > 10) {
     numRatio = numRatio / 100;
   }
 
-  // High load (overutilized) - ratio > 1.00 (>100%)
   if (numRatio > 1.0) {
-    return '#ef4444'; // Red (red-500) - Высокая загруженность
+    return '#ef4444';
   }
 
-  // Low load (underutilized) - ratio < 0.90 (<90%)
   if (numRatio < 0.9) {
-    return '#eab308'; // Yellow (yellow-500) - Низкая загруженность
+    return '#eab308';
   }
 
-  // Optimal load - ratio between 0.90 and 1.00 (90-100%)
-  return '#22c55e'; // Green (green-500) - Оптимальная загруженность
+  return '#22c55e';
 };
 
 export const useHealthcareData = () => {
@@ -48,9 +40,6 @@ export const useHealthcareData = () => {
     setIsLoading(true);
     setError(null);
 
-    // const districtFilter = selectedDistrict !== 'Все районы'
-    //   ? `districts=${selectedDistrict}&`
-    //   : '';
     const validDistricts = Array.isArray(selectedDistrict)
       ? selectedDistrict.filter((d) => d !== "Все районы")
       : [];

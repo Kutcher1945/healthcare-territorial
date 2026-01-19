@@ -1,15 +1,12 @@
 import { useEffect, useState } from "react";
 import MapFilterIndicators from "./MapFilterIndicator";
-// import DetailedInfo from "./DetailedInfo";
 
 export default function MapFilter({
   setSelectedDistrict,
   setDistrictDropdownOpen,
   districtDropdownOpen,
   selectedDistrict,
-  enginNodes,
-  setEnginNodes, 
-  buildingData,
+  // buildingData,
   totalCount,
   totalPopulation, 
   avgVisit, 
@@ -50,14 +47,9 @@ export default function MapFilter({
 
  return (
   <div className="relative">
-    {/* 
-       ROOT CONTAINER: 
-       - max-h-[95vh]: Limits height to screen size.
-       - flex flex-col: Establishes vertical stacking.
-    */}
+
     <div className="flex flex-col w-full bg-white/95 backdrop-blur-sm rounded-xl border shadow-lg overflow-hidden max-h-[calc(100dvh-20px)]">
       
-      {/* --- 1. GLOBAL HEADER (Fixed) --- */}
       <div className="flex-none bg-white/95 backdrop-blur-sm border-b z-20">
         <div className="flex items-center justify-between px-4 pt-3 pb-2 font-semibold text-base">
           <span>Фильтры</span>
@@ -80,7 +72,6 @@ export default function MapFilter({
           </button>
         </div>
 
-        {/* District Selector */}
         <div className="px-4 pb-3">
           <div className="relative">
             <div
@@ -128,19 +119,11 @@ export default function MapFilter({
         </div>
       </div>
 
-      {/* 
-         --- 2. CONTENT WRAPPER (Collapsible) --- 
-         This wrapper handles the hide/show animation.
-         Inside, it's a Flex Column itself.
-      */}
       <div
         className={`flex flex-col min-h-0 transition-all duration-500 ease-in-out ${
           filtersHidden ? "max-h-0 opacity-0 overflow-hidden" : "max-h-screen opacity-100"
         }`}
       >
-        
-        {/* A. INDICATORS (FIXED / NON-SCROLLABLE) */}
-        {/* flex-none ensures this div stays its natural height and doesn't shrink/grow */}
         <div className="flex-none bg-white z-10 shadow-sm relative">
             <MapFilterIndicators
                 totalCount={totalCount}
@@ -160,7 +143,6 @@ export default function MapFilter({
         </div> */}
 
       </div>
-      
     </div>
   </div>
   );

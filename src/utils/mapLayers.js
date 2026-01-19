@@ -10,7 +10,6 @@ export const clearFeatureStates = (map, polygonMapping) => {
         id: polygonId,
       });
     } catch (err) {
-      // Silently ignore errors
     }
   });
 
@@ -21,7 +20,6 @@ export const clearFeatureStates = (map, polygonMapping) => {
         id: parseInt(pointId),
       });
     } catch (err) {
-      // Silently ignore errors
     }
   });
 };
@@ -43,13 +41,13 @@ export const setupPolygonLayers = (map, polygons) => {
         'fill-color': [
           'case',
           ['boolean', ['feature-state', 'selected'], false],
-          '#22c55e', // Green color for selected polygons (green-500)
+          '#22c55e',
           ['get', 'original_color'],
         ],
         'fill-opacity': [
           'case',
           ['boolean', ['feature-state', 'selected'], false],
-          0.5, // Increased opacity for better visibility
+          0.5,
           0.1,
         ],
       },
@@ -63,19 +61,19 @@ export const setupPolygonLayers = (map, polygons) => {
         'line-color': [
           'case',
           ['boolean', ['feature-state', 'selected'], false],
-          '#16a34a', // Darker green outline for selected (green-600)
+          '#16a34a',
           ['get', 'color'],
         ],
         'line-width': [
           'case',
           ['boolean', ['feature-state', 'selected'], false],
-          3, // Thicker border when selected
+          3,
           1.5,
         ],
         'line-opacity': [
           'case',
           ['boolean', ['feature-state', 'selected'], false],
-          0.8, // More visible when selected
+          0.8,
           0.4,
         ],
       },
@@ -144,7 +142,6 @@ export const updateFeatureStates = (
   newMarkerId,
   polygonMapping
 ) => {
-  // Reset previous marker if different
   if (previousMarkerId !== null && previousMarkerId !== newMarkerId) {
     try {
       map.setFeatureState(
@@ -160,7 +157,6 @@ export const updateFeatureStates = (
             { selected: false }
           );
         } catch (err) {
-          // Silently ignore
         }
       });
     } catch (err) {
@@ -168,7 +164,6 @@ export const updateFeatureStates = (
     }
   }
 
-  // Set new marker as selected
   try {
     map.setFeatureState(
       { source: 'policlinic-points', id: newMarkerId },
@@ -183,7 +178,6 @@ export const updateFeatureStates = (
           { selected: true }
         );
       } catch (err) {
-        // Silently ignore
       }
     });
   } catch (err) {
