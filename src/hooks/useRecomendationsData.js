@@ -1,7 +1,11 @@
 import { useState, useCallback } from 'react';
 import wellknown from 'wellknown';
 
-const API_BASE_URL = 'https://admin.smartalmaty.kz/api/v1/healthcare/territorial-division-map/';
+// Use Vercel proxy to avoid CORS/Private Network Access issues
+const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+const PROXY_URL = '/api_proxy/v1/healthcare/territorial-division-map/';
+const DIRECT_URL = 'https://admin.smartalmaty.kz/api/v1/healthcare/territorial-division-map/';
+const API_BASE_URL = isLocal ? DIRECT_URL : PROXY_URL;
 
 const getCoverageColor = (ratio) => {
   // Convert to number if string
