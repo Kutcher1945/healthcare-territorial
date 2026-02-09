@@ -1,7 +1,9 @@
 import { useState, useCallback } from 'react';
 import wellknown from 'wellknown';
 
+// Direct API calls - server must have proper CORS headers
 const API_BASE_URL = 'https://admin.smartalmaty.kz/api/v1/healthcare/territorial-division-map/';
+
 
 const getCoverageColor = (ratio) => {
   // Convert to number if string
