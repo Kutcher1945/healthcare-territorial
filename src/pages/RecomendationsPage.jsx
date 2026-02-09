@@ -22,6 +22,7 @@ export default function RecomendationPage() {
         <div className="w-full h-[500px] lg:h-[85vh] rounded-xl overflow-hidden shadow-lg sticky top-4">
           <MapViewRecomendations
             setMoData={setMoData}
+            moData={moData}
             // setShowDetailCard={setShowDetailCard}
             // showDetailCard={showDetailCard}
             // selectedDistrict={selectedDistrict}
@@ -33,7 +34,10 @@ export default function RecomendationPage() {
         </div>
 
         <div className="w-full h-fit max-h-[500px] lg:max-h-[85vh] rounded-xl shadow-lg flex flex-col">
-          <DeathMoTable moData={moData}/>
+          <DeathMoTable 
+            moData={moData}
+            setMoData={setMoData}
+          />
         </div>
       </div>
     </div>

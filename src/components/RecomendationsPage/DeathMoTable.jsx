@@ -4,7 +4,7 @@ import { useState, useEffect, useMemo } from "react";
 // 1. Import Icons from lucide-react
 import { ChevronUp, ChevronDown } from "lucide-react"; 
 
-export default function DeathMoTable({ moData }) {
+export default function DeathMoTable({ moData, setMoData }) {
     const [data, setData] = useState([])
     const [priorityFilter, setPriorityFilter] = useState("all")
     const [loadStatusFilter, setLoadStatusFilter] = useState("all") 
@@ -55,6 +55,7 @@ export default function DeathMoTable({ moData }) {
     const clearFilters = () => {
         setPriorityFilter("all");
         setLoadStatusFilter("all");
+        setMoData(null); 
     };
 
     const sortedData = useMemo(() => {
@@ -180,7 +181,7 @@ export default function DeathMoTable({ moData }) {
         <div className="bg-white rounded-xl shadow-md border border-gray-300 flex flex-col max-h-full overflow-hidden">
             <div className="p-4 border-b border-gray-100 flex justify-end items-center bg-white flex-shrink-0">
                 <div className="flex items-center gap-2">
-                    {(!moData || !moData.id) ? (
+                    {/* {(!moData || !moData.id) ? (
                         <>
                             <div className="flex items-center gap-2">
                                 <span className="text-xs text-gray-500 font-medium">Уровень критичности:</span>
@@ -212,10 +213,49 @@ export default function DeathMoTable({ moData }) {
                     ) : (
                         <button 
                             onClick={clearFilters} 
+                            className="text-xs text-left text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg hover:bg-blue-100 transition-colors font-medium"
+                        >
+                            ✕ Сбросить фильтр
+                        </button>
+                    )} */}
+                    {(moData && moData.id) || priorityFilter !== "all" || loadStatusFilter !== "all" ? (
+                        <button 
+                            onClick={clearFilters} 
                             className="text-xs text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg hover:bg-blue-100 transition-colors font-medium"
                         >
                             ✕ Сбросить фильтр
                         </button>
+                    ) : null}
+
+                    {(!moData || !moData.id) && (
+                        <div className="flex gap-2">
+                            <div className="flex items-center gap-2">
+                                <span className="text-xs text-gray-500 font-medium">Уровень:</span>
+                                <select
+                                    value={priorityFilter}
+                                    onChange={(e) => setPriorityFilter(e.target.value)}
+                                    className="text-xs border border-gray-200 rounded-lg px-2 py-1.5 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-100 text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors"
+                                >
+                                    <option value="all">Все</option>
+                                    <option value="high">Высокий</option>
+                                    <option value="medium">Средний</option>
+                                    <option value="low">Низкий</option>
+                                </select>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <span className="text-xs text-gray-500 font-medium">Статус:</span>
+                                <select
+                                    value={loadStatusFilter}
+                                    onChange={(e) => setLoadStatusFilter(e.target.value)}
+                                    className="text-xs border border-gray-200 rounded-lg px-2 py-1.5 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-100 text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors"
+                                >
+                                    <option value="all">Все</option>
+                                    <option value="Перегружен">Перегружен</option>
+                                    <option value="Оптимально">Оптимально</option>
+                                    <option value="Недозагрузка">Недозагрузка</option>
+                                </select>
+                            </div>
+                        </div>
                     )}
                 </div>
             </div>
@@ -292,7 +332,13 @@ export default function DeathMoTable({ moData }) {
                     <tbody className="bg-white">
                         {sortedData && sortedData.length > 0 ? (
                             sortedData.map((item, i) => (
-                                <tr key={i} className="hover:bg-slate-50 transition-colors border-b border-gray-50 last:border-0">
+                                <tr 
+                                    key={i} 
+                                    className="hover:bg-slate-50 transition-colors border-b border-gray-50 last:border-0 cursor-pointer"
+                                    onClick={() => {
+                                        setMoData(item);
+                                    }}
+                                >
                                     {/* Name */}
                                     <td className="px-4 py-3 text-left text-gov-text-primary font-medium">
                                         {item.name}

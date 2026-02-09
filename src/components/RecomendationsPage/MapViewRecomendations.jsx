@@ -16,6 +16,7 @@ import {
 import 'maplibre-gl/dist/maplibre-gl.css';
 
 export default function MapViewRecomendations({
+  moData,
   setMoData,
   selectedDistrict,
 }) {
@@ -27,6 +28,8 @@ export default function MapViewRecomendations({
   const polygonMappingRef = useRef({});
   const popupRef = useRef(null);
 
+  const allPointsRef = useRef([]);
+
   const isLoading = mapLoading || dataLoading;
 
   useEffect(() => {
@@ -37,6 +40,8 @@ export default function MapViewRecomendations({
 
       try {
         const data = await fetchHealthcareData("Все районы");
+
+        allPointsRef.current = data.points.features;
 
         const addOrUpdateLayers = () => {
           const map = mapRef.current;
@@ -109,6 +114,60 @@ export default function MapViewRecomendations({
 
     fetchAndRender();
   }, [selectedDistrict, fetchHealthcareData, setMoData, mapRef]);
+
+
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map ) return;
+
+    if (!moData) {
+      // 1. Remove popup
+      if (popupRef.current) {
+        popupRef.current.remove();
+        popupRef.current = null;
+      }
+      
+      // 2. Clear highlighting on map
+      clearFeatureStates(map, polygonMappingRef.current);
+      selectedMarkerRef.current = null;
+
+      // 3. Optional: Reset map zoom to default view
+      resetView(); 
+      return;
+    }
+
+    // Find the feature data in our points list
+    const feature = allPointsRef.current.find(f => f.properties.id === moData.id);
+    
+    // If the data from the table doesn't have coordinates, 
+    // we use the coordinates from the map data we fetched earlier
+    if (feature) {
+      const coords = feature.geometry.coordinates;
+
+      // a) Close existing popup
+      if (popupRef.current) popupRef.current.remove();
+
+      // b) Create new popup
+      popupRef.current = createPopup(map, feature, { lng: coords[0], lat: coords[1] });
+
+      // c) Highlight polygon
+      updateFeatureStates(
+        map,
+        selectedMarkerRef.current,
+        moData.id,
+        polygonMappingRef.current
+      );
+      selectedMarkerRef.current = moData.id;
+
+      // d) Fly to the point
+      map.flyTo({
+        center: coords,
+        zoom: 15, // Zoom in closer when selecting from table
+        duration: 1500,
+        essential: true
+      });
+    }
+  }, [moData, mapRef]);
 
   return (
     <div className="relative w-full h-full">
