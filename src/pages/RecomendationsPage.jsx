@@ -42,4 +42,4 @@ export default function RecomendationPage() {
       </div>
     </div>
   )
-}
+} 
