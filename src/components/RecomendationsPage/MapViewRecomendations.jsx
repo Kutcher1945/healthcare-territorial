@@ -167,7 +167,7 @@ export default function MapViewRecomendations({
         essential: true
       });
     }
-  }, [moData, mapRef]);
+  }, [moData, mapRef, resetView]);
 
   return (
     <div className="relative w-full h-full">
