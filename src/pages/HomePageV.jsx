@@ -49,7 +49,6 @@ export default function HomePage() {
           setSelectedDistrict={setSelectedDistrict}
           districtDropdownOpen={districtDropdownOpen}
           setDistrictDropdownOpen={setDistrictDropdownOpen}
-          buildingData={buildingData}
           totalCount={totalCount}
           totalPopulation={totalPopulation}
           avgVisit={avgVisit}

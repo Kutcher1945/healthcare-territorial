@@ -6,7 +6,6 @@ export default function MapFilter({
   setDistrictDropdownOpen,
   districtDropdownOpen,
   selectedDistrict,
-  // buildingData,
   totalCount,
   totalPopulation, 
   avgVisit, 
@@ -130,18 +129,8 @@ export default function MapFilter({
                 totalPopulation={totalPopulation}
                 avgVisit={avgVisit}
                 avgPerson={avgPerson}
-                selectedDistrict={selectedDistrict}
             />
         </div>
-        
-        {/* B. DETAILED INFO (SCROLLABLE) */}
-        {/* flex-1 ensures this takes all remaining space. overflow-y-auto puts the scrollbar HERE. */}
-        {/* <div className="flex-1 overflow-y-auto">
-            {buildingData?.id && (
-                <DetailedInfo buildingData={buildingData}/>
-            )}
-        </div> */}
-
       </div>
     </div>
   </div>

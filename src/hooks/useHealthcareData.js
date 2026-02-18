@@ -1,10 +1,7 @@
 import { useState, useCallback } from 'react';
 import wellknown from 'wellknown';
 
-// Direct API calls - server must have proper CORS headers
 const API_BASE_URL = 'https://admin.smartalmaty.kz/api/v1/healthcare/territorial-division-map/';
-
-
 
 const getCoverageColor = (ratio) => {
   let numRatio = typeof ratio === 'string' ? parseFloat(ratio) : ratio;
@@ -45,8 +42,6 @@ export const useHealthcareData = () => {
       validDistricts.length > 0
         ? `districts=${encodeURIComponent(validDistricts.join(","))}&`
         : "";
-
-
 
     try {
       const response = await fetch(

@@ -234,7 +234,7 @@ export default function DeathMoTable({ moData, setMoData }) {
                                 <select
                                     value={priorityFilter}
                                     onChange={(e) => setPriorityFilter(e.target.value)}
-                                    className="text-xs border border-gray-200 rounded-lg px-2 py-1.5 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-100 text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors"
+                                    className="text-xs border border-gray-200 rounded-lg px-2 py-1.5 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-100 text-gray-700 hover:bg-gray-100 transition-colors"
                                 >
                                     <option value="all">Все</option>
                                     <option value="high">Высокий</option>
