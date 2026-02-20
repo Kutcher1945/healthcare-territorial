@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
-// 1. Import Icons from lucide-react
-import { ChevronUp, ChevronDown } from "lucide-react"; 
+import { ChevronUp, ChevronDown } from "lucide-react";
 
 export default function DeathMoTable({ moData, setMoData }) {
     const [data, setData] = useState([])
@@ -181,43 +180,6 @@ export default function DeathMoTable({ moData, setMoData }) {
         <div className="bg-white rounded-xl shadow-md border border-gray-300 flex flex-col max-h-full overflow-hidden">
             <div className="p-4 border-b border-gray-100 flex justify-end items-center bg-white flex-shrink-0">
                 <div className="flex items-center gap-2">
-                    {/* {(!moData || !moData.id) ? (
-                        <>
-                            <div className="flex items-center gap-2">
-                                <span className="text-xs text-gray-500 font-medium">Уровень критичности:</span>
-                                <select
-                                    value={priorityFilter}
-                                    onChange={(e) => setPriorityFilter(e.target.value)}
-                                    className="text-xs border border-gray-200 rounded-lg px-2 py-1.5 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-100 text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors"
-                                    >
-                                    <option value="all">Все</option>
-                                    <option value="high">Высокий</option>
-                                    <option value="medium">Средний</option>
-                                    <option value="low">Низкий</option>
-                                </select>
-                            </div>
-                            <div className="flex items-center gap-2">
-                                <span className="text-xs text-gray-500 font-medium">Статус:</span>
-                                <select
-                                    value={loadStatusFilter}
-                                    onChange={(e) => setLoadStatusFilter(e.target.value)}
-                                    className="text-xs border border-gray-200 rounded-lg px-2 py-1.5 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-100 text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors"
-                                >
-                                    <option value="all">Все</option>
-                                    <option value="Перегружен">Перегружен</option>
-                                    <option value="Оптимально">Оптимально</option>
-                                    <option value="Недозагрузка">Недозагрузка</option>
-                                </select>
-                            </div>
-                        </>
-                    ) : (
-                        <button 
-                            onClick={clearFilters} 
-                            className="text-xs text-left text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg hover:bg-blue-100 transition-colors font-medium"
-                        >
-                            ✕ Сбросить фильтр
-                        </button>
-                    )} */}
                     {(moData && moData.id) || priorityFilter !== "all" || loadStatusFilter !== "all" ? (
                         <button 
                             onClick={clearFilters} 
@@ -263,13 +225,11 @@ export default function DeathMoTable({ moData, setMoData }) {
             <div className="flex-1 overflow-y-auto min-h-0"> 
                 <table className="min-w-full border border-gray-100 text-sm rounded-lg relative border-separate border-spacing-0">
                     <thead className="bg-gray-50 sticky top-0 z-10 shadow-sm">
-                        {/* FIRST HEADER ROW: Main Categories */}
                         <tr>
                             <th rowSpan="2" className="px-4 py-3 text-left border-b border-gray-200 font-semibold text-gov-text-primary bg-gray-50">
                                 Название МО
                             </th>
                             
-                            {/* Group Header: Факт */}
                             <th colSpan="3" className="px-4 py-2 text-center border-b border-gray-200 border-l border-r border-gray-200 font-semibold text-gov-text-primary bg-gray-50">
                                 Факт
                             </th>
@@ -288,7 +248,6 @@ export default function DeathMoTable({ moData, setMoData }) {
                                 </div>
                             </th>
 
-                            {/* Group Header: Нехватка */}
                             <th colSpan="3" className="px-4 py-2 text-center border-b border-gray-200 border-l border-r border-gray-200 font-semibold text-gov-text-primary bg-gray-50">
                                 Нехватка
                             </th>
@@ -304,9 +263,7 @@ export default function DeathMoTable({ moData, setMoData }) {
                             </th>
                         </tr>
 
-                        {/* SECOND HEADER ROW: Sub-columns for Факт and Нехватка */}
                         <tr>
-                            {/* Sub columns for Fact */}
                             <th className="px-4 py-2 text-center border-b border-gray-200 border-l border-gray-200 font-medium text-gray-600 bg-gray-50 text-xs uppercase tracking-wider">
                                 Терапевт
                             </th>
@@ -317,7 +274,6 @@ export default function DeathMoTable({ moData, setMoData }) {
                                 ВОП
                             </th>
 
-                            {/* Sub columns for Shortage */}
                             <th className="px-4 py-2 text-center border-b border-gray-200 border-l border-gray-200 font-medium text-gray-600 bg-gray-50 text-xs uppercase tracking-wider">
                                 Терапевт
                             </th>
@@ -339,7 +295,6 @@ export default function DeathMoTable({ moData, setMoData }) {
                                         setMoData(item);
                                     }}
                                 >
-                                    {/* Name */}
                                     <td className="px-4 py-3 text-left text-gov-text-primary font-medium">
                                         {item.name}
                                     </td>
@@ -355,11 +310,11 @@ export default function DeathMoTable({ moData, setMoData }) {
                                     </td>
 
                                     <td className="px-4 py-3 text-left border-r border-gray-100">
-                                        {renderPriorityBadge(item.priority_level)}
+                                        {renderPriorityBadge(item.priority_level) || 'Нет данных'}
                                     </td>
 
                                     <td className="px-4 py-3 text-center text-gray-800">
-                                        {item.priority_score || '-'}
+                                        {item.priority_score || 'Нет данных'}
                                     </td>
 
                                     <td className="px-4 py-3 text-center text-red-600 bg-red-50/30 border-l border-gray-100">
@@ -373,15 +328,15 @@ export default function DeathMoTable({ moData, setMoData }) {
                                     </td>
 
                                     <td className="px-4 py-3 text-left text-gray-600 border-r border-gray-100">
-                                        {formatPopulation(item.total_covered)}
+                                        {formatPopulation(item.total_covered) || 'Нет данных'}
                                     </td>
 
                                     <td className="px-4 py-3 text-left text-gray-600 border-r border-gray-100">
-                                        {formatPopulation(item.total_population)}
+                                        {formatPopulation(item.total_population) || 'Нет данных'}
                                     </td>
 
                                     <td className="px-4 py-3 text-left text-gray-600 border-r border-gray-100">
-                                        {renderStatusStyle(item.load_status)}
+                                        {renderStatusStyle(item.load_status) || 'Нет данных'}
                                     </td>
                                 </tr>
                             ))
@@ -392,7 +347,7 @@ export default function DeathMoTable({ moData, setMoData }) {
                                         <svg className="w-8 h-8 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                                         </svg>
-                                        <span>Нет данных по выбранным критериям</span>
+                                        <span>Ничего не найдено. Попробуйте изменить параметры фильтрации</span>
                                     </div>
                                 </td>
                             </tr>
