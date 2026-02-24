@@ -65,9 +65,7 @@ export default function Header({ setSelectedDistrict, selectedDistrict }) {
           : "bg-white border-b border-[#e8e8e8]"
       }`}
     >
-      {/* Full-width flex container */}
       <div className="flex h-14 sm:h-14 w-full justify-between items-center px-2">
-        {/* LEFT SIDE */}
         <div className="flex items-center gap-3 sm:gap-4">
 
           <div className="min-w-0">
@@ -78,20 +76,16 @@ export default function Header({ setSelectedDistrict, selectedDistrict }) {
 
         </div>
 
-        {/* RIGHT SIDE */}
         <div className="flex items-center gap-3">
-          {/* Navigation */}
           <nav className="hidden lg:flex items-center gap-2">
-            {/* {location.pathname !== "/analytics" && ( */}
               <button
                 onClick={() => setIsMethodologyOpen(true)}
                 className="rounded-md border border-gray-300 px-3 py-1.5 text-xs hover:bg-gray-50"
               >
                 Методология
               </button>
-            {/* )} */}
+
             {navigationItems.map((item) => {
-              // const Icon = item.icon
               return (
                 <Link
                   key={item.to}
@@ -102,14 +96,12 @@ export default function Header({ setSelectedDistrict, selectedDistrict }) {
                       : "bg-transparent text-gray-700 hover:bg-gray-100"
                   }`}
                 >
-                  {/* <Icon className={`h-4 w-4 ${isActive(item.to) ? "text-white" : "text-[#3772ff]"}`} /> */}
                   <span className="whitespace-nowrap">{item.label}</span>
                 </Link>
               )
             })}
           </nav>
 
-          {/* Mobile dropdown and menu */}
           <div className="flex lg:hidden items-center gap-2">
             <div className="relative dropdown-container sm:hidden">
               <button
@@ -143,27 +135,37 @@ export default function Header({ setSelectedDistrict, selectedDistrict }) {
                 </div>
               )}
             </div>
+            
+            <div className="flex lg:hidden items-center gap-2">
+              <button
+                onClick={() => {
+                  setIsMethodologyOpen(true);
+                  setMobileMenu(false);
+                }}
+                className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-xs font-semibold text-[#283353] hover:bg-[#ebf1ff] border border-transparent hover:border-[#c1d3ff] transition-colors w-full text-left"
+              >
+                <span>Методология</span>
+              </button>
 
-            <button
-              onClick={() => setMobileMenu(!mobileMenu)}
-              className={`rounded-lg p-2 transition-all duration-200 border ${
-                mobileMenu
-                  ? "bg-[#ebf1ff] text-[#3772ff] border-[#c1d3ff]"
-                  : "text-[#283353] hover:bg-[#ebf1ff] border-transparent hover:border-[#c1d3ff]"
-              }`}
-            >
-              {mobileMenu ? <X size={18} /> : <Menu size={18} />}
-            </button>
+              <button
+                onClick={() => setMobileMenu(!mobileMenu)}
+                className={`rounded-lg p-2 transition-all duration-200 border ${
+                  mobileMenu
+                    ? "bg-[#ebf1ff] text-[#3772ff] border-[#c1d3ff]"
+                    : "text-[#283353] hover:bg-[#ebf1ff] border-transparent hover:border-[#c1d3ff]"
+                }`}
+              >
+                {mobileMenu ? <X size={18} /> : <Menu size={18} />}
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Mobile menu dropdown */}
       {mobileMenu && (
         <div className="lg:hidden border-t border-[#e8e8e8] bg-white animate-in slide-in-from-top-2 duration-300">
           <div className="py-3 px-4 space-y-2">
             {navigationItems.map((item) => {
-              // const Icon = item.icon
               return (
                 <Link
                   key={item.to}
@@ -175,7 +177,6 @@ export default function Header({ setSelectedDistrict, selectedDistrict }) {
                       : "text-[#283353] hover:bg-[#ebf1ff] border border-transparent hover:border-[#c1d3ff]"
                   }`}
                 >
-                  {/* <Icon className={`h-4 w-4 ${isActive(item.to) ? "text-white" : "text-[#3772ff]"}`} /> */}
                   <span>{item.label}</span>
                 </Link>
               )
