@@ -46,20 +46,18 @@ export default function MapFilter({
 
  return (
   <div className="relative">
-
-    <div className="flex flex-col w-full bg-white/95 backdrop-blur-sm rounded-xl border shadow-lg overflow-hidden max-h-[calc(100dvh-20px)]">
-      
-      <div className="flex-none bg-white/95 backdrop-blur-sm border-b z-20">
-        <div className="flex items-center justify-between px-4 pt-3 pb-2 font-semibold text-base">
+    <div className="flex flex-col max-h-[80vh] bg-white/95 backdrop-blur-sm rounded-xl md:rounded-xl border shadow-md md:shadow-lg overflow-hidden text-xs md:text-sm">
+      <div className="sticky top-0 z-20 bg-white/95 backdrop-blur-sm border-b">
+        <div className="flex items-center justify-between px-2 md:px-4 pt-2 md:pt-3 pb-2 font-semibold text-sm md:text-base">
           <span>Фильтры</span>
           <button
             onClick={() => setFiltersHidden(!filtersHidden)}
-            className="text-gray-600 hover:text-gray-900 transition-transform p-1"
+            className="text-gray-600 hover:text-gray-900 transition-transform"
             title={filtersHidden ? "Показать фильтры" : "Скрыть фильтры"}
           >
             <svg
               className={`w-5 h-5 transform transition-transform duration-300 ${
-                filtersHidden ? "rotate-180" : ""
+                filtersHidden ? "" : "rotate-180"
               }`}
               fill="none"
               stroke="currentColor"
@@ -71,11 +69,11 @@ export default function MapFilter({
           </button>
         </div>
 
-        <div className="px-4 pb-3">
+        <div className="px-2 md:px-4 pb-2 md:pb-3">
           <div className="relative">
             <div
               onClick={() => setDistrictDropdownOpen(!districtDropdownOpen)}
-              className="flex items-center justify-between px-3 py-2 border rounded-md text-sm text-left cursor-pointer hover:bg-gray-50"
+              className="flex items-center justify-between px-2 md:px-3 py-1.5 md:py-2 border rounded-md text-xs md:text-sm text-left cursor-pointer hover:bg-gray-50"
             >
               <span className="flex-1 truncate">
                 {selectedDistrict.length > 0
@@ -84,7 +82,7 @@ export default function MapFilter({
               </span>
               <svg
                 className={`w-4 h-4 transition-transform ${
-                  districtDropdownOpen ? "rotate-180" : ""
+                  districtDropdownOpen ? "" : "rotate-180"
                 }`}
                 fill="none"
                 stroke="currentColor"
@@ -96,7 +94,7 @@ export default function MapFilter({
 
             {districtDropdownOpen && (
               <div className="absolute top-full left-0 right-0 mt-1 bg-white border rounded-md shadow-lg z-30 max-h-44 overflow-y-auto">
-                <div className="p-2 space-y-1 text-xs">
+                <div className="p-1.5 md:p-2 space-y-1 text-xs">
                   {allDistricts.map((district) => (
                     <label
                       key={district}

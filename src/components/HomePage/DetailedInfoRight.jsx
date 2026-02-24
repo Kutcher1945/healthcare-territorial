@@ -4,7 +4,6 @@ import { useState, useEffect } from "react";
 import { Loader2, RefreshCw, MapPin, Info } from "lucide-react";
 
 export default function DetailedInfoRight({ buildingData }) {
-  // --- STATE MANAGEMENT ---
   const [detailCardData, setDetailCardData] = useState({});
   const [data5month, setData5month] = useState({});
   const [buildingAnalysis, setBuildingAnalysis] = useState([]);
@@ -12,7 +11,6 @@ export default function DetailedInfoRight({ buildingData }) {
   const [error, setError] = useState(null);
   const [filtersHidden, setFiltersHidden] = useState(false);
 
-  // --- HELPER FUNCTIONS ---
   const formatNumber = (num) => {
     if (isNaN(num) || num === null || num === undefined) return "—";
     const number = Number(num);
@@ -24,13 +22,13 @@ export default function DetailedInfoRight({ buildingData }) {
     return `(${((part / total) * 100).toFixed(1)}%)`.replace('.', ',');
   };
 
-  // --- DATA FETCHING ---
   useEffect(() => {
     async function fetchData() {
       if (!buildingData?.id) return;
 
       setIsLoading(true);
       setError(null);
+      setFiltersHidden(false);
 
       const itemID = buildingData?.id ?? 12;
 
@@ -71,11 +69,9 @@ export default function DetailedInfoRight({ buildingData }) {
 
   if (!buildingData) return null;
 
-  // --- REUSABLE STAT CARD ---
-  // Updated: accepts 'textColor' to override colors per card
   const StatCard = ({ value, label, subValue, isLoading, textColor = "text-gray-900" }) => (
-    <div className="text-center rounded-lg border shadow p-2 bg-white">
-      <div className={`font-semibold text-[16px] ${isLoading ? 'text-gray-300' : textColor}`}>
+    <div className="text-center rounded-lg border shadow p-1.5 md:p-2 bg-white flex flex-col justify-center items-center h-full">
+      <div className={`font-semibold text-sm md:text-[16px] leading-tight ${isLoading ? 'text-gray-300' : textColor}`}>
         {isLoading ? (
           <Loader2 className="h-4 w-4 animate-spin mx-auto text-gray-400" />
         ) : (
@@ -83,13 +79,12 @@ export default function DetailedInfoRight({ buildingData }) {
         )}
       </div>
       {subValue && !isLoading && (
-        <div className={`text-[12px] font-semibold leading-tight mt-0.5 ${textColor}`}>{subValue}</div>
+        <div className={`text-xs md:text-[16px] font-semibold leading-tight mt-0.5 ${textColor}`}>{subValue}</div>
       )}
-      <p className="text-xs text-gray-500 mt-2 leading-tight">{label}</p>
+      <p className="text-[10px] md:text-xs text-gray-500 mt-1.5 leading-tight">{label}</p>
     </div>
   );
 
-  // --- PREPARE DATA ---
   const childrenCount = Number(detailCardData.children_total) || 0;
   const adultsCount = Number(detailCardData.adults_total) || 0;
   const totalPop = childrenCount + adultsCount;
@@ -100,166 +95,171 @@ export default function DetailedInfoRight({ buildingData }) {
 
   return (
     <>
-    {buildingData?.id && (
-    <div className="relative">
-    <div className="flex flex-col w-full bg-white/95 backdrop-blur-sm rounded-xl border shadow-lg overflow-hidden max-h-[calc(100dvh-20px)]">
-    
-      <div className="space-y-3 text-xs bg-white/95 p-3">
-        
-        {/* Header Section */}
-        <div className="flex items-start justify-between p-3 rounded-lg">
-          <div className="w-full">
-            <div className="flex items-center justify-between font-semibold text-base">
-            <h3 className="font-bold text-left text-sm leading-tight mb-1">
-              {buildingData.name || "Поликлиника"}
-            </h3>
-            <button
-              onClick={() => setFiltersHidden(!filtersHidden)}
-              className="text-gray-600 hover:text-gray-900 transition-transform p-1"
-              title={filtersHidden ? "Показать показатели" : "Скрыть показатели"}
-            >
-              <svg
-                className={`w-5 h-5 transform transition-transform duration-300 ${
-                  filtersHidden ? "rotate-180" : ""
-                }`}
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={2}
-                viewBox="0 0 24 24"
-              >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
-              </svg>
-            </button>
-            </div>
-            <p className="text-gray-400 text-[10px] mb-1 text-left">Медицинское учреждение</p>
-            <div className="flex items-center text-gray-500 gap-1">
-              <MapPin className="w-3 h-3 text-red-600" />
-              <span className="text-black">{`${buildingData.district} район`|| "Район"}</span>
-              {error && (
-                  <button onClick={handleRetry} className="ml-auto text-red-500 hover:text-red-700">
-                      <RefreshCw className="w-3 h-3" />
+      {buildingData?.id && (
+        <div className="relative">
+          <div className="flex flex-col max-h-[80vh] bg-white/95 backdrop-blur-sm rounded-xl md:rounded-xl border shadow-md md:shadow-lg overflow-hidden text-xs md:text-sm">
+            
+            <div className="sticky top-0 z-20 bg-white/95 backdrop-blur-sm border-b">
+              <div className="p-3 md:p-4">
+                <div className="flex items-start justify-between">
+                  <div className="w-full pr-2">
+                     <h3 className="font-bold text-left text-xs md:text-[16px] leading-tight mb-1 text-gray-900">
+                      {buildingData.name || "Поликлиника"}
+                    </h3>
+                    
+                    <div className="flex items-center text-gray-500 gap-1 mt-1">
+                      <MapPin className="w-3 h-3 text-red-600 flex-shrink-0" />
+                      <span className="text-[10px] md:text-xs text-black truncate">
+                        {buildingData.district ? `${buildingData.district} район` : "Район"}
+                      </span>
+                      {error && (
+                        <button onClick={handleRetry} className="ml-2 text-red-500 hover:text-red-700" title="Повторить загрузку">
+                          <RefreshCw className="w-3 h-3" />
+                        </button>
+                      )}
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => setFiltersHidden(!filtersHidden)}
+                    className="text-gray-600 hover:text-gray-900 transition-transform p-1 bg-gray-50 rounded-md border"
+                    title={filtersHidden ? "Показать подробности" : "Скрыть подробности"}
+                  >
+                    <svg
+                      className={`w-5 h-5 transform transition-transform duration-300 ${
+                        filtersHidden ? "" : "rotate-180"
+                      }`}
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                    </svg>
                   </button>
-              )}
+                </div>
+              </div>
+            </div>
+
+            <div className="overflow-y-auto custom-scrollbar">
+              <div className="p-3 md:p-4 space-y-3 md:space-y-4">
+                <div className="grid grid-cols-2 gap-2 md:gap-3">
+                  <StatCard 
+                    value={detailCardData.vop_count || "—"} 
+                    label="ВОП" 
+                    textColor="text-blue-700"
+                    isLoading={isLoading} 
+                  />
+                  <StatCard 
+                    value={detailCardData.vop_needed ? Number(detailCardData.vop_needed).toFixed(0) : 0} 
+                    label="Дефицит ВОП" 
+                    textColor="text-blue-700"
+                    isLoading={isLoading} 
+                  />
+                </div>
+
+                <div
+                  className={`flex flex-col min-h-0 transition-all duration-500 ease-in-out ${
+                    filtersHidden ? "max-h-0 opacity-0 overflow-hidden" : "max-h-[1000px] opacity-100"
+                  }`}
+                >
+                  <div className="space-y-3 md:space-y-4">
+                    
+                    <div>
+                      <div className="text-left font-semibold text-gray-900 mb-2">Основные показатели:</div>
+                      <div className="grid grid-cols-2 gap-2 md:gap-3">
+                        <StatCard 
+                          value={detailCardData.overall_coverage_ratio || "—"} 
+                          label="Загруженность" 
+                          textColor="text-black"
+                          isLoading={isLoading} 
+                        />
+                        <StatCard 
+                          value={data5month.per_1_person || "—"} 
+                          label="Посещ. на человека" 
+                          textColor="text-black"
+                          isLoading={isLoading} 
+                        />
+                        <StatCard 
+                          value={formatNumber(detailCardData.total_population).replace(/,/g, " ")} 
+                          label="Население" 
+                          textColor="text-black"
+                          isLoading={isLoading} 
+                        />
+                        <StatCard 
+                          value={formatNumber(detailCardData.total_covered).replace(/,/g, " ")} 
+                          label="Мощность" 
+                          textColor="text-black"
+                          isLoading={isLoading} 
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="text-left font-semibold text-gray-900 mb-2">Демография:</div>
+                      <div className="grid grid-cols-2 gap-2 md:gap-3">
+                        <StatCard 
+                          value={formatNumber(childrenCount)} 
+                          subValue={calculatePercent(childrenCount, totalPop)} 
+                          label="Дети (0-18)" 
+                          textColor="text-teal-600"
+                          isLoading={isLoading} 
+                        />
+                        <StatCard 
+                          value={formatNumber(adultsCount)} 
+                          subValue={calculatePercent(adultsCount, totalPop)} 
+                          label="Взрослые (18+)" 
+                          textColor="text-blue-900"
+                          isLoading={isLoading} 
+                        />
+                        <StatCard 
+                          value={formatNumber(maleCount)} 
+                          subValue={calculatePercent(maleCount, totalGender)} 
+                          label="Мужчины" 
+                          textColor="text-blue-700"
+                          isLoading={isLoading} 
+                        />
+                        <StatCard 
+                          value={formatNumber(femaleCount)} 
+                          subValue={calculatePercent(femaleCount, totalGender)} 
+                          label="Женщины" 
+                          textColor="text-pink-600"
+                          isLoading={isLoading} 
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <div className="text-left font-semibold text-gray-900 mb-2">Здание:</div>
+                      <div className="grid grid-cols-2 gap-2 md:gap-3">
+                        <StatCard 
+                          value={formatNumber(buildingAnalysis?.[0]?.building_volume_cubic_m_field)} 
+                          label="Объем (м³)" 
+                          textColor="text-black"
+                          isLoading={isLoading} 
+                        />
+                        <StatCard 
+                          value={formatNumber(buildingAnalysis?.[0]?.total_area_sq_m_field)} 
+                          label="Площадь (м²)" 
+                          textColor="text-black"
+                          isLoading={isLoading} 
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex gap-2 items-start pt-2 border-t border-gray-50">
+                      <Info className="w-4 h-4 text-gray-300 flex-shrink-0 mt-0.5" />
+                      <p className="text-gray-400 text-[9px] md:text-[10px] leading-snug text-left">
+                        Данные предоставляются Министерством Здравоохранения.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-
-        {/* SECTION: VOP (Blue Text) */}
-        <div className="grid grid-cols-2 gap-2">
-          <StatCard 
-            value={detailCardData.vop_count || "—"} 
-            label="ВОП" 
-            textColor="text-blue-700"
-            isLoading={isLoading} 
-          />
-          <StatCard 
-            value={detailCardData.vop_needed ? Number(detailCardData.vop_needed).toFixed(0) : 0} 
-            label="Дефицит ВОП" 
-            textColor="text-blue-700"
-            isLoading={isLoading} 
-          />
-        </div>
-
-        {/* SECTION: MAIN INDICATORS (Black Text) */}
-        <div
-        className={`flex flex-col space-y-3 min-h-0 transition-all duration-500 ease-in-out ${
-          filtersHidden ? "max-h-0 opacity-0 overflow-hidden" : "max-h-screen opacity-100"
-        }`}
-      >
-        <div className="text-left font-semibold text-gray-900 mt-2">Основные показатели:</div>
-        <div className="grid grid-cols-2 gap-2">
-          <StatCard 
-            value={detailCardData.overall_coverage_ratio || "—"} 
-            label="Загруженность" 
-            textColor="text-black"
-            isLoading={isLoading} 
-          />
-          <StatCard 
-            value={data5month.per_1_person || "—"} 
-            label="Посещений на человека" 
-            textColor="text-black"
-            isLoading={isLoading} 
-          />
-          <StatCard 
-            value={formatNumber(detailCardData.total_population).replace(/,/g, " ")} 
-            label="Население" 
-            textColor="text-black"
-            isLoading={isLoading} 
-          />
-          <StatCard 
-            value={formatNumber(detailCardData.total_covered).replace(/,/g, " ")} 
-            label="Мощность" 
-            textColor="text-black"
-            isLoading={isLoading} 
-          />
-        </div>
-
-        {/* SECTION: DEMOGRAPHY (Colored Text) */}
-        <div className="text-left font-semibold text-gray-900 mt-2">Демография:</div>
-        <div className="grid grid-cols-2 gap-2">
-          {/* Children: Teal/Green */}
-          <StatCard 
-            value={formatNumber(childrenCount)} 
-            subValue={calculatePercent(childrenCount, totalPop)} 
-            label="Дети (0-18)" 
-            textColor="text-teal-600"
-            isLoading={isLoading} 
-          />
-          {/* Adults: Dark Blue */}
-          <StatCard 
-            value={formatNumber(adultsCount)} 
-            subValue={calculatePercent(adultsCount, totalPop)} 
-            label="Взрослые (18+)" 
-            textColor="text-blue-900"
-            isLoading={isLoading} 
-          />
-          {/* Men: Blue */}
-          <StatCard 
-            value={formatNumber(maleCount)} 
-            subValue={calculatePercent(maleCount, totalGender)} 
-            label="Мужчины" 
-            textColor="text-blue-700"
-            isLoading={isLoading} 
-          />
-          {/* Women: Pink */}
-          <StatCard 
-            value={formatNumber(femaleCount)} 
-            subValue={calculatePercent(femaleCount, totalGender)} 
-            label="Женщины" 
-            textColor="text-pink-600"
-            isLoading={isLoading} 
-          />
-        </div>
-
-        {/* SECTION: BUILDING (Black Text) */}
-        <div className="text-left font-semibold text-gray-900 mt-2">Здание:</div>
-        <div className="grid grid-cols-2 gap-2">
-          <StatCard 
-            value={formatNumber(buildingAnalysis?.[0]?.building_volume_cubic_m_field)} 
-            label="Объем здания (м³)" 
-            textColor="text-black"
-            isLoading={isLoading} 
-          />
-          <StatCard 
-            value={formatNumber(buildingAnalysis?.[0]?.total_area_sq_m_field)} 
-            label="Общая площадь (м²)" 
-            textColor="text-black"
-            isLoading={isLoading} 
-          />
-        </div>
-        
-        {/* Footer info */}
-        <div className="flex gap-2 items-start mt-4">
-             <Info className="w-4 h-4 text-gray-300 flex-shrink-0 mt-0.5"/>
-             <p className="text-gray-400 text-[10px] leading-snug text-left">
-                Данные предоставляются Министерством Здравоохранения.
-             </p>
-        </div>
-        </div>
-      </div>
-      </div>
-      </div>
-    )}
+      )}
     </>
   );
 }

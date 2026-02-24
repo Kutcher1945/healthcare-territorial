@@ -43,7 +43,7 @@ export default function HomePage() {
         />
       </div>
 
-      <div className="absolute top-[40px] left-4 z-20 w-80">
+      <div className="absolute top-[40px] left-4 z-20 w-44 sm:w-64 md:w-80">
         <MapFilter
           selectedDistrict={selectedDistrict}
           setSelectedDistrict={setSelectedDistrict}
@@ -55,7 +55,7 @@ export default function HomePage() {
           avgPerson={avgPerson}
         />
       </div>
-      <div className="absolute top-[40px] right-4 z-20 w-80">
+      <div className="absolute top-[40px] right-4 z-20 w-44 sm:w-64 md:w-80">
         <DetailedInfoRight
           buildingData={buildingData}
         />
