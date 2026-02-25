@@ -97,25 +97,23 @@ export default function YearHistogram({ selectedDistrict, onDecadeSelect  }) {
   }
 
   return (
-    // FIX 1: Added 'flex flex-col h-full'
-    <div className="histogram-container bg-white rounded-lg p-4 shadow-lg h-full flex flex-col overflow-hidden hover:shadow-xl transition-all duration-300">
+    <div className="bg-white rounded-lg p-3 md:p-4 shadow-lg h-full flex flex-col overflow-hidden hover:shadow-xl transition-all duration-300">
       
-      {/* Title - flex-none */}
-      <div className="mb-3 flex-none">
-        <h3 className="text-sm text-left font-bold text-[#1b1b1b] uppercase tracking-wide flex items-center gap-2">
+      <div className="mb-2 md:mb-3 flex-none">
+        <h3 className="text-xs md:text-sm text-left font-bold text-[#1b1b1b] uppercase tracking-wide flex items-center gap-2">
           {label}
         </h3>
       </div>
 
-      {/* FIX 2: Wrapper with flex-1 min-h-0 */}
       <div className="flex-1 w-full min-h-0">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={histoData}
-            margin={{ top: 20, right: 10, left: 10, bottom: 40 }}
+            margin={{ top: 20, right: 0, left: 0, bottom: 40 }}
           >
             <CartesianGrid strokeDasharray="3 3" stroke="#e8e8e8" />
             <Tooltip
+              cursor={{fill: 'transparent'}}
               contentStyle={{
                 backgroundColor: "white",
                 border: "2px solid #c1d3ff",
@@ -126,7 +124,7 @@ export default function YearHistogram({ selectedDistrict, onDecadeSelect  }) {
             />
             <Bar
               dataKey="count"
-              radius={[8, 8, 0, 0]}
+              radius={[6, 6, 0, 0]}
               onClick={handleBarClick}
             >
               {histoData.map((entry, index) => (
@@ -140,7 +138,7 @@ export default function YearHistogram({ selectedDistrict, onDecadeSelect  }) {
                   style={{ cursor: 'pointer' }}
                 />
               ))}
-              <LabelList dataKey="count" position="insideTop" fill="#fff" fontSize={11} fontWeight="700" />
+              <LabelList dataKey="count" position="insideTop" fill="#fff" fontSize={10} fontWeight="700" />
             </Bar>
             <XAxis
               dataKey="decade"
@@ -150,7 +148,7 @@ export default function YearHistogram({ selectedDistrict, onDecadeSelect  }) {
               interval={0}
               angle={-25}
               textAnchor="end"
-              style={{ fontSize: '11px', fill: '#283353' }}
+              style={{ fontSize: '10px', fill: '#283353' }}
             />
             <defs>
               <linearGradient id="yearBlueGradient" x1="0" y1="0" x2="0" y2="1">

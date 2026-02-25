@@ -26,15 +26,16 @@ export default function DistrictHistogram({ selectedDistrict, onDistrictSelect }
     const name = payload.value
     const parts = name.split(" ")
     let first = parts[0]
+    // Truncate logic
     if (first.length > 7) {
       first = first.slice(0, 7) + "..."
     }
     const second = parts[1] || ""
 
     return (
-      <text x={x} y={y + 10} textAnchor="end" fontSize={12} fill="#666" transform={`rotate(-30, ${x}, ${y})`}>
+      <text x={x} y={y + 10} textAnchor="end" fontSize={10} fill="#666" transform={`rotate(-30, ${x}, ${y})`}>
         <tspan x={x} dy="0">{first}</tspan>
-        {second && <tspan x={x} dy="14">{second}</tspan>}
+        {second && <tspan x={x} dy="12">{second}</tspan>}
       </text>
     )
   }
@@ -42,23 +43,20 @@ export default function DistrictHistogram({ selectedDistrict, onDistrictSelect }
   const label = "Количество поликлиник по районам "
 
   return (
-    // FIX 1: Added 'flex flex-col h-full'
-    <div className="histogram-container bg-white rounded-lg p-4 shadow-lg h-full flex flex-col overflow-hidden hover:shadow-xl transition-all duration-300">
-      
-      {/* Title section does not grow (flex-none) */}
-      <div className="mb-3 flex-none">
-        <h3 className="text-sm text-left font-bold text-[#1b1b1b] uppercase tracking-wide">{label}</h3>
+    <div className="bg-white rounded-lg p-3 md:p-4 shadow-lg h-full flex flex-col overflow-hidden hover:shadow-xl transition-all duration-300">
+      <div className="mb-2 md:mb-3 flex-none">
+        <h3 className="text-xs md:text-sm text-left font-bold text-[#1b1b1b] uppercase tracking-wide">{label}</h3>
       </div>
 
-      {/* FIX 2: Added wrapper div with 'flex-1 min-h-0'. This forces the chart to fill remaining height. */}
       <div className="flex-1 w-full min-h-0">
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={histoData}
-            margin={{ top: 20, right: 10, left: 30, bottom: 40 }} // Adjusted bottom margin
+            margin={{ top: 20, right: 0, left: 0, bottom: 40 }}
           >
             <CartesianGrid strokeDasharray="3 3" stroke="#e8e8e8" />
             <Tooltip
+              cursor={{fill: 'transparent'}}
               contentStyle={{
                 backgroundColor: "white",
                 border: "2px solid #c1d3ff",
@@ -69,11 +67,10 @@ export default function DistrictHistogram({ selectedDistrict, onDistrictSelect }
             />
             <Bar
               dataKey="count"
-              radius={[8, 8, 0, 0]}
+              radius={[6, 6, 0, 0]}
               onClick={(histoData) => {
                 const clickedDistrict = histoData?.payload?.district
                 if (!clickedDistrict) return
-
                 if (clickedDistrict === selectedDistrict) {
                   onDistrictSelect("")
                 } else {
@@ -93,7 +90,7 @@ export default function DistrictHistogram({ selectedDistrict, onDistrictSelect }
                 />
               ))}
 
-              <LabelList dataKey="count" position="insideTop" fill="#fff" fontSize={11} fontWeight="700" />
+              <LabelList dataKey="count" position="insideTop" fill="#fff" fontSize={10} fontWeight="700" />
             </Bar>
             <XAxis
               dataKey="district"

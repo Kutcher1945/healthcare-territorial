@@ -4,9 +4,12 @@ import "../../App.css"
 
 const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
   const RADIAN = Math.PI / 180
+  // Adjust radius based on screen size implicitly by using percentage in Pie component
   const radius = innerRadius + (outerRadius - innerRadius) * 0.5
   const x = cx + radius * Math.cos(-midAngle * RADIAN)
   const y = cy + radius * Math.sin(-midAngle * RADIAN)
+
+  if (percent < 0.05) return null; // Hide small labels
 
   return (
     <text
@@ -15,7 +18,7 @@ const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, per
       fill="white"
       textAnchor="middle"
       dominantBaseline="central"
-      fontSize={12}
+      fontSize={10}
       fontWeight="bold"
     >
       {`${(percent * 100).toFixed(0)}%`}
@@ -67,15 +70,12 @@ export default function Diagram({ selectedDistrict, selectedDecade }) {
   useEffect(() => {
     if (allBuildingsData.length === 0) return
 
-    // Filter by district
     let filteredBuildings = selectedDistrict
       ? allBuildingsData.filter(b => b.district === selectedDistrict)
       : allBuildingsData
 
-    // ✅ Filter by selected decade
    if (selectedDecade && selectedDecade !== "Все") {
     if (selectedDecade === "До 1980-х") {
-      // Берём все здания, построенные до 1980 года
       filteredBuildings = filteredBuildings.filter(b => {
         const year = Number(b.year);
         return year && year < 1980;
@@ -90,7 +90,6 @@ export default function Diagram({ selectedDistrict, selectedDecade }) {
     }
    }
 
-    // Count by ownership type
     const ownershipCounts = {
       "Государственные": 0,
       "Смешанные": 0,
@@ -119,13 +118,13 @@ export default function Diagram({ selectedDistrict, selectedDecade }) {
   }, [allBuildingsData, selectedDistrict, selectedDecade])
 
   return (
-    <div className="histogram-container bg-white rounded-lg p-4 shadow-lg h-full overflow-hidden flex flex-col hover:shadow-xl transition-all duration-300">
-      <div className="mb-3 flex-none">
-        <h3 className="text-sm text-left font-bold text-[#1b1b1b] uppercase tracking-wide text-center">
-          Распределение медицинских организаций
+    <div className="bg-white rounded-lg p-3 md:p-4 shadow-lg h-full overflow-hidden flex flex-col hover:shadow-xl transition-all duration-300">
+      <div className="mb-2 md:mb-3 flex-none">
+        <h3 className="text-xs md:text-sm text-left font-bold text-[#1b1b1b] uppercase tracking-wide text-center">
+          Распределение организаций
         </h3>
         {selectedDecade && selectedDecade !== "Все" && (
-          <p className="text-xs text-gray-500 text-center mt-1">
+          <p className="text-[10px] md:text-xs text-gray-500 text-center mt-1">
             {selectedDecade === "До 1980-х"
               ? "Период: до 1980 г."
               : `Период: ${selectedDecade}–${parseInt(selectedDecade) + 9} гг.`}
@@ -138,9 +137,10 @@ export default function Diagram({ selectedDistrict, selectedDecade }) {
             <Pie
               data={data}
               cx="50%"
-              cy="45%"
-              innerRadius={50}
-              outerRadius={90}
+              cy="50%"
+              // Use percentages to adapt to container size
+              innerRadius="40%"
+              outerRadius="75%"
               paddingAngle={3}
               dataKey="value"
               label={renderCustomizedLabel}
@@ -163,7 +163,7 @@ export default function Diagram({ selectedDistrict, selectedDecade }) {
               layout="horizontal"
               verticalAlign="bottom"
               align="center"
-              wrapperStyle={{ fontSize: "11px", fontWeight: "600", paddingTop: "8px" }}
+              wrapperStyle={{ fontSize: "10px", fontWeight: "600", paddingTop: "0px" }}
               iconType="circle"
             />
           </PieChart>

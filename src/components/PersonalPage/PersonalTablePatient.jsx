@@ -10,10 +10,9 @@ export default function PersonalTablePatient({ selectedDistrict, searchTerm, set
   useEffect(() => {
     async function fetchData() {
       try {
-        // формируем url с фильтрацией
         let url = "https://admin.smartalmaty.kz/api/v1/healthcare/healthcare-precinct-service/?limit=10000"
         if (selectedDistrict && selectedDistrict.selectedDistrict !== "Все районы") {
-          // если selectedDistrict объект, достанем поле name
+          // If selectedDistrict is an object, try to use its name property or fallback
           const districtName =
             typeof selectedDistrict === "string"
               ? selectedDistrict
@@ -22,6 +21,8 @@ export default function PersonalTablePatient({ selectedDistrict, searchTerm, set
           if (districtName) {
             url += `&district=${encodeURIComponent(districtName)}`
           }
+        } else if (selectedDistrict && typeof selectedDistrict === "string" && selectedDistrict !== "Все районы") {
+             url += `&district=${encodeURIComponent(selectedDistrict)}`
         }
 
         const response = await fetch(url)
@@ -85,19 +86,19 @@ export default function PersonalTablePatient({ selectedDistrict, searchTerm, set
 
   const SortIcon = ({ columnKey }) => {
     if (sortConfig.key !== columnKey) {
-      return <span className="ml-1 text-white/50">⇅</span>
+      return <span className="ml-1 text-gray-300">⇅</span>
     }
     return (
-      <span className="ml-1">
+      <span className="ml-1 text-blue-600">
         {sortConfig.direction === 'asc' ? '↑' : '↓'}
       </span>
     )
   } 
 
     const fixedNum = (item) => {
-        if (item == null || item === "") return "-" // fallback if missing
+        if (item == null || item === "") return "-"
         const num = Number(item)
-        if (isNaN(num)) return "-" // fallback if not numeric
+        if (isNaN(num)) return "-"
         return num.toFixed(0)
     }
 
@@ -135,14 +136,14 @@ export default function PersonalTablePatient({ selectedDistrict, searchTerm, set
   return (
     <div className="h-full flex flex-col bg-white">
       {/* Search Bar */}
-      <div className="p-4 border-b border-gray-200">
+      <div className="p-3 md:p-4 border-b border-gray-200">
         <div className="relative">
           <input
             type="text"
             placeholder="Поиск по названию поликлиники..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full px-4 py-2 pl-10 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-sm"
+            className="w-full px-3 py-2 pl-9 md:pl-10 border-2 border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 text-xs md:text-sm"
           />
           <svg
             className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400"
@@ -173,13 +174,14 @@ export default function PersonalTablePatient({ selectedDistrict, searchTerm, set
         )}
       </div>
 
-      <div className="flex-1 overflow-y-auto">
-        <table className="w-full border-collapse">
-          <thead className="sticky top-0 bg-white">
+      {/* Table Content */}
+      <div className="flex-1 overflow-auto custom-scrollbar">
+        <table className="min-w-full border-collapse text-xs md:text-sm">
+          <thead className="sticky top-0 bg-white z-10 shadow-sm">
             <tr>
-              <th className="px-4 py-3 text-left font-semibold">Название поликлиники</th>
+              <th className="px-3 py-2 md:px-4 md:py-3 text-left font-semibold bg-white whitespace-nowrap">Название поликлиники</th>
               <th
-                className="px-4 py-3 text-center font-semibold cursor-pointer transition-colors"
+                className="px-3 py-2 md:px-4 md:py-3 text-center font-semibold bg-white cursor-pointer transition-colors whitespace-nowrap"
                 onClick={() => handleSort('pediatric_service_nurse_to_doctor_ratio')}
               >
                 <div className="flex items-center justify-center">
@@ -188,7 +190,7 @@ export default function PersonalTablePatient({ selectedDistrict, searchTerm, set
                 </div>
               </th>
               <th
-                className="px-4 py-3 text-center font-semibold cursor-pointer transition-colors"
+                className="px-3 py-2 md:px-4 md:py-3 text-center font-semibold bg-white cursor-pointer transition-colors whitespace-nowrap"
                 onClick={() => handleSort('therapeutic_service_nurse_to_doctor_ratio')}
               >
                 <div className="flex items-center justify-center">
@@ -197,7 +199,7 @@ export default function PersonalTablePatient({ selectedDistrict, searchTerm, set
                 </div>
               </th>
               <th
-                className="px-4 py-3 text-center font-semibold cursor-pointer transition-colors"
+                className="px-3 py-2 md:px-4 md:py-3 text-center font-semibold bg-white cursor-pointer transition-colors whitespace-nowrap"
                 onClick={() => handleSort('gp_service_nurse_to_doctor_ratio')}
               >
                 <div className="flex items-center justify-center">
@@ -213,21 +215,21 @@ export default function PersonalTablePatient({ selectedDistrict, searchTerm, set
                 <tr
                   className={`hover:bg-blue-50 cursor-pointer transition-colors ${index % 2 === 0 ? "bg-slate-50" : "bg-white"}`}
                 >
-                  <td className="px-4 py-3 text-left font-medium text-slate-800 border-b border-slate-200">
+                  <td className="px-3 py-2 md:px-4 md:py-3 text-left font-medium text-slate-800 border-b border-slate-200 min-w-[150px]">
                     {item.medical_organization_name_rus}
                   </td>
-                  <td className="px-4 py-3 text-center text-slate-700 border-b border-slate-200">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium text-blue-800 ${getBg(fixedNum((item.pediatric_service_nurse_to_doctor_ratio)))}`}>
+                  <td className="px-3 py-2 md:px-4 md:py-3 text-center text-slate-700 border-b border-slate-200">
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] md:text-xs font-medium text-blue-800 ${getBg(fixedNum((item.pediatric_service_nurse_to_doctor_ratio)))}`}>
                       {fixedNum(item.pediatric_service_nurse_to_doctor_ratio)}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-center text-slate-700 border-b border-slate-200">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800  ${getBg(fixedNum((item.therapeutic_service_nurse_to_doctor_ratio)))} `}>
+                  <td className="px-3 py-2 md:px-4 md:py-3 text-center text-slate-700 border-b border-slate-200">
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] md:text-xs font-medium bg-blue-100 text-blue-800  ${getBg(fixedNum((item.therapeutic_service_nurse_to_doctor_ratio)))} `}>
                       {fixedNum(item.therapeutic_service_nurse_to_doctor_ratio)}
                     </span>
                   </td>
-                  <td className="px-4 py-3 text-center text-slate-700 border-b border-slate-200">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 ${getBgVop(fixedNum((item.gp_service_nurse_to_doctor_ratio)))}`}>
+                  <td className="px-3 py-2 md:px-4 md:py-3 text-center text-slate-700 border-b border-slate-200">
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-[10px] md:text-xs font-medium bg-blue-100 text-blue-800 ${getBgVop(fixedNum((item.gp_service_nurse_to_doctor_ratio)))}`}>
                       {fixedNum(item.gp_service_nurse_to_doctor_ratio)}
                     </span>
                   </td>

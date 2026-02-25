@@ -34,16 +34,15 @@ export default function PersonalHistogram({ selectedDistrict }) {
 
   const formatMillions = (value) => {
     if (!value && value !== 0) return ""
-    // Assuming value is raw number (e.g. 250000), this converts to 0.25
     const inMillions = value / 1_000_000
-    return `${inMillions.toFixed(2)} млн`
+    return `${inMillions.toFixed(2)}` // Removed "млн" to save space on mobile
   }
 
   return (
     <div className="w-full h-full">
       <ResponsiveContainer width="100%" height="100%">
-        {/* 2. Change BarChart to ComposedChart */}
-        <ComposedChart data={histoData} margin={{ top: 20, right: 10, left: 0, bottom: 0 }}>
+        {/* Adjusted margins for small screens */}
+        <ComposedChart data={histoData} margin={{ top: 20, right: 0, left: -20, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
           
           <XAxis 
@@ -55,22 +54,20 @@ export default function PersonalHistogram({ selectedDistrict }) {
             tick={{ fontSize: 10, fill: "#666", angle: -35, textAnchor: "end" }}
           />
 
-          {/* Left Axis: For the Bars (Doctor Counts) */}
           <YAxis 
             yAxisId="left" 
             orientation="left" 
             stroke="#64748b" 
-            tick={{ fontSize: 11 }} 
+            tick={{ fontSize: 10 }} 
           />
 
-          {/* Right Axis: For the Line (Population) */}
-          {/* I removed the domain={[0, 0.5]} so it auto-scales to the actual population size */}
           <YAxis
             yAxisId="right"
             orientation="right"
-            tickFormatter={(v) => formatMillions(v)}
-            stroke="#ff0000" // Colored red to match the line
-            tick={{ fontSize: 11, fill: "#ff0000" }}
+            tickFormatter={formatMillions}
+            stroke="#ff0000"
+            tick={{ fontSize: 10, fill: "#ff0000" }}
+            width={30} // restrict width
           />
 
           <Tooltip
@@ -82,27 +79,25 @@ export default function PersonalHistogram({ selectedDistrict }) {
               padding: "8px"
             }}
           />
-          <Legend wrapperStyle={{ fontSize: "12px" }} />
+          <Legend wrapperStyle={{ fontSize: "11px", paddingTop: "0px" }} />
 
-          {/* Bars linked to Left Axis */}
           <Bar yAxisId="left" dataKey="peds_count" stackId="a" fill="url(#lightBlueGradient)" radius={[2, 2, 0, 0]} name="Педиатров">
-            <LabelList dataKey="peds_count" position="center" fill="white" fontSize={10} fontWeight="600" />
+            <LabelList dataKey="peds_count" position="center" fill="white" fontSize={9} fontWeight="600" />
           </Bar>
           <Bar yAxisId="left" dataKey="vop_count" stackId="a" fill="url(#blueGradient)" radius={[2, 2, 0, 0]} name="ВОПов">
-            <LabelList dataKey="vop_count" position="center" fill="white" fontSize={10} fontWeight="600" />
+            <LabelList dataKey="vop_count" position="center" fill="white" fontSize={9} fontWeight="600" />
           </Bar>
           <Bar yAxisId="left" dataKey="therap_count" stackId="a" fill="url(#darkBlueGradient)" radius={[2, 2, 0, 0]} name="Терапевтов">
-            <LabelList dataKey="therap_count" position="center" fill="white" fontSize={10} fontWeight="600" />
+            <LabelList dataKey="therap_count" position="center" fill="white" fontSize={9} fontWeight="600" />
           </Bar>
 
-          {/* 3. New Line linked to Right Axis */}
           <Line 
             yAxisId="right" 
             type="monotone" 
             dataKey="total_population" 
             stroke="#ff0000" 
-            strokeWidth={3}
-            dot={{ r: 4, fill: "#ff0000" }}
+            strokeWidth={2}
+            dot={{ r: 3, fill: "#ff0000" }}
             name="Население"
           />
 

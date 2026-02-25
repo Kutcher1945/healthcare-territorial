@@ -57,6 +57,7 @@ export default function DeathMoTable({ moData, setMoData }) {
         setMoData(null); 
     };
 
+    // Sorting logic (kept same as before)
     const sortedData = useMemo(() => {
         let sortableItems = [...data];
         if (sortConfig.key !== null) {
@@ -69,12 +70,8 @@ export default function DeathMoTable({ moData, setMoData }) {
                     bVal = (bVal === null || bVal === undefined || bVal === '-') ? -1 : Number(bVal);
                 }
 
-                if (aVal < bVal) {
-                    return sortConfig.direction === 'asc' ? -1 : 1;
-                }
-                if (aVal > bVal) {
-                    return sortConfig.direction === 'asc' ? 1 : -1;
-                }
+                if (aVal < bVal) return sortConfig.direction === 'asc' ? -1 : 1;
+                if (aVal > bVal) return sortConfig.direction === 'asc' ? 1 : -1;
                 return 0;
             });
         }
@@ -83,25 +80,16 @@ export default function DeathMoTable({ moData, setMoData }) {
 
     const handleSort = (key) => {
         if (sortConfig.key === key) {
-            if (sortConfig.direction === 'asc') {
-                setSortConfig({ key, direction: 'desc' });
-            } else if (sortConfig.direction === 'desc') {
-                setSortConfig({ key: null, direction: null });
-            }
+            if (sortConfig.direction === 'asc') setSortConfig({ key, direction: 'desc' });
+            else if (sortConfig.direction === 'desc') setSortConfig({ key: null, direction: null });
         } else {
             setSortConfig({ key, direction: 'asc' });
         }
     };
 
     const SortIcon = ({ columnKey }) => {
-        if (sortConfig.key !== columnKey) {
-            return <span className="ml-1"><ChevronUp className="w-4 h-4"/></span>
-        }
-        return (
-            <span className="ml-1">
-                {sortConfig.direction === 'asc' ? <ChevronUp className="w-4 h-4"/> : <ChevronDown className="w-4 h-4"/>}
-            </span>
-        )
+        if (sortConfig.key !== columnKey) return <span className="ml-1"><ChevronUp className="w-4 h-4 text-gray-300"/></span>
+        return <span className="ml-1">{sortConfig.direction === 'asc' ? <ChevronUp className="w-4 h-4"/> : <ChevronDown className="w-4 h-4"/>}</span>
     }
 
     const renderPriorityBadge = (level) => {
@@ -111,27 +99,17 @@ export default function DeathMoTable({ moData, setMoData }) {
 
         switch (level) {
             case "high":
-                styles = "bg-red-50 text-red-700 border-red-100";
-                dotColor = "bg-red-500";
-                label = "Высокий";
-                break;
+                styles = "bg-red-50 text-red-700 border-red-100"; dotColor = "bg-red-500"; label = "Высокий"; break;
             case "low":
-                styles = "bg-emerald-50 text-emerald-700 border-emerald-100";
-                dotColor = "bg-emerald-500";
-                label = "Низкий";
-                break;
+                styles = "bg-emerald-50 text-emerald-700 border-emerald-100"; dotColor = "bg-emerald-500"; label = "Низкий"; break;
             case "medium":
             default:
-                styles = "bg-orange-50 text-orange-700 border-orange-100";
-                dotColor = "bg-orange-500";
-                label = "Средний";
-                break;
+                styles = "bg-orange-50 text-orange-700 border-orange-100"; dotColor = "bg-orange-500"; label = "Средний"; break;
         }
 
         return (
             <div className={`inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-medium border ${styles}`}>
-                <span className={`w-1.5 h-1.5 rounded-full ${dotColor}`}></span>
-                {label}
+                <span className={`w-1.5 h-1.5 rounded-full ${dotColor}`}></span>{label}
             </div>
         );
     };
@@ -143,60 +121,50 @@ export default function DeathMoTable({ moData, setMoData }) {
 
         switch (status) {
             case "Перегружен":
-                styles = "bg-red-50 text-red-700 border-red-100";
-                dotColor = "bg-red-500";
-                label = "Перегружен";
-                break;
+                styles = "bg-red-50 text-red-700 border-red-100"; dotColor = "bg-red-500"; label = "Перегружен"; break;
             case "Оптимально":
-                styles = "bg-emerald-50 text-emerald-700 border-emerald-100";
-                dotColor = "bg-emerald-500";
-                label = "Оптимально";
-                break;
+                styles = "bg-emerald-50 text-emerald-700 border-emerald-100"; dotColor = "bg-emerald-500"; label = "Оптимально"; break;
             case "Недозагрузка":
             default:
-                styles = "bg-orange-50 text-orange-700 border-orange-100";
-                dotColor = "bg-orange-500";
-                label = "Недозагрузка";
-                break;
+                styles = "bg-orange-50 text-orange-700 border-orange-100"; dotColor = "bg-orange-500"; label = "Недозагрузка"; break;
         }
 
         return (
             <div className={`inline-flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-medium border ${styles}`}>
-                <span className={`w-1.5 h-1.5 rounded-full ${dotColor}`}></span>
-                {label}
+                <span className={`w-1.5 h-1.5 rounded-full ${dotColor}`}></span>{label}
             </div>
         );
     };
 
     const formatPopulation = (value) => {
         if (value === null || value === undefined || value === '') return '-';
-
-        return new Intl.NumberFormat('ru-RU', {
-            maximumFractionDigits: 0,
-        }).format(Number(value));
+        return new Intl.NumberFormat('ru-RU', { maximumFractionDigits: 0 }).format(Number(value));
     };
 
     return (
-        <div className="bg-white rounded-xl shadow-md border border-gray-300 flex flex-col max-h-full overflow-hidden">
-            <div className="p-4 border-b border-gray-100 flex justify-end items-center bg-white flex-shrink-0">
-                <div className="flex items-center gap-2">
+        // Added h-full to fill the fixed 500px container
+        <div className="bg-white rounded-xl shadow-md border border-gray-300 flex flex-col h-full overflow-hidden">
+            
+            {/* Header / Filters */}
+            <div className="p-3 sm:p-4 border-b border-gray-100 flex justify-end items-center bg-white flex-shrink-0">
+                <div className="flex flex-wrap justify-end items-center gap-2">
                     {(moData && moData.id) || priorityFilter !== "all" || loadStatusFilter !== "all" ? (
                         <button 
                             onClick={clearFilters} 
                             className="text-xs text-blue-600 bg-blue-50 px-3 py-1.5 rounded-lg hover:bg-blue-100 transition-colors font-medium"
                         >
-                            ✕ Сбросить фильтр
+                            ✕ Сбросить
                         </button>
                     ) : null}
 
                     {(!moData || !moData.id) && (
                         <div className="flex gap-2">
-                            <div className="flex items-center gap-2">
-                                <span className="text-xs text-gray-500 font-medium">Уровень:</span>
+                            <div className="flex items-center gap-1 sm:gap-2">
+                                <span className="hidden sm:inline text-xs text-gray-500 font-medium">Уровень:</span>
                                 <select
                                     value={priorityFilter}
                                     onChange={(e) => setPriorityFilter(e.target.value)}
-                                    className="text-xs border border-gray-200 rounded-lg px-2 py-1.5 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-100 text-gray-700 hover:bg-gray-100 transition-colors"
+                                    className="text-xs border border-gray-200 rounded-lg px-2 py-1.5 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-100 text-gray-700 hover:bg-gray-100"
                                 >
                                     <option value="all">Все</option>
                                     <option value="high">Высокий</option>
@@ -204,12 +172,12 @@ export default function DeathMoTable({ moData, setMoData }) {
                                     <option value="low">Низкий</option>
                                 </select>
                             </div>
-                            <div className="flex items-center gap-2">
-                                <span className="text-xs text-gray-500 font-medium">Статус:</span>
+                            <div className="flex items-center gap-1 sm:gap-2">
+                                <span className="hidden sm:inline text-xs text-gray-500 font-medium">Статус:</span>
                                 <select
                                     value={loadStatusFilter}
                                     onChange={(e) => setLoadStatusFilter(e.target.value)}
-                                    className="text-xs border border-gray-200 rounded-lg px-2 py-1.5 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-100 text-gray-700 cursor-pointer hover:bg-gray-100 transition-colors"
+                                    className="text-xs border border-gray-200 rounded-lg px-2 py-1.5 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-100 text-gray-700 cursor-pointer hover:bg-gray-100"
                                 >
                                     <option value="all">Все</option>
                                     <option value="Перегружен">Перегружен</option>
@@ -222,11 +190,17 @@ export default function DeathMoTable({ moData, setMoData }) {
                 </div>
             </div>
 
-            <div className="flex-1 overflow-y-auto min-h-0"> 
-                <table className="min-w-full border border-gray-100 text-sm rounded-lg relative border-separate border-spacing-0">
+            {/* 
+               Table Container:
+               - overflow-auto: Enables BOTH x and y scrolling
+               - custom-scrollbar: Your styling
+            */}
+            <div className="flex-1 overflow-auto min-h-0 custom-scrollbar"> 
+                {/* min-w-[1200px]: Forces horizontal scroll on mobile so text doesn't wrap/crush */}
+                <table className="min-w-[1200px] w-full border-collapse border border-gray-100 text-sm rounded-lg relative">
                     <thead className="bg-gray-50 sticky top-0 z-10 shadow-sm">
                         <tr>
-                            <th rowSpan="2" className="px-4 py-3 text-left border-b border-gray-200 font-semibold text-gov-text-primary bg-gray-50">
+                            <th rowSpan="2" className="px-4 py-3 text-left border-b border-gray-200 font-semibold text-gov-text-primary bg-gray-50 sticky left-0 z-20 shadow-[2px_0_5px_-2px_rgba(0,0,0,0.1)]">
                                 Название МО
                             </th>
                             
@@ -295,7 +269,8 @@ export default function DeathMoTable({ moData, setMoData }) {
                                         setMoData(item);
                                     }}
                                 >
-                                    <td className="px-4 py-3 text-left text-gov-text-primary font-medium">
+                                    {/* Sticky Name Column for better scrolling UX */}
+                                    <td className="px-4 py-3 text-left text-gov-text-primary font-medium sticky left-0 bg-white shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]">
                                         {item.name}
                                     </td>
 
@@ -342,12 +317,9 @@ export default function DeathMoTable({ moData, setMoData }) {
                             ))
                         ) : (
                             <tr>
-                                <td colSpan="9" className="p-8 text-center text-gray-400">
+                                <td colSpan="12" className="p-8 text-center text-gray-400">
                                     <div className="flex flex-col items-center justify-center gap-2">
-                                        <svg className="w-8 h-8 opacity-20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                                        </svg>
-                                        <span>Ничего не найдено. Попробуйте изменить параметры фильтрации</span>
+                                        <span>Ничего не найдено.</span>
                                     </div>
                                 </td>
                             </tr>
