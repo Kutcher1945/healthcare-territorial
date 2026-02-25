@@ -121,36 +121,26 @@ export default function MapViewRecomendations({
     if (!map ) return;
 
     if (!moData) {
-      // 1. Remove popup
       if (popupRef.current) {
         popupRef.current.remove();
         popupRef.current = null;
       }
       
-      // 2. Clear highlighting on map
       clearFeatureStates(map, polygonMappingRef.current);
       selectedMarkerRef.current = null;
 
-      // 3. Optional: Reset map zoom to default view
       resetView(); 
       return;
     }
 
-    // Find the feature data in our points list
     const feature = allPointsRef.current.find(f => f.properties.id === moData.id);
     
-    // If the data from the table doesn't have coordinates, 
-    // we use the coordinates from the map data we fetched earlier
     if (feature) {
       const coords = feature.geometry.coordinates;
-
-      // a) Close existing popup
       if (popupRef.current) popupRef.current.remove();
 
-      // b) Create new popup
       popupRef.current = createPopup(map, feature, { lng: coords[0], lat: coords[1] });
 
-      // c) Highlight polygon
       updateFeatureStates(
         map,
         selectedMarkerRef.current,
@@ -159,10 +149,9 @@ export default function MapViewRecomendations({
       );
       selectedMarkerRef.current = moData.id;
 
-      // d) Fly to the point
       map.flyTo({
         center: coords,
-        zoom: 15, // Zoom in closer when selecting from table
+        zoom: 15,
         duration: 1500,
         essential: true
       });

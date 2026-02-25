@@ -98,7 +98,6 @@ export default function DistrictTable({ selectedDistrict, onDistrictSelect }) {
   return (
     <div className="h-full flex flex-col bg-white">
       <div className="flex-1 overflow-auto custom-scrollbar">
-        {/* text-xs md:text-sm makes the font adaptive */}
         <table className="min-w-full border-collapse text-xs md:text-sm">
           <thead className="sticky top-0 bg-white z-10 shadow-sm">
             <tr>

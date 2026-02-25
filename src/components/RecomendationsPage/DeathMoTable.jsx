@@ -56,8 +56,6 @@ export default function DeathMoTable({ moData, setMoData }) {
         setLoadStatusFilter("all");
         setMoData(null); 
     };
-
-    // Sorting logic (kept same as before)
     const sortedData = useMemo(() => {
         let sortableItems = [...data];
         if (sortConfig.key !== null) {
@@ -142,10 +140,7 @@ export default function DeathMoTable({ moData, setMoData }) {
     };
 
     return (
-        // Added h-full to fill the fixed 500px container
         <div className="bg-white rounded-xl shadow-md border border-gray-300 flex flex-col h-full overflow-hidden">
-            
-            {/* Header / Filters */}
             <div className="p-3 sm:p-4 border-b border-gray-100 flex justify-end items-center bg-white flex-shrink-0">
                 <div className="flex flex-wrap justify-end items-center gap-2">
                     {(moData && moData.id) || priorityFilter !== "all" || loadStatusFilter !== "all" ? (
@@ -190,13 +185,7 @@ export default function DeathMoTable({ moData, setMoData }) {
                 </div>
             </div>
 
-            {/* 
-               Table Container:
-               - overflow-auto: Enables BOTH x and y scrolling
-               - custom-scrollbar: Your styling
-            */}
-            <div className="flex-1 overflow-auto min-h-0 custom-scrollbar"> 
-                {/* min-w-[1200px]: Forces horizontal scroll on mobile so text doesn't wrap/crush */}
+            <div className="flex-1 overflow-auto min-h-0 custom-scrollbar">
                 <table className="min-w-[1200px] w-full border-collapse border border-gray-100 text-sm rounded-lg relative">
                     <thead className="bg-gray-50 sticky top-0 z-10 shadow-sm">
                         <tr>
@@ -269,7 +258,6 @@ export default function DeathMoTable({ moData, setMoData }) {
                                         setMoData(item);
                                     }}
                                 >
-                                    {/* Sticky Name Column for better scrolling UX */}
                                     <td className="px-4 py-3 text-left text-gov-text-primary font-medium sticky left-0 bg-white shadow-[2px_0_5px_-2px_rgba(0,0,0,0.05)]">
                                         {item.name}
                                     </td>

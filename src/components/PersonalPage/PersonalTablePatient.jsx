@@ -12,7 +12,6 @@ export default function PersonalTablePatient({ selectedDistrict, searchTerm, set
       try {
         let url = "https://admin.smartalmaty.kz/api/v1/healthcare/healthcare-precinct-service/?limit=10000"
         if (selectedDistrict && selectedDistrict.selectedDistrict !== "Все районы") {
-          // If selectedDistrict is an object, try to use its name property or fallback
           const districtName =
             typeof selectedDistrict === "string"
               ? selectedDistrict
@@ -36,26 +35,22 @@ export default function PersonalTablePatient({ selectedDistrict, searchTerm, set
     fetchData()
   }, [selectedDistrict])
 
-  // Filter and sort data
   useEffect(() => {
     if (allData.length === 0) return
 
     let filteredData = allData
 
-    // Apply search filter
     if (searchTerm.trim()) {
       filteredData = filteredData.filter(item =>
         item.medical_organization_name_rus?.toLowerCase().includes(searchTerm.toLowerCase())
       )
     }
 
-    // Apply sorting
     if (sortConfig.key) {
       filteredData = [...filteredData].sort((a, b) => {
         let aVal = a[sortConfig.key]
         let bVal = b[sortConfig.key]
 
-        // Convert to numbers
         aVal = Number(aVal) || 0
         bVal = Number(bVal) || 0
 
@@ -135,7 +130,6 @@ export default function PersonalTablePatient({ selectedDistrict, searchTerm, set
 
   return (
     <div className="h-full flex flex-col bg-white">
-      {/* Search Bar */}
       <div className="p-3 md:p-4 border-b border-gray-200">
         <div className="relative">
           <input
@@ -174,7 +168,6 @@ export default function PersonalTablePatient({ selectedDistrict, searchTerm, set
         )}
       </div>
 
-      {/* Table Content */}
       <div className="flex-1 overflow-auto custom-scrollbar">
         <table className="min-w-full border-collapse text-xs md:text-sm">
           <thead className="sticky top-0 bg-white z-10 shadow-sm">

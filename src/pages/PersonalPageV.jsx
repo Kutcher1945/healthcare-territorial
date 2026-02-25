@@ -12,10 +12,8 @@ export default function PersonalPage() {
   const [searchTerm, setSearchTerm] = useState("")
 
   return (
-    // FIX: overflow-y-auto on mobile, overflow-hidden on desktop
     <div className="h-screen w-full bg-[#eaebee] p-2 md:p-4 flex flex-col gap-4 overflow-y-auto lg:overflow-hidden font-sans">
       
-      {/* 1. Header Section */}
       <div className="flex-none">
         {selectedDistrict && (
           <div className="bg-gradient-to-r from-[#3772ff] to-[#2956bf] text-white px-4 py-2 rounded-lg shadow-lg flex items-center justify-between">
@@ -30,22 +28,8 @@ export default function PersonalPage() {
         )}
       </div>
 
-      {/* 
-         2. Main Content Area 
-         - Mobile: flex-col with normal flow
-         - Desktop: flex-col with flex-1 to fill screen
-      */}
       <div className="flex-col gap-4 flex lg:flex-1 lg:min-h-0">
-        
-        {/* 
-           TOP ROW: Charts 
-           - Mobile: grid-cols-1, auto height (children will have fixed height)
-           - Desktop: flex-[0.45] means 45% height
-        */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 shrink-0 lg:flex-[0.45] lg:min-h-0">
-          
-          {/* Left: District Table */}
-          {/* Mobile height: h-80. Desktop height: h-full */}
           <div className="h-80 md:h-96 lg:h-full lg:col-span-2 flex flex-col bg-white rounded-lg shadow-lg overflow-hidden">
             <div className="flex-none px-3 py-2 bg-slate-50 border-b border-slate-100">
               <h2 className="text-sm md:text-base font-bold text-[#1b1b1b] uppercase tracking-wide text-left">Анализ по районам</h2>
@@ -71,11 +55,6 @@ export default function PersonalPage() {
           </div>
         </div>
 
-        {/* 
-           BOTTOM ROW: Personnel Table 
-           - Mobile: Fixed height (e.g., 600px) so it scrolls internally.
-           - Desktop: flex-[0.55] means 55% height.
-        */}
         <div className="h-[500px] md:h-[600px] lg:h-auto lg:flex-[0.55] lg:min-h-0 flex flex-col bg-white rounded-lg shadow-lg overflow-hidden">
           <div className="flex-none flex flex-wrap items-center justify-between px-3 py-2 md:px-4 md:py-2 gap-2">
             <h2 className="text-sm font-semibold truncate">

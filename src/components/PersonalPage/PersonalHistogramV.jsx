@@ -35,13 +35,12 @@ export default function PersonalHistogram({ selectedDistrict }) {
   const formatMillions = (value) => {
     if (!value && value !== 0) return ""
     const inMillions = value / 1_000_000
-    return `${inMillions.toFixed(2)}` // Removed "млн" to save space on mobile
+    return `${inMillions.toFixed(2)}`
   }
 
   return (
     <div className="w-full h-full">
       <ResponsiveContainer width="100%" height="100%">
-        {/* Adjusted margins for small screens */}
         <ComposedChart data={histoData} margin={{ top: 20, right: 0, left: -20, bottom: 0 }}>
           <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
           
@@ -67,7 +66,7 @@ export default function PersonalHistogram({ selectedDistrict }) {
             tickFormatter={formatMillions}
             stroke="#ff0000"
             tick={{ fontSize: 10, fill: "#ff0000" }}
-            width={30} // restrict width
+            width={30}
           />
 
           <Tooltip

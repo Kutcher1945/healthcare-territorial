@@ -87,7 +87,6 @@ export default function PersonalTable({ selectedDistrict, searchTerm, setSearchT
 
   return (
     <div className="h-full flex flex-col bg-white">
-      {/* Search Bar */}
       <div className="p-3 md:p-4 border-b border-gray-200">
         <div className="relative">
           <input
@@ -108,8 +107,6 @@ export default function PersonalTable({ selectedDistrict, searchTerm, setSearchT
           <div className="mt-2 text-xs text-gray-600">Найдено результатов: <span className="font-semibold text-blue-600">{tableData.length}</span></div>
         )}
       </div>
-
-      {/* Table Area */}
       <div className="flex-1 overflow-auto custom-scrollbar">
         <table className="min-w-full border-collapse text-xs md:text-sm">
           <thead className="sticky top-0 z-10 shadow-sm">
