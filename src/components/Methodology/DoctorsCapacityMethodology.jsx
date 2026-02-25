@@ -1,8 +1,8 @@
 export default function DoctorsCapacityMethodology() {
   return (
-    <div className="space-y-6 text-sm leading-relaxed p-8 pt-2">
+    <div className="space-y-6 text-xs md:text-sm leading-relaxed p-4 md:p-8 pt-2">
       <section>
-        <h3 className="text-lg font-semibold mb-2">Цель</h3>
+        <h3 className="text-base md:text-lg font-semibold mb-2">Цель</h3>
         <p>
           Основная цель методологии – обеспечить контроль и оптимизацию распределения государственных заказов и участков
           обслуживания в поликлиниках города Алматы. Также методология предусматривает визуализацию данных на карте города с
@@ -11,7 +11,7 @@ export default function DoctorsCapacityMethodology() {
       </section>
 
       <section>
-        <h3 className="text-lg font-semibold mb-2">Нормативы нагрузки на врачей</h3>
+        <h3 className="text-base md:text-lg font-semibold mb-2">Нормативы нагрузки на врачей</h3>
         <p className="mb-2">
           В соответствии с действующими стандартами, расчет мощности поликлиники осуществляется исходя из нормативной
           нагрузки на одного врача:
@@ -26,12 +26,12 @@ export default function DoctorsCapacityMethodology() {
       </section>
 
       <section>
-        <h3 className="text-lg font-semibold mb-2">Формулы расчетов</h3>
+        <h3 className="text-base md:text-lg font-semibold mb-2">Формулы расчетов</h3>
 
         <ol className="list-decimal pl-6 space-y-4">
           <li>
             <strong>Мощность поликлиники:</strong>
-            <pre className="bg-gray-100 p-2 rounded-md mt-2 overflow-x-auto">
+            <pre className="bg-gray-100 p-2 rounded-md mt-2 overflow-x-auto text-[10px] md:text-xs">
 {`M = Σ (Nᵢ × Kᵢ)`}</pre>
             <p className="mt-2">
               где:<br />
@@ -45,7 +45,7 @@ export default function DoctorsCapacityMethodology() {
 
           <li>
             <strong>Загруженность:</strong>
-            <pre className="bg-gray-100 p-2 rounded-md mt-2 overflow-x-auto">{`Z = M / F`}</pre>
+            <pre className="bg-gray-100 p-2 rounded-md mt-2 overflow-x-auto text-[10px] md:text-xs">{`Z = M / F`}</pre>
             <p className="mt-2">
               где:<br />
               M – расчетная мощность поликлиники;<br />
@@ -55,7 +55,7 @@ export default function DoctorsCapacityMethodology() {
 
           <li>
             <strong>Дефицит врачей (в пересчете на ВОП):</strong>
-            <pre className="bg-gray-100 p-2 rounded-md mt-2 overflow-x-auto">{`D = (M - F) / 1700`}</pre>
+            <pre className="bg-gray-100 p-2 rounded-md mt-2 overflow-x-auto text-[10px] md:text-xs">{`D = (M - F) / 1700`}</pre>
             <p className="mt-2">
               где результат показывает, сколько врачей общей практики эквивалентно необходимо дополнительно для покрытия
               дефицита.
@@ -65,7 +65,7 @@ export default function DoctorsCapacityMethodology() {
       </section>
 
       <section>
-        <h3 className="text-lg font-semibold mb-2">Инфраструктура</h3>
+        <h3 className="text-base md:text-lg font-semibold mb-2">Инфраструктура</h3>
         <p className="mb-2">
           Интегральный индекс (далее — Индекс) представляет собой комплексный показатель, отражающий степень соответствия
           условий функционирования поликлиники нормативам по площади, нагрузке, собственности, типу здания и его состоянию.
@@ -73,19 +73,19 @@ export default function DoctorsCapacityMethodology() {
           мер по улучшению инфраструктуры.
         </p>
 
-        <pre className="bg-gray-100 p-2 rounded-md mt-2 overflow-x-auto">{`Index = w₁ × (area_per_person/norm_area) + w₂ × (visits_per_person/norm_visits) + w₃ × ownership_score + w₄ × building_type_score + w₅ × condition_score)`}</pre>
+        <pre className="bg-gray-100 p-2 rounded-md mt-2 overflow-x-auto text-[10px] md:text-xs">{`Index = w₁ × (area_per_person/norm_area) + w₂ × (visits_per_person/norm_visits) + w₃ × ownership_score + w₄ × building_type_score + w₅ × condition_score)`}</pre>
 
         <p className="mt-2">
           где:<br />
           <strong>area_per_person</strong> — обеспеченность площадью на одного прикреплённого жителя, м²/чел., рассчитывается как:<br />
         </p>
-        <pre className="bg-gray-100 p-2 rounded-md mt-2 overflow-x-auto">{`area_per_person = площадь / прикреплённое население`}</pre>
+        <pre className="bg-gray-100 p-2 rounded-md mt-2 overflow-x-auto text-[10px] md:text-xs">{`area_per_person = площадь / прикреплённое население`}</pre>
 
         <p className="mt-2">
           <strong>norm_area</strong> — норматив обеспеченности площадью (0,65 м²/чел. по СНиП).<br /><br />
           <strong>visits_per_person</strong> — количество посещений на одного прикреплённого жителя за период наблюдения:<br />
         </p>
-        <pre className="bg-gray-100 p-2 rounded-md mt-2 overflow-x-auto">{`visits_per_person = посещения / прикреплённое население`}</pre>
+        <pre className="bg-gray-100 p-2 rounded-md mt-2 overflow-x-auto text-[10px] md:text-xs">{`visits_per_person = посещения / прикреплённое население`}</pre>
 
         <p className="mt-2">
           <strong>norm_visits</strong> — норматив посещаемости. Пример: 4–5 посещений за 5 месяцев или 10–12 посещений в год.
@@ -115,8 +115,8 @@ export default function DoctorsCapacityMethodology() {
       </section>
 
       <section>
-        <h3 className="text-lg font-semibold mb-2">Весовые коэффициенты</h3>
-        <table className="w-full border border-gray-300 text-sm">
+        <h3 className="text-base md:text-lg font-semibold mb-2">Весовые коэффициенты</h3>
+        <table className="w-full border border-gray-300 text-xs md:text-sm">
           <thead className="bg-gray-100">
             <tr>
               <th className="border p-2 text-left">Показатель</th>
@@ -136,8 +136,8 @@ export default function DoctorsCapacityMethodology() {
       </section>
 
       <section>
-        <h3 className="text-lg font-semibold mb-2">Интерпретация результатов</h3>
-        <table className="w-full border border-gray-300 text-sm">
+        <h3 className="text-base md:text-lg font-semibold mb-2">Интерпретация результатов</h3>
+        <table className="w-full border border-gray-300 text-xs md:text-sm">
           <thead className="bg-gray-100">
             <tr>
               <th className="border p-2 text-left">Значение Индекса</th>
