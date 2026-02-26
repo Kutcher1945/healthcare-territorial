@@ -1,6 +1,8 @@
 "use client"
 
 import React, { useEffect, useState } from "react"
+import { Download } from "lucide-react";
+import * as XLSX from "xlsx";
 
 export default function PersonalTablePatient({ selectedDistrict, searchTerm, setSearchTerm }) {
   const [tableData, setTableData] = useState([])
@@ -11,17 +13,15 @@ export default function PersonalTablePatient({ selectedDistrict, searchTerm, set
     async function fetchData() {
       try {
         let url = "https://admin.smartalmaty.kz/api/v1/healthcare/healthcare-precinct-service/?limit=10000"
-        if (selectedDistrict && selectedDistrict.selectedDistrict !== "Все районы") {
-          const districtName =
-            typeof selectedDistrict === "string"
-              ? selectedDistrict
-              : selectedDistrict.selectedDistrict
-
-          if (districtName) {
-            url += `&district=${encodeURIComponent(districtName)}`
-          }
-        } else if (selectedDistrict && typeof selectedDistrict === "string" && selectedDistrict !== "Все районы") {
-             url += `&district=${encodeURIComponent(selectedDistrict)}`
+        
+        if (selectedDistrict && selectedDistrict !== "Все районы") {
+           const districtName = typeof selectedDistrict === 'object' 
+             ? selectedDistrict.selectedDistrict 
+             : selectedDistrict;
+           
+           if (districtName && districtName !== "Все районы") {
+               url += `&district=${encodeURIComponent(districtName)}`
+           }
         }
 
         const response = await fetch(url)
@@ -128,10 +128,36 @@ export default function PersonalTablePatient({ selectedDistrict, searchTerm, set
         }
     }
 
+  const handleExport = () => {
+    if (tableData.length === 0) return;
+    const excelData = tableData.map(row => ({
+      "Название поликлиники": row.medical_organization_name_rus,
+      "Медсестры (педиатрия)": row.pediatric_service_nurse_to_doctor_ratio ? Number(row.pediatric_service_nurse_to_doctor_ratio) : "-",
+      "Медсестры (терапия)": row.therapeutic_service_nurse_to_doctor_ratio ? Number(row.therapeutic_service_nurse_to_doctor_ratio) : "-",
+      "Медсестры (ВОП)": row.gp_service_nurse_to_doctor_ratio ? Number(row.gp_service_nurse_to_doctor_ratio) : "-"
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(excelData);
+
+    const wscols = [
+        { wch: 50 },
+        { wch: 20 },
+        { wch: 20 },
+        { wch: 20 }
+    ];
+    worksheet['!cols'] = wscols;
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Медсестры");
+
+    const fileName = `personal_data_patient_${new Date().toISOString().slice(0,10)}.xlsx`;
+    XLSX.writeFile(workbook, fileName);
+  };
+
   return (
     <div className="h-full flex flex-col bg-white">
-      <div className="p-3 md:p-4 border-b border-gray-200">
-        <div className="relative">
+      <div className="p-3 md:p-4 border-b border-gray-200 flex items-center gap-2 md:gap-4">
+        <div className="relative flex-1">
           <input
             type="text"
             placeholder="Поиск по названию поликлиники..."
@@ -166,6 +192,15 @@ export default function PersonalTablePatient({ selectedDistrict, searchTerm, set
             Найдено результатов: <span className="font-semibold text-blue-600">{tableData.length}</span>
           </div>
         )}
+
+        <button
+          onClick={handleExport}
+          disabled={tableData.length === 0}
+          className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-3 py-2 md:px-4 rounded-lg shadow-sm transition-colors text-xs md:text-sm disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+        >
+          <Download className="w-4 h-4" />
+          <span className="hidden sm:inline">Экспорт (Excel)</span>
+        </button>
       </div>
 
       <div className="flex-1 overflow-auto custom-scrollbar">

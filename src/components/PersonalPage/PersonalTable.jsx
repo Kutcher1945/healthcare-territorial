@@ -1,6 +1,8 @@
 "use client"
 
 import React, { useEffect, useState } from "react"
+import { Download } from "lucide-react";
+import * as XLSX from "xlsx";
 
 export default function PersonalTable({ selectedDistrict, searchTerm, setSearchTerm }) {
   const [tableData, setTableData] = useState([])
@@ -24,7 +26,6 @@ export default function PersonalTable({ selectedDistrict, searchTerm, setSearchT
     fetchData()
   }, [selectedDistrict])
 
-  // ... (Filtering/Sorting logic remains same) ...
   useEffect(() => {
     if (allData.length === 0) return
     let filteredData = allData
@@ -85,10 +86,39 @@ export default function PersonalTable({ selectedDistrict, searchTerm, setSearchT
     return value < 0 ? 0 : value
   }
 
+  const handleExport = () => {
+    if (tableData.length === 0) return;
+
+    const excelData = tableData.map(row => ({
+      "Название": row.medical_organization_name_rus,
+      "1 педиатр": row.pediatric_service_workload_per_pediatrician ? Number(row.pediatric_service_workload_per_pediatrician) : "-",
+      "1 терапевт": row.therapeutic_service_workload_per_therapist ? Number(row.therapeutic_service_workload_per_therapist) : "-",
+      "1 ВОП": row.gp_service_workload_per_gp ? Number(row.gp_service_workload_per_gp) : "-",
+      "Дефицит ВОП": row.vop_needed !== null ? Number(row.vop_needed) : "-"
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(excelData);
+
+    const wscols = [
+        { wch: 50 },
+        { wch: 15 },
+        { wch: 15 },
+        { wch: 15 },
+        { wch: 15 }
+    ];
+    worksheet['!cols'] = wscols;
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Нагрузка");
+
+    const fileName = `personal_data_${new Date().toISOString().slice(0,10)}.xlsx`;
+    XLSX.writeFile(workbook, fileName);
+  };
+
   return (
     <div className="h-full flex flex-col bg-white">
-      <div className="p-3 md:p-4 border-b border-gray-200">
-        <div className="relative">
+      <div className="p-3 md:p-4 border-b border-gray-200 flex items-center gap-2 md:gap-4">
+        <div className="relative flex-1">
           <input
             type="text"
             placeholder="Поиск по названию поликлиники..."
@@ -106,6 +136,14 @@ export default function PersonalTable({ selectedDistrict, searchTerm, setSearchT
         {searchTerm && (
           <div className="mt-2 text-xs text-gray-600">Найдено результатов: <span className="font-semibold text-blue-600">{tableData.length}</span></div>
         )}
+        <button
+          onClick={handleExport}
+          disabled={tableData.length === 0}
+          className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-3 py-2 md:px-4 rounded-lg shadow-sm transition-colors text-xs md:text-sm disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+        >
+          <Download className="w-4 h-4" />
+          <span className="hidden sm:inline">Экспорт (Excel)</span>
+        </button>
       </div>
       <div className="flex-1 overflow-auto custom-scrollbar">
         <table className="min-w-full border-collapse text-xs md:text-sm">

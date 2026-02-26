@@ -1,10 +1,10 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Filter, ChevronUp, ChevronDown } from "lucide-react";
+import { Filter, ChevronUp, ChevronDown, Download } from "lucide-react";
+import * as XLSX from "xlsx";
 
 export default function InfraTable({ selectedDistrict, selectedDecade }) {
-  // ... (Keep all your state and useEffect logic exactly as before) ...
   const [merged, setMerged] = useState([])
   const [allData, setAllData] = useState([])
   const [sortConfig, setSortConfig] = useState({ key: null, direction: null })
@@ -15,7 +15,6 @@ export default function InfraTable({ selectedDistrict, selectedDecade }) {
 
   useEffect(() => {
     async function fetchData() {
-        // ... (Your existing fetch logic) ...
         const [res1, res2, res3, res4] = await Promise.all([
             fetch("https://admin.smartalmaty.kz/api/v1/healthcare/org-capacity/?limit=100"),
             fetch("https://admin.smartalmaty.kz/api/v1/healthcare/buildings-analysis/?limit=300"),
@@ -71,7 +70,6 @@ export default function InfraTable({ selectedDistrict, selectedDecade }) {
     fetchData();
   }, []);
 
-  // ... (Keep existing filtering/sorting useEffects and helper functions) ...
   useEffect(() => {
     if (allData.length === 0) return
 
@@ -126,6 +124,45 @@ export default function InfraTable({ selectedDistrict, selectedDecade }) {
 
     setMerged(filteredData)
   }, [allData, selectedDistrict, sortConfig, filters, searchTerm, selectedDecade])
+
+  const handleExport = () => {
+    if (merged.length === 0) return;
+
+    const excelData = merged.map(row => ({
+      "Название": row.name,
+      "Индекс": Number(row.index),
+      "Объем (м³)": row.buildingVolume !== "N/A" ? Number(row.buildingVolume) : "-",
+      "Площадь (м²)": row.totalArea !== "N/A" ? Number(row.totalArea) : "-",
+      "Население": row.totalPopulation !== "N/A" ? Number(row.totalPopulation) : "-",
+      "Посещения": row.visit !== "N/A" ? Number(row.visit) : "-",
+      "Часть здания": row.usedPart,
+      "Собственность": row.ownershipRight,
+      "Район": row.district || "-",
+      "Год": row.year || "-"
+    }));
+
+    const worksheet = XLSX.utils.json_to_sheet(excelData);
+
+    const wscols = [
+        { wch: 40 },
+        { wch: 10 },
+        { wch: 15 },
+        { wch: 15 },
+        { wch: 15 },
+        { wch: 15 },
+        { wch: 20 },
+        { wch: 25 },
+        { wch: 15 },
+        { wch: 10 }
+    ];
+    worksheet['!cols'] = wscols;
+
+    const workbook = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(workbook, worksheet, "Инфраструктура");
+
+    const fileName = `infrastructure_data_${new Date().toISOString().slice(0,10)}.xlsx`;
+    XLSX.writeFile(workbook, fileName);
+  };
 
   const getFilterOptions = (key) => {
     let baseData = selectedDistrict
@@ -197,12 +234,9 @@ export default function InfraTable({ selectedDistrict, selectedDecade }) {
   };
 
   return (
-    // FIX: h-full here is crucial. It tells the table to fill the 500px/600px we set in parent.
     <div className="h-full flex flex-col bg-white">
-      {/* Search Bar */}
-      <div className="p-3 md:p-4 border-b border-gray-200">
-        {/* ... Search input code same as before ... */}
-        <div className="relative">
+      <div className="p-3 md:p-4 border-b border-gray-200 flex items-center gap-2 md:gap-4">
+        <div className="relative flex-1">
           <input
             type="text"
             placeholder="Поиск по названию..."
@@ -227,12 +261,17 @@ export default function InfraTable({ selectedDistrict, selectedDecade }) {
             </button>
           )}
         </div>
+
+        <button
+          onClick={handleExport}
+          disabled={merged.length === 0}
+          className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-3 py-2 md:px-4 rounded-lg shadow-sm transition-colors text-xs md:text-sm disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+        >
+          <Download className="w-4 h-4" />
+          <span className="hidden sm:inline">Экспорт (Excel)</span>
+        </button>
       </div>
 
-      {/* 
-         FIX: overflow-auto here creates the internal scrollbar 
-         because the parent has a fixed height now.
-      */}
       <div className="flex-1 overflow-auto custom-scrollbar">
         <table className="min-w-full border-collapse text-xs md:text-sm">
           <thead className="sticky top-0 bg-white z-10 shadow-sm">
@@ -241,7 +280,6 @@ export default function InfraTable({ selectedDistrict, selectedDecade }) {
               <th className="px-3 py-2 md:px-4 md:py-3 text-center font-semibold cursor-pointer whitespace-nowrap" onClick={() => handleSort('index')}>
                 <div className="flex items-center justify-center">Индекс <SortIcon columnKey="index" /></div>
               </th>
-              {/* ... Rest of headers same as before ... */}
               <th className="px-3 py-2 md:px-4 md:py-3 text-center font-semibold cursor-pointer whitespace-nowrap" onClick={() => handleSort('buildingVolume')}>
                 <div className="flex items-center justify-center">Объем (м³)<SortIcon columnKey="buildingVolume" /></div>
               </th>
