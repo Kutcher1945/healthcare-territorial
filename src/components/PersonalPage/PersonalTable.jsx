@@ -8,6 +8,7 @@ export default function PersonalTable({ selectedDistrict, searchTerm, setSearchT
   const [tableData, setTableData] = useState([])
   const [allData, setAllData] = useState([])
   const [sortConfig, setSortConfig] = useState({ key: null, direction: null })
+  const [isExporting, setIsExporting] = useState(false)
 
   useEffect(() => {
     async function fetchData() {
@@ -86,33 +87,50 @@ export default function PersonalTable({ selectedDistrict, searchTerm, setSearchT
     return value < 0 ? 0 : value
   }
 
-  const handleExport = () => {
-    if (tableData.length === 0) return;
+  const handleExport = async () => {
+    if (tableData.length === 0 || isExporting) return;
 
-    const excelData = tableData.map(row => ({
-      "Название": row.medical_organization_name_rus,
-      "1 педиатр": row.pediatric_service_workload_per_pediatrician ? Number(row.pediatric_service_workload_per_pediatrician) : "-",
-      "1 терапевт": row.therapeutic_service_workload_per_therapist ? Number(row.therapeutic_service_workload_per_therapist) : "-",
-      "1 ВОП": row.gp_service_workload_per_gp ? Number(row.gp_service_workload_per_gp) : "-",
-      "Дефицит ВОП": row.vop_needed !== null ? Number(row.vop_needed) : "-"
-    }));
+    try {
+      setIsExporting(true);
 
-    const worksheet = XLSX.utils.json_to_sheet(excelData);
+      // если хочешь увидеть эффект — можешь временно раскомментировать
+      // await new Promise(resolve => setTimeout(resolve, 1000));
 
-    const wscols = [
+      const excelData = tableData.map(row => ({
+        "Название": row.medical_organization_name_rus,
+        "1 педиатр": row.pediatric_service_workload_per_pediatrician
+          ? Number(row.pediatric_service_workload_per_pediatrician)
+          : "-",
+        "1 терапевт": row.therapeutic_service_workload_per_therapist
+          ? Number(row.therapeutic_service_workload_per_therapist)
+          : "-",
+        "1 ВОП": row.gp_service_workload_per_gp
+          ? Number(row.gp_service_workload_per_gp)
+          : "-",
+        "Дефицит ВОП": row.vop_needed !== null
+          ? Number(row.vop_needed)
+          : "-"
+      }));
+
+      const worksheet = XLSX.utils.json_to_sheet(excelData);
+
+      worksheet['!cols'] = [
         { wch: 50 },
         { wch: 15 },
         { wch: 15 },
         { wch: 15 },
         { wch: 15 }
-    ];
-    worksheet['!cols'] = wscols;
+      ];
 
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Нагрузка");
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Нагрузка");
 
-    const fileName = `personal_data_${new Date().toISOString().slice(0,10)}.xlsx`;
-    XLSX.writeFile(workbook, fileName);
+      const fileName = `personal_data_${new Date().toISOString().slice(0,10)}.xlsx`;
+      XLSX.writeFile(workbook, fileName);
+
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   return (
@@ -138,11 +156,38 @@ export default function PersonalTable({ selectedDistrict, searchTerm, setSearchT
         )}
         <button
           onClick={handleExport}
-          disabled={tableData.length === 0}
+          disabled={tableData.length === 0 || isExporting}
           className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-3 py-2 md:px-4 rounded-lg shadow-sm transition-colors text-xs md:text-sm disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
         >
-          <Download className="w-4 h-4" />
-          <span className="hidden sm:inline">Экспорт (Excel)</span>
+          {isExporting ? (
+            <>
+              <svg
+                className="animate-spin h-4 w-4"
+                viewBox="0 0 24 24"
+                fill="none"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v8H4z"
+                />
+              </svg>
+              <span>Формируем файл...</span>
+            </>
+          ) : (
+            <>
+              <Download className="w-4 h-4" />
+              <span className="hidden sm:inline">Экспорт (Excel)</span>
+            </>
+          )}
         </button>
       </div>
       <div className="flex-1 overflow-auto custom-scrollbar">

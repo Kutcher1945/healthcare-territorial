@@ -4,12 +4,11 @@ import "../../App.css"
 
 const renderCustomizedLabel = ({ cx, cy, midAngle, innerRadius, outerRadius, percent }) => {
   const RADIAN = Math.PI / 180
-  // Adjust radius based on screen size implicitly by using percentage in Pie component
   const radius = innerRadius + (outerRadius - innerRadius) * 0.5
   const x = cx + radius * Math.cos(-midAngle * RADIAN)
   const y = cy + radius * Math.sin(-midAngle * RADIAN)
 
-  if (percent < 0.05) return null; // Hide small labels
+  if (percent < 0.05) return null;
 
   return (
     <text

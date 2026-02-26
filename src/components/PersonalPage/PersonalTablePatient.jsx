@@ -8,6 +8,7 @@ export default function PersonalTablePatient({ selectedDistrict, searchTerm, set
   const [tableData, setTableData] = useState([])
   const [allData, setAllData] = useState([])
   const [sortConfig, setSortConfig] = useState({ key: null, direction: null })
+  const [isExporting, setIsExporting] = useState(false)
 
   useEffect(() => {
     async function fetchData() {
@@ -128,30 +129,42 @@ export default function PersonalTablePatient({ selectedDistrict, searchTerm, set
         }
     }
 
-  const handleExport = () => {
-    if (tableData.length === 0) return;
-    const excelData = tableData.map(row => ({
-      "Название поликлиники": row.medical_organization_name_rus,
-      "Медсестры (педиатрия)": row.pediatric_service_nurse_to_doctor_ratio ? Number(row.pediatric_service_nurse_to_doctor_ratio) : "-",
-      "Медсестры (терапия)": row.therapeutic_service_nurse_to_doctor_ratio ? Number(row.therapeutic_service_nurse_to_doctor_ratio) : "-",
-      "Медсестры (ВОП)": row.gp_service_nurse_to_doctor_ratio ? Number(row.gp_service_nurse_to_doctor_ratio) : "-"
-    }));
+  const handleExport = async () => {
+    if (tableData.length === 0 || isExporting) return;
 
-    const worksheet = XLSX.utils.json_to_sheet(excelData);
+    try {
+      setIsExporting(true);
+      const excelData = tableData.map(row => ({
+        "Название поликлиники": row.medical_organization_name_rus,
+        "Медсестры (педиатрия)": row.pediatric_service_nurse_to_doctor_ratio
+          ? Number(row.pediatric_service_nurse_to_doctor_ratio)
+          : "-",
+        "Медсестры (терапия)": row.therapeutic_service_nurse_to_doctor_ratio
+          ? Number(row.therapeutic_service_nurse_to_doctor_ratio)
+          : "-",
+        "Медсестры (ВОП)": row.gp_service_nurse_to_doctor_ratio
+          ? Number(row.gp_service_nurse_to_doctor_ratio)
+          : "-"
+      }));
 
-    const wscols = [
+      const worksheet = XLSX.utils.json_to_sheet(excelData);
+
+      worksheet['!cols'] = [
         { wch: 50 },
         { wch: 20 },
         { wch: 20 },
         { wch: 20 }
-    ];
-    worksheet['!cols'] = wscols;
+      ];
 
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Медсестры");
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Медсестры");
 
-    const fileName = `personal_data_patient_${new Date().toISOString().slice(0,10)}.xlsx`;
-    XLSX.writeFile(workbook, fileName);
+      const fileName = `personal_data_patient_${new Date().toISOString().slice(0,10)}.xlsx`;
+      XLSX.writeFile(workbook, fileName);
+
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   return (
@@ -195,11 +208,38 @@ export default function PersonalTablePatient({ selectedDistrict, searchTerm, set
 
         <button
           onClick={handleExport}
-          disabled={tableData.length === 0}
+          disabled={tableData.length === 0 || isExporting}
           className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-3 py-2 md:px-4 rounded-lg shadow-sm transition-colors text-xs md:text-sm disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
         >
-          <Download className="w-4 h-4" />
-          <span className="hidden sm:inline">Экспорт (Excel)</span>
+          {isExporting ? (
+            <>
+              <svg
+                className="animate-spin h-4 w-4"
+                viewBox="0 0 24 24"
+                fill="none"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v8H4z"
+                />
+              </svg>
+              <span>Формируем файл...</span>
+            </>
+          ) : (
+            <>
+              <Download className="w-4 h-4" />
+              <span className="hidden sm:inline">Экспорт (Excel)</span>
+            </>
+          )}
         </button>
       </div>
 

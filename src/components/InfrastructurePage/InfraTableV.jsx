@@ -12,6 +12,7 @@ export default function InfraTable({ selectedDistrict, selectedDecade }) {
   const [showUsedPartFilter, setShowUsedPartFilter] = useState(false)
   const [showOwnershipFilter, setShowOwnershipFilter] = useState(false)
   const [searchTerm, setSearchTerm] = useState("")
+  const [isExporting, setIsExporting] = useState(false)
 
   useEffect(() => {
     async function fetchData() {
@@ -125,43 +126,38 @@ export default function InfraTable({ selectedDistrict, selectedDecade }) {
     setMerged(filteredData)
   }, [allData, selectedDistrict, sortConfig, filters, searchTerm, selectedDecade])
 
-  const handleExport = () => {
-    if (merged.length === 0) return;
+  const handleExport = async () => {
+    if (merged.length === 0 || isExporting) return;
 
-    const excelData = merged.map(row => ({
-      "Название": row.name,
-      "Индекс": Number(row.index),
-      "Объем (м³)": row.buildingVolume !== "N/A" ? Number(row.buildingVolume) : "-",
-      "Площадь (м²)": row.totalArea !== "N/A" ? Number(row.totalArea) : "-",
-      "Население": row.totalPopulation !== "N/A" ? Number(row.totalPopulation) : "-",
-      "Посещения": row.visit !== "N/A" ? Number(row.visit) : "-",
-      "Часть здания": row.usedPart,
-      "Собственность": row.ownershipRight,
-      "Район": row.district || "-",
-      "Год": row.year || "-"
-    }));
+    try {
+      setIsExporting(true);
 
-    const worksheet = XLSX.utils.json_to_sheet(excelData);
+      // имитация задержки (если хочешь увидеть эффект)
+      // await new Promise(resolve => setTimeout(resolve, 1000));
 
-    const wscols = [
-        { wch: 40 },
-        { wch: 10 },
-        { wch: 15 },
-        { wch: 15 },
-        { wch: 15 },
-        { wch: 15 },
-        { wch: 20 },
-        { wch: 25 },
-        { wch: 15 },
-        { wch: 10 }
-    ];
-    worksheet['!cols'] = wscols;
+      const excelData = merged.map(row => ({
+        "Название": row.name,
+        "Индекс": Number(row.index),
+        "Объем (м³)": row.buildingVolume !== "N/A" ? Number(row.buildingVolume) : "-",
+        "Площадь (м²)": row.totalArea !== "N/A" ? Number(row.totalArea) : "-",
+        "Население": row.totalPopulation !== "N/A" ? Number(row.totalPopulation) : "-",
+        "Посещения": row.visit !== "N/A" ? Number(row.visit) : "-",
+        "Часть здания": row.usedPart,
+        "Собственность": row.ownershipRight,
+        "Район": row.district || "-",
+        "Год": row.year || "-"
+      }));
 
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Инфраструктура");
+      const worksheet = XLSX.utils.json_to_sheet(excelData);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Инфраструктура");
 
-    const fileName = `infrastructure_data_${new Date().toISOString().slice(0,10)}.xlsx`;
-    XLSX.writeFile(workbook, fileName);
+      const fileName = `infrastructure_data_${new Date().toISOString().slice(0,10)}.xlsx`;
+      XLSX.writeFile(workbook, fileName);
+
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   const getFilterOptions = (key) => {
@@ -261,14 +257,46 @@ export default function InfraTable({ selectedDistrict, selectedDecade }) {
             </button>
           )}
         </div>
+        {searchTerm && (
+          <div className="mt-2 text-xs text-gray-600">
+            Найдено результатов: <span className="font-semibold text-blue-600">{merged.length}</span>
+          </div>
+        )}
 
         <button
           onClick={handleExport}
-          disabled={merged.length === 0}
+          disabled={merged.length === 0 || isExporting}
           className="flex items-center gap-2 bg-green-600 hover:bg-green-700 text-white px-3 py-2 md:px-4 rounded-lg shadow-sm transition-colors text-xs md:text-sm disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
         >
-          <Download className="w-4 h-4" />
-          <span className="hidden sm:inline">Экспорт (Excel)</span>
+          {isExporting ? (
+            <>
+              <svg
+                className="animate-spin h-4 w-4"
+                viewBox="0 0 24 24"
+                fill="none"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v8H4z"
+                />
+              </svg>
+              <span>Формируем файл...</span>
+            </>
+          ) : (
+            <>
+              <Download className="w-4 h-4" />
+              <span className="hidden sm:inline">Экспорт (Excel)</span>
+            </>
+          )}
         </button>
       </div>
 
