@@ -64,10 +64,10 @@ export default function PersonalTable({ selectedDistrict, searchTerm, setSearchT
   } 
 
   const fixedNum = (item) => {
-      if (item == null || item === "") return "-"
-      const num = Number(item)
-      if (isNaN(num)) return "-"
-      return num.toFixed(0)
+    if (item == null || item === "") return "-"
+    const num = Number(item)
+    if (isNaN(num)) return "-"
+    return Math.round(num)
   }
 
   const getBgPed = (value) => {
@@ -92,23 +92,19 @@ export default function PersonalTable({ selectedDistrict, searchTerm, setSearchT
 
     try {
       setIsExporting(true);
-
-      // если хочешь увидеть эффект — можешь временно раскомментировать
-      // await new Promise(resolve => setTimeout(resolve, 1000));
-
       const excelData = tableData.map(row => ({
         "Название": row.medical_organization_name_rus,
         "1 педиатр": row.pediatric_service_workload_per_pediatrician
-          ? Number(row.pediatric_service_workload_per_pediatrician)
+          ? fixedNum(row.pediatric_service_workload_per_pediatrician)
           : "-",
         "1 терапевт": row.therapeutic_service_workload_per_therapist
-          ? Number(row.therapeutic_service_workload_per_therapist)
+          ? fixedNum(row.therapeutic_service_workload_per_therapist)
           : "-",
         "1 ВОП": row.gp_service_workload_per_gp
-          ? Number(row.gp_service_workload_per_gp)
+          ? fixedNum(row.gp_service_workload_per_gp)
           : "-",
         "Дефицит ВОП": row.vop_needed !== null
-          ? Number(row.vop_needed)
+          ? vopNeeded(row.vop_needed)
           : "-"
       }));
 

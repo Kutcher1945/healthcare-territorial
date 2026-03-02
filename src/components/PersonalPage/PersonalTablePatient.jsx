@@ -95,7 +95,7 @@ export default function PersonalTablePatient({ selectedDistrict, searchTerm, set
         if (item == null || item === "") return "-"
         const num = Number(item)
         if (isNaN(num)) return "-"
-        return num.toFixed(0)
+        return Math.round(num)
     }
 
     const getBg = (value) => {
@@ -137,13 +137,13 @@ export default function PersonalTablePatient({ selectedDistrict, searchTerm, set
       const excelData = tableData.map(row => ({
         "Название поликлиники": row.medical_organization_name_rus,
         "Медсестры (педиатрия)": row.pediatric_service_nurse_to_doctor_ratio
-          ? Number(row.pediatric_service_nurse_to_doctor_ratio)
+          ? fixedNum(row.pediatric_service_nurse_to_doctor_ratio)
           : "-",
         "Медсестры (терапия)": row.therapeutic_service_nurse_to_doctor_ratio
-          ? Number(row.therapeutic_service_nurse_to_doctor_ratio)
+          ? fixedNum(row.therapeutic_service_nurse_to_doctor_ratio)
           : "-",
         "Медсестры (ВОП)": row.gp_service_nurse_to_doctor_ratio
-          ? Number(row.gp_service_nurse_to_doctor_ratio)
+          ? fixedNum(row.gp_service_nurse_to_doctor_ratio)
           : "-"
       }));
 

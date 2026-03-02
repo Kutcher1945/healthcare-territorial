@@ -132,12 +132,9 @@ export default function InfraTable({ selectedDistrict, selectedDecade }) {
     try {
       setIsExporting(true);
 
-      // имитация задержки (если хочешь увидеть эффект)
-      // await new Promise(resolve => setTimeout(resolve, 1000));
-
       const excelData = merged.map(row => ({
         "Название": row.name,
-        "Индекс": Number(row.index),
+        "Индекс": row.index !== "N/A" ? Math.round(Number(row.index) * 100) / 100 : null,
         "Объем (м³)": row.buildingVolume !== "N/A" ? Number(row.buildingVolume) : "-",
         "Площадь (м²)": row.totalArea !== "N/A" ? Number(row.totalArea) : "-",
         "Население": row.totalPopulation !== "N/A" ? Number(row.totalPopulation) : "-",
