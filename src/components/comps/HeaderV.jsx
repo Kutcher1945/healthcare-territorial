@@ -70,7 +70,7 @@ export default function Header({ setSelectedDistrict, selectedDistrict }) {
 
           <div className="min-w-0">
             <h1 className="text-sm sm:text-base font-bold text-[#1b1b1b] truncate">
-              Территориальное разделение поликлиник
+              Территориальное разделение поликлиник 2025
             </h1>
           </div>
 
