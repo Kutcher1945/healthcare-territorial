@@ -2,8 +2,8 @@
 
 import { useState } from "react"
 import Map from "../components/HomePage/MapV"
-import MapFilter from "../components/HomePage/MapFilter"
-import DetailedInfoRight from "../components/HomePage/DetailedInfoRight"
+import MapFilter from "../components/HomePage/MapFilter/MapFilter"
+import DetailedInfoRight from "../components/HomePage/DetailCard/DetailedInfoRight"
 
 export default function HomePage() {
   const [buildingData, setBuildingData] = useState([])
@@ -13,7 +13,9 @@ export default function HomePage() {
   const [avgVisit, setAvgVisit] = useState(0)
   const [avgPerson, setAvgPerson] = useState(0)
   const [selectedDistrict, setSelectedDistrict] = useState(["Все районы"])
-  const [districtDropdownOpen, setDistrictDropdownOpen] = useState(false)
+  const [selectedVisits, setSelectedVisits] = useState(["Все посещения"])
+  const [selectedLayers, setSelectedLayers] = useState(["Все слои"])
+  const [selectedAffiliations, setSelectedAffiliations] = useState(["Все принадлежности"])
 
   const handleBackdropClick = () => {
     if (showDetailCard && buildingData?.id && window.innerWidth < 768) {
@@ -43,19 +45,24 @@ export default function HomePage() {
         />
       </div>
 
-      <div className="absolute top-[40px] left-4 z-20 w-44 sm:w-64 md:w-80">
+      <div className="absolute top-[20px] left-4 z-20 w-[220px] md:w-[280px]">
         <MapFilter
           selectedDistrict={selectedDistrict}
           setSelectedDistrict={setSelectedDistrict}
-          districtDropdownOpen={districtDropdownOpen}
-          setDistrictDropdownOpen={setDistrictDropdownOpen}
+          selectedVisits={selectedVisits}
+          setSelectedVisits={setSelectedVisits}
+          selectedLayers={selectedLayers}
+          setSelectedLayers={setSelectedLayers}
+          selectedAffiliations={selectedAffiliations}
+          setSelectedAffiliations={setSelectedAffiliations}
+
           totalCount={totalCount}
           totalPopulation={totalPopulation}
           avgVisit={avgVisit}
           avgPerson={avgPerson}
         />
       </div>
-      <div className="absolute top-[40px] right-4 z-20 w-44 sm:w-64 md:w-80">
+      <div className="absolute top-[20px] right-4 z-20 w-[220px] md:w-[280px]">
         <DetailedInfoRight
           buildingData={buildingData}
         />
