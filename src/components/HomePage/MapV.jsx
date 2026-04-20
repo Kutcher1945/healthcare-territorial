@@ -1,7 +1,10 @@
 "use client";
 
 import { useEffect, useRef } from 'react';
+import maplibregl from 'maplibre-gl';
 import { useMapInitialization } from '../../hooks/useMapInitialization';
+import { useMapData } from '../../hooks/useMapData';
+import { MapLayersManager } from '../../utils/mapLayers';
 import { useHealthcareData } from '../../hooks/useHealthcareData';
 import { MapControls } from '../comps/MapControls';
 import { MapLegend } from '../comps/MapLegend';
@@ -12,6 +15,7 @@ import {
   setupPointLayers,
   createPopup,
   updateFeatureStates,
+  setupAdminLayers,
 } from '../../utils/mapLayers';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
@@ -20,6 +24,9 @@ export default function MapView({
   setShowDetailCard,
   showDetailCard,
   selectedDistrict,
+  selectedLayers,
+  selectedVisits,
+  selectedAffiliations, 
   setTotalCount,
   setTotalPopulation,
   setAvgVisit,
@@ -27,7 +34,7 @@ export default function MapView({
 }) {
   const mapContainer = useRef(null);
   const { mapRef, isLoading: mapLoading, zoomIn, zoomOut, resetView } = useMapInitialization(mapContainer);
-  const { fetchHealthcareData, isLoading: dataLoading } = useHealthcareData();
+  const { loadInitialData, filterData, loading: dataLoading } = useMapData(); 
 
   const selectedMarkerRef = useRef(null);
   const polygonMappingRef = useRef({});
@@ -38,89 +45,91 @@ export default function MapView({
   useEffect(() => {
     if (!mapRef.current) return;
 
-    const fetchAndRender = async () => {
-      selectedMarkerRef.current = null;
+    const updateMap = async () => {
+      const map = mapRef.current;
+      
+      await loadInitialData();
+      
+      const data = filterData({
+        districts: selectedDistrict,
+        visits: selectedVisits,
+        layers: selectedLayers,
+        affiliations: selectedAffiliations
+      });
 
-      try {
-        const data = await fetchHealthcareData(selectedDistrict);
+      if (!data) return;
 
-        setTotalCount(data.stats.totalCount);
-        setTotalPopulation(data.stats.totalPopulation);
-        setAvgVisit(data.stats.avgVisit);
-        setAvgPerson(data.stats.avgPerson);
+      const isAll = selectedLayers.includes("Все слои");
 
-        const addOrUpdateLayers = () => {
-          const map = mapRef.current;
+      MapLayersManager.setupCityBoundary(map, data.city);
+      
+      MapLayersManager.updateDistricts(map, data.districts);
 
-          const oldPolygonMapping = { ...polygonMappingRef.current };
+      const showTransit = isAll || selectedLayers.includes("Зоны обслуживания МО");
+      MapLayersManager.updateServiceZones(map, data.serviceZones, showTransit);
 
-          polygonMappingRef.current = data.polygonMapping;
+      const showGenplan = isAll || selectedLayers.includes("Зоны здравоохранения (генплан)");
+      MapLayersManager.updatePlannedZones(map, data.plannedZones, showGenplan);
 
-          clearFeatureStates(map, oldPolygonMapping);
+      const showPlannedObjs = isAll || selectedLayers.includes("Планируемые объекты здравоохранения");
+      MapLayersManager.updatePlannedObjects(map, data.plannedObjs, showPlannedObjs);
 
-          setupPolygonLayers(map, data.polygons);
-          setupPointLayers(map, data.points);
+      const showZhk = isAll || selectedLayers.includes("Планируемые жилые объекты (ЖКХ)");
+      MapLayersManager.updateZhkPoints(map, data.zhk, showZhk);
 
-          const handlePointClick = (e) => {
-            const feature = e.features?.[0];
-            if (!feature) return;
+      MapLayersManager.updatePmspPoints(map, data.pmsp, true);
 
-            if (popupRef.current) {
-              popupRef.current.remove();
-            }
-
-            popupRef.current = createPopup(map, feature, e.lngLat);
-
-            const newMarkerId = feature.properties.id;
-
-            updateFeatureStates(
-              map,
-              selectedMarkerRef.current,
-              newMarkerId,
-              polygonMappingRef.current
-            );
-
-            selectedMarkerRef.current = newMarkerId;
-
-            setBuildingData(feature.properties);
-            setShowDetailCard(true);
-
-            map.flyTo({
-              center: feature.geometry.coordinates,
-              zoom: Math.max(map.getZoom(), 13),
-              duration: 1000,
-            });
-          };
-
-          const handleMouseEnter = () => {
-            map.getCanvas().style.cursor = 'pointer';
-          };
-
-          const handleMouseLeave = () => {
-            map.getCanvas().style.cursor = '';
-          };
-
-          map.off('click', 'policlinic-points-circle', handlePointClick);
-          map.off('mouseenter', 'policlinic-points-circle', handleMouseEnter);
-          map.off('mouseleave', 'policlinic-points-circle', handleMouseLeave);
-
-          map.on('click', 'policlinic-points-circle', handlePointClick);
-          map.on('mouseenter', 'policlinic-points-circle', handleMouseEnter);
-          map.on('mouseleave', 'policlinic-points-circle', handleMouseLeave);
-        };
-
-        if (!mapRef.current.isStyleLoaded()) {
-          mapRef.current.once('load', addOrUpdateLayers);
-        } else {
-          addOrUpdateLayers();
-        }
-      } catch (error) {
-        console.error('Error fetching map data:', error);
+      if (map.getLayer('planned-objs-cluster-circle')) {
+        MapLayersManager.setupClusterClicks(map, 'planned-objs');
       }
+      if (map.getLayer('zhk-points-cluster-circle')) {
+          MapLayersManager.setupClusterClicks(map, 'zhk-points');
+      }
+
+      setTotalCount(data.stats.totalCount);
+      setTotalPopulation(data.stats.totalPopulation);
+      setAvgVisit(data.stats.avgVisit);
+      setAvgPerson(data.stats.avgPerson);
+
+      const onMapClick = (e) => {
+        const layers = [
+          'pmsp-layer', 
+          'zhk-points-unclustered-circle', 
+          'planned-objs-unclustered-circle'
+        ];
+
+        const features = map.queryRenderedFeatures(e.point, { layers });
+
+        if (features.length > 0) {
+          const feature = features[0];
+          const props = feature.properties;
+
+          new maplibregl.Popup({ offset: 10, closeButton: false })
+            .setLngLat(e.lngLat)
+            .setHTML(MapLayersManager.getPopupContent(props))
+            .addTo(map);
+
+          if (feature.layer.id === 'pmsp-layer') {
+            setBuildingData(props);
+            setShowDetailCard(true);
+          }
+        }
+      };
+
+      map.off('click', onMapClick); 
+      map.on('click', onMapClick);
+
+      const onMouseEnter = () => { map.getCanvas().style.cursor = 'pointer'; };
+      const onMouseLeave = () => { map.getCanvas().style.cursor = ''; };
+      
+      map.on('mouseenter', 'pmsp-layer', onMouseEnter);
+      map.on('mouseleave', 'pmsp-layer', onMouseLeave);
     };
 
-    fetchAndRender();
-  }, [selectedDistrict, fetchHealthcareData, setBuildingData, setShowDetailCard, setTotalCount, setTotalPopulation, setAvgVisit, setAvgPerson, mapRef]);
+    if (mapRef.current.isStyleLoaded()) updateMap();
+    else mapRef.current.once('load', updateMap);
+
+  }, [selectedDistrict, selectedVisits, selectedLayers, selectedAffiliations, loadInitialData]);
 
   return (
     <div className="relative w-full h-full">

@@ -7,7 +7,6 @@ export default function MapFilter({
   setSelectedVisits,
   setSelectedLayers,
   setSelectedAffiliations,
-
   selectedDistrict,
   selectedVisits,
   selectedLayers,
@@ -15,7 +14,9 @@ export default function MapFilter({
   totalCount,
   totalPopulation, 
   avgVisit, 
-  avgPerson
+  avgPerson,
+  setActiveModal, 
+  activeModal,
 }) {
   const [filtersHidden, setFiltersHidden] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
@@ -30,15 +31,28 @@ export default function MapFilter({
   ];
 
   const allVisits = [
-    "Все посещения", ">150% критично", "130-150% перегруз", "110-130% выше нормы", "<110% норма",
+    "Все посещения", 
+    ">150% критично", 
+    "130-150% перегружено", 
+    "110-130% выше нормы", 
+    "90–110% норма",
+    "90% хорошо",
   ];
 
   const allLayers = [
-    "Все слои", "Нагрузка", "Здания", "Геоанализ", "Транзит",
+    "Все слои", 
+    "Зоны обслуживания МО", 
+    "Зоны здравоохранения (генплан)", 
+    "Планируемые объекты здравоохранения", 
+    "Планируемые жилые объекты (ЖКХ)",
   ];
 
   const allAffiliations = [
-    "Все принадлежности", "Городская (УЗ Алматы)", "Республиканская (МЗ РК)", "Ведомственная (МВД/КНБ)", "Частная",
+    "Все принадлежности", 
+    "Городская (УЗ Алматы)", 
+    "Республиканская (МЗ РК)", 
+    "Ведомственная (МВД/КНБ)", 
+    "Частная",
   ];
 
   useEffect(() => {
@@ -106,12 +120,19 @@ export default function MapFilter({
     </span>
   );
 
+  const handleReset = () => {
+    setSelectedDistrict(["Все районы"]);
+    setSelectedVisits(["Все посещения"]);
+    setSelectedLayers(["Все слои"]);
+    setSelectedAffiliations(["Все принадлежности"]);
+    if (setActiveModal) setActiveModal(null);
+  };
+
  return (
     <div className="relative">
       <div className="flex flex-col max-h-[calc(100vh-100px)] bg-white/95 backdrop-blur-sm rounded-xl border shadow-lg overflow-y-auto overflow-x-hidden scrollbar-hide text-xs">
         
         <div className="sticky top-0 z-20 bg-white/95 backdrop-blur-sm ">
-          {/* <div className="flex items-center justify-between px-2 md:px-4 pt-2 md:pt-3 pb-2 font-semibold text-sm md:text-base"> */}
           <div className="flex items-center justify-between px-3 py-2 pt-3 font-bold text-gray-800">
             <span className="text-sm">Фильтры</span>
             <button
@@ -130,7 +151,6 @@ export default function MapFilter({
             </button>
           </div>
 
-          {/* <div className="px-2 md:px-4 pb-2 md:pb-3"> */}
           <div className="p-2 md:px-3">
             <div className="flex flex-col gap-1">
               
@@ -233,21 +253,9 @@ export default function MapFilter({
                   </div>
                 )}
               </div>
-
             </div>
           </div>
         </div>
-
-        {/* Indicators Section */}
-        {/* <div className={`transition-all duration-500 ease-in-out ${filtersHidden ? "hidden" : "block"}`}>
-            <MapFilterIndicators
-              totalCount={totalCount}
-              totalPopulation={totalPopulation}
-              avgVisit={avgVisit}
-              avgPerson={avgPerson}
-            />
-            <Analytics/>
-        </div> */}
 
         <div
           className={`flex flex-col min-h-0 transition-all duration-500 ease-in-out ${
@@ -261,7 +269,11 @@ export default function MapFilter({
               avgVisit={avgVisit}
               avgPerson={avgPerson}
             />
-            <Analytics/>
+            <Analytics 
+              activeModal={activeModal}
+              setActiveModal={setActiveModal}
+              onReset={handleReset} 
+            />
           </div>
         </div>
       </div>

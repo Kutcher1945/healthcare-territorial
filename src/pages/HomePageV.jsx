@@ -4,6 +4,8 @@ import { useState } from "react"
 import Map from "../components/HomePage/MapV"
 import MapFilter from "../components/HomePage/MapFilter/MapFilter"
 import DetailedInfoRight from "../components/HomePage/DetailCard/DetailedInfoRight"
+import DistrictSummaryModal from "../components/HomePage/Modal/DistrictSummaryModal"
+import BuildingAgeModal from "../components/HomePage/Modal/BuildingAgeModal"
 
 export default function HomePage() {
   const [buildingData, setBuildingData] = useState([])
@@ -16,6 +18,7 @@ export default function HomePage() {
   const [selectedVisits, setSelectedVisits] = useState(["Все посещения"])
   const [selectedLayers, setSelectedLayers] = useState(["Все слои"])
   const [selectedAffiliations, setSelectedAffiliations] = useState(["Все принадлежности"])
+  const [activeModal, setActiveModal] = useState(null);
 
   const handleBackdropClick = () => {
     if (showDetailCard && buildingData?.id && window.innerWidth < 768) {
@@ -38,6 +41,9 @@ export default function HomePage() {
           setShowDetailCard={setShowDetailCard}
           showDetailCard={showDetailCard}
           selectedDistrict={selectedDistrict}
+          selectedLayers={selectedLayers}
+          selectedVisits={selectedVisits}
+          selectedAffiliations={selectedAffiliations}
           setTotalCount={setTotalCount}
           setTotalPopulation={setTotalPopulation}
           setAvgVisit={setAvgVisit}
@@ -60,7 +66,20 @@ export default function HomePage() {
           totalPopulation={totalPopulation}
           avgVisit={avgVisit}
           avgPerson={avgPerson}
+
+          activeModal={activeModal}
+          setActiveModal={setActiveModal}
         />
+
+        <div className="absolute left-[102%] top-0"> 
+          {activeModal === 'summary' && (
+            <DistrictSummaryModal onClose={() => setActiveModal(null)} />
+          )}
+          {activeModal === 'age' && (
+            <BuildingAgeModal onClose={() => setActiveModal(null)} />
+          )}
+        </div>
+
       </div>
       <div className="absolute top-[20px] right-4 z-20 w-[220px] md:w-[280px]">
         <DetailedInfoRight

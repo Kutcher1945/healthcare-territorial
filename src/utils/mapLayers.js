@@ -1,5 +1,296 @@
 import maplibregl from 'maplibre-gl';
 
+const updateIconPointLayer = (map, data, isVisible, id, color, showPlus = true) => {
+  const sourceId = `${id}-source`;
+  const clusterCircleId = `${id}-cluster-circle`;
+  const clusterCountId = `${id}-cluster-count`;
+  const unclusteredCircleId = `${id}-unclustered-circle`;
+  const unclusteredPlusId = `${id}-unclustered-plus`;
+
+  if (!map.getSource(sourceId)) {
+    map.addSource(sourceId, {
+      type: 'geojson',
+      data: data,
+      cluster: true,
+      clusterMaxZoom: 14,
+      clusterRadius: 40 
+    });
+
+    map.addLayer({
+      id: clusterCircleId,
+      type: 'circle',
+      source: sourceId,
+      filter: ['has', 'point_count'],
+      paint: {
+        'circle-color': color,
+        'circle-radius': ['step', ['get', 'point_count'], 12, 10, 18, 30, 25],
+        'circle-opacity': 0.7,
+        'circle-stroke-width': 2,
+        'circle-stroke-color': '#fff'
+      }
+    });
+
+    map.addLayer({
+      id: clusterCountId,
+      type: 'symbol',
+      source: sourceId,
+      filter: ['has', 'point_count'],
+      layout: {
+        'text-field': '{point_count}',
+        'text-font': ['Open Sans Bold', 'Arial Unicode MS Bold'],
+        'text-size': 12
+      },
+      paint: { 'text-color': '#fff' }
+    });
+
+    map.addLayer({
+      id: unclusteredCircleId,
+      type: 'circle',
+      source: sourceId,
+      filter: ['!', ['has', 'point_count']],
+      paint: {
+        'circle-color': color,
+        'circle-radius': ['coalesce', ['get', 'radius'], 10],
+        'circle-stroke-width': 1.5,
+        'circle-stroke-color': '#fff',
+        'circle-opacity': 0.85
+      }
+    });
+
+    if (showPlus) {
+      map.addLayer({
+        id: unclusteredPlusId,
+        type: 'symbol',
+        source: sourceId,
+        filter: ['!', ['has', 'point_count']],
+        layout: {
+          'text-field': '+',
+          'text-size': 18,
+          'text-font': ['Open Sans Bold'],
+          'text-allow-overlap': true,
+          'text-offset': [0, -0.1]
+        },
+        paint: { 'text-color': '#ffffff' }
+      });
+    }
+  } else {
+    map.getSource(sourceId).setData(data);
+  }
+
+  const visibility = isVisible ? 'visible' : 'none';
+  [clusterCircleId, clusterCountId, unclusteredCircleId, unclusteredPlusId].forEach(layer => {
+    if (map.getLayer(layer)) {
+      map.setLayoutProperty(layer, 'visibility', visibility);
+    }
+  });
+};
+
+export const MapLayersManager = {
+  setupCityBoundary: (map, data) => {
+    if (map.getSource('city-source')) return;
+    map.addSource('city-source', { type: 'geojson', data });
+    map.addLayer({
+      id: 'city-layer',
+      type: 'line',
+      source: 'city-source',
+      paint: { 'line-color': '#3b82f6', 'line-width': 2 }
+    });
+  },
+
+  updateDistricts: (map, data) => {
+    if (!map.getSource('districts-source')) {
+      map.addSource('districts-source', { type: 'geojson', data });
+      map.addLayer({
+        id: 'districts-layer-line',
+        type: 'line',
+        source: 'districts-source',
+        paint: { 'line-color': '#6ca3fa', 'line-width': 1 }
+      });
+    } else {
+      map.getSource('districts-source').setData(data);
+    }
+  },
+
+  updatePlannedZones: (map, data, isVisible) => {
+    if (!map.getSource('planned-source')) {
+      map.addSource('planned-source', { type: 'geojson', data });
+      map.addLayer({
+        id: 'planned-fill',
+        type: 'fill',
+        source: 'planned-source',
+        paint: { 'fill-color': '#ef4444', 'fill-opacity': 0.15 }
+      });
+      map.addLayer({
+        id: 'planned-line',
+        type: 'line',
+        source: 'planned-source',
+        paint: { 'line-color': '#b91c1c', 'line-width': 2, 'line-dasharray': [2, 2] }
+      });
+    }
+    const visibility = isVisible ? 'visible' : 'none';
+    map.setLayoutProperty('planned-fill', 'visibility', visibility);
+    map.setLayoutProperty('planned-line', 'visibility', visibility);
+  },
+
+  updatePmspPoints: (map, data, isVisible) => {
+    if (!map.getSource('pmsp-source')) {
+      map.addSource('pmsp-source', { type: 'geojson', data });
+      map.addLayer({
+        id: 'pmsp-layer',
+        type: 'circle',
+        source: 'pmsp-source',
+        paint: {
+          'circle-color': ['get', 'color'],
+          'circle-radius': 6,
+          'circle-stroke-width': ['get', 'stroke_width'],
+          'circle-stroke-color': ['get', 'stroke_color'],
+        }
+      });
+    } else {
+      map.getSource('pmsp-source').setData(data);
+    }
+    map.setLayoutProperty('pmsp-layer', 'visibility', isVisible ? 'visible' : 'none');
+  },
+
+  getPopupContent: (props) => {
+    // 1. Попап для ЖК
+    if (props.layerType === 'zhkh') {
+      return `
+        <div style="padding: 8px; min-width: 200px;">
+          <div style="font-weight: bold; color: #1565C0; margin-bottom: 4px;">🏠 ${props.name}</div>
+          <div style="font-size: 10px; color: #666; margin-bottom: 6px;">📍 ${props.district}</div>
+          <div style="font-size: 11px; line-height: 1.4;">
+            ${props.flats ? `<div>Квартир: <b>${props.flats}</b></div>` : ''}
+            ${props.floors ? `<div>Этажей: <b>${props.floors}</b></div>` : ''}
+            ${props.deadline ? `<div style="margin-top:4px">Срок: <b>${props.deadline}</b></div>` : ''}
+          </div>
+        </div>`;
+    }
+
+    // 2. Попап для Планируемых объектов
+    if (props.layerType === 'planned') {
+      return `
+        <div style="padding: 8px; min-width: 220px;">
+          <div style="font-weight: bold; margin-bottom: 4px;">📋 ${props.name}</div>
+          <div style="display: flex; gap: 4px; margin-bottom: 8px;">
+            <span style="background: #e3f2fd; color: #1565c0; font-size: 9px; padding: 2px 6px; border-radius: 4px; font-weight: bold;">
+              ${props.work_type || 'Объект'}
+            </span>
+          </div>
+          <div style="font-size: 11px;">
+            <div>Район: <b>${props.district}</b></div>
+            ${props.capacity ? `<div style="margin-top:2px text-blue-600">Мощность: <b>${props.capacity} пос/см.</b></div>` : ''}
+          </div>
+        </div>`;
+    }
+
+    // 3. Попап для PMSP (Текущие)
+    return `
+      <div style="padding: 8px; min-width: 180px;">
+        <div style="font-weight: bold; font-size: 13px; margin-bottom: 2px;">${props.name}</div>
+        <div style="font-size: 10px; color: #888; margin-bottom: 8px;">${props.district} район</div>
+        <div style="display: grid; grid-cols: 2; gap: 10px; border-top: 1px solid #eee; pt-2;">
+           <div>
+             <div style="font-size: 9px; color: #aaa; text-transform: uppercase;">Посещ.</div>
+             <div style="font-weight: bold; color: #C62828;">${props.cap_load}%</div>
+           </div>
+           <div>
+             <div style="font-size: 9px; color: #aaa; text-transform: uppercase;">Врачи</div>
+             <div style="font-weight: bold; color: #EF6C00;">${props.doctor_load}%</div>
+           </div>
+        </div>
+      </div>`;
+  },
+
+  updatePlannedObjects: (map, data, isVisible) => {
+    updateIconPointLayer(map, data, isVisible, 'planned-objs', '#f97316', true);
+  },
+
+  updateZhkPoints: (map, data, isVisible) => {
+    updateIconPointLayer(map, data, isVisible, 'zhk-points', '#3b82f6', false);
+  },
+
+  setupClusterClicks: (map, id) => {
+    const clusterLayerId = `${id}-cluster-circle`;
+    const sourceId = `${id}-source`;
+
+    map.on('click', clusterLayerId, async (e) => {
+      const features = map.queryRenderedFeatures(e.point, { layers: [clusterLayerId] });
+      const clusterId = features[0].properties.cluster_id;
+      
+      const expansionZoom = await map.getSource(sourceId).getClusterExpansionZoom(clusterId);
+      
+      map.easeTo({
+        center: features[0].geometry.coordinates,
+        zoom: expansionZoom
+      });
+    });
+
+    map.on('mouseenter', clusterLayerId, () => { map.getCanvas().style.cursor = 'pointer'; });
+    map.on('mouseleave', clusterLayerId, () => { map.getCanvas().style.cursor = ''; });
+  },
+
+  updateServiceZones: (map, data, isVisible) => {
+    if (!map.getSource('service-zones-source')) {
+      map.addSource('service-zones-source', { type: 'geojson', data });
+      map.addLayer({
+        id: 'service-zones-fill',
+        type: 'fill',
+        source: 'service-zones-source',
+        paint: {
+          'fill-color': ['get', 'fill_color'],
+          'fill-opacity': ['get', 'fill_opacity'],
+          'fill-outline-color': ['get', 'stroke_color']
+        }
+      });
+    } else {
+      map.getSource('service-zones-source').setData(data);
+    }
+    map.setLayoutProperty('service-zones-fill', 'visibility', isVisible ? 'visible' : 'none');
+  },
+};
+
+
+export const setupAdminLayers = (map, cityData, districtsData) => {
+  if (cityData && !map.getSource('city-boundary')) {
+    map.addSource('city-boundary', { type: 'geojson', data: cityData });
+    map.addLayer({
+      id: 'city-boundary-line',
+      type: 'line',
+      source: 'city-boundary',
+      paint: {
+        'line-color': '#3b82f6',
+        'line-width': 3,
+        'line-dasharray': [2, 1]
+      }
+    });
+  }
+
+  if (districtsData && !map.getSource('districts-layer')) {
+    map.addSource('districts-layer', { type: 'geojson', data: districtsData });
+
+    map.addLayer({
+      id: 'districts-fill',
+      type: 'fill',
+      source: 'districts-layer',
+      paint: {
+        'fill-color': '#6b7280',
+        'fill-opacity': 0.05
+      }
+    }, 'city-boundary-line');
+
+    map.addLayer({
+      id: 'districts-line',
+      type: 'line',
+      source: 'districts-layer',
+      paint: {
+        'line-color': '#9ca3af',
+        'line-width': 1
+      }
+    }, 'city-boundary-line');
+  }
+};
+
 export const clearFeatureStates = (map, polygonMapping) => {
   if (!map.getSource('policlinic-polygons')) return;
 

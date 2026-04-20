@@ -1,7 +1,8 @@
 import { useState, useCallback } from 'react';
 import wellknown from 'wellknown';
 
-const API_BASE_URL = 'https://admin.smartalmaty.kz/api/v1/healthcare/territorial-division-map/';
+// const API_BASE_URL = 'https://admin.smartalmaty.kz/api/v1/healthcare/territorial-division-map/';
+const API_BASE_URL = 'https://admin.smartalmaty.kz/api/v1/healthcare/clinic-areas/';
 
 const getCoverageColor = (ratio) => {
   let numRatio = typeof ratio === 'string' ? parseFloat(ratio) : ratio;
@@ -45,7 +46,7 @@ export const useHealthcareData = () => {
 
     try {
       const response = await fetch(
-        `${API_BASE_URL}?${districtQuery}limit=1000`
+        `${API_BASE_URL}?${districtQuery}limit=100000`
       );
 
       if (!response.ok) {
@@ -65,10 +66,14 @@ export const useHealthcareData = () => {
         polygons: processedData.polygons,
         polygonMapping: processedData.polygonMapping,
         stats: {
-          totalCount: new Set(data.results.map((item) => item.id)).size,
+          // totalCount: new Set(data.results.map((item) => item.id)).size,
+          // totalPopulation: data.total_population,
+          // avgVisit: data.avg_overall_coverage_ratio,
+          // avgPerson: data.avg_per_1_person,
+          totalCount: data.mo_count || data.count, // Используем mo_count из новой апи
           totalPopulation: data.total_population,
-          avgVisit: data.avg_overall_coverage_ratio,
-          avgPerson: data.avg_per_1_person,
+          avgVisit: data.overall_coverage_ratio, // Было avg_overall_coverage_ratio
+          avgPerson: data.per_1_person,  
           vopNeeded: data.vop_needed,
           vopCount: data.vop_count,
         },
@@ -84,6 +89,76 @@ export const useHealthcareData = () => {
   return { fetchHealthcareData, isLoading, error };
 };
 
+// const processHealthcareData = (data) => {
+//   const groups = {};
+//   let polygonIdCounter = 0;
+//   const polygonMapping = {};
+
+//   data.results.forEach((item) => {
+//     if (!groups[item.id]) {
+//       groups[item.id] = {
+//         point: {
+//           type: 'Feature',
+//           geometry: {
+//             type: 'Point',
+//             coordinates: [
+//               parseFloat(item.longitude),
+//               parseFloat(item.latitude),
+//             ],
+//           },
+//           id: item.id,
+//           properties: {
+//             id: item.id,
+//             name: item.name,
+//             address: item.full_address,
+//             district: item.district,
+//             photo: item.photo,
+//             color: getCoverageColor(item.overall_coverage_ratio),
+//             coverage_ratio: item.overall_coverage_ratio,
+//           },
+//         },
+//         polygons: [],
+//         polygonIds: [],
+//       };
+//     }
+
+//     const geo = item.geometry ? wellknown.parse(item.geometry) : null;
+//     if (geo) {
+//       const uniquePolygonId = polygonIdCounter++;
+//       groups[item.id].polygons.push({
+//         type: 'Feature',
+//         geometry: geo,
+//         id: uniquePolygonId,
+//         properties: {
+//           parentId: item.id,
+//           id: item.id,
+//           name: item.name,
+//           address: item.full_address,
+//           color: ['#DCDCDC'], 
+//           original_color: ['#DCDCDC'],
+//         },
+//       });
+//       groups[item.id].polygonIds.push(uniquePolygonId);
+//     }
+//   });
+
+//   Object.keys(groups).forEach((parentId) => {
+//     polygonMapping[parentId] = groups[parentId].polygonIds;
+//   });
+
+//   return {
+//     points: {
+//       type: 'FeatureCollection',
+//       features: Object.values(groups).map((g) => g.point),
+//     },
+//     polygons: {
+//       type: 'FeatureCollection',
+//       features: Object.values(groups).flatMap((g) => g.polygons),
+//     },
+//     polygonMapping,
+//   };
+// };
+
 const processHealthcareData = (data) => {
   const groups = {};
   let polygonIdCounter = 0;
@@ -91,24 +166,25 @@ const processHealthcareData = (data) => {
 
   data.results.forEach((item) => {
     if (!groups[item.id]) {
+      // 3. ОБРАБОТКА КООРДИНАТ
+      // В новой API нет полей latitude/longitude в корне. 
+      // Берем первую координату из полигона для точки (маркера)
+      const coords = item.geom?.coordinates?.[0]?.[0]?.[0] || [0, 0];
+      
       groups[item.id] = {
         point: {
           type: 'Feature',
           geometry: {
             type: 'Point',
-            coordinates: [
-              parseFloat(item.longitude),
-              parseFloat(item.latitude),
-            ],
+            coordinates: [coords[0], coords[1]], // [lng, lat]
           },
           id: item.id,
           properties: {
             id: item.id,
-            name: item.name,
-            address: item.full_address,
+            name: item.name || `Объект ${item.id}`,
+            address: item.full_address || "Адрес не указан",
             district: item.district,
-            photo: item.photo,
-            color: getCoverageColor(item.overall_coverage_ratio),
+            color: getCoverageColor(item.overall_coverage_ratio || data.overall_coverage_ratio),
             coverage_ratio: item.overall_coverage_ratio,
           },
         },
@@ -117,7 +193,9 @@ const processHealthcareData = (data) => {
       };
     }
 
-    const geo = item.geometry ? wellknown.parse(item.geometry) : null;
+    // 4. ГЕОМЕТРИЯ ТЕПЕРЬ ОБЪЕКТ, А НЕ СТРОКА
+    const geo = item.geom; 
+    
     if (geo) {
       const uniquePolygonId = polygonIdCounter++;
       groups[item.id].polygons.push({
@@ -128,9 +206,7 @@ const processHealthcareData = (data) => {
           parentId: item.id,
           id: item.id,
           name: item.name,
-          address: item.full_address,
           color: ['#DCDCDC'], 
-          original_color: ['#DCDCDC'],
         },
       });
       groups[item.id].polygonIds.push(uniquePolygonId);
