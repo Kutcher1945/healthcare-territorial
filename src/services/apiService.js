@@ -35,5 +35,17 @@ export const HealthcareService = {
   getZhk: async () => {
     const res = await fetch(`${BASE_URL}/healthcare/analytics/zhk/`);
     return res.json();
-  }
+  }, 
+
+  getDistrictSummary: async () => {
+    const res = await fetch(`${BASE_URL}/healthcare/pmsp/district-summary/`);
+    if (!res.ok) throw new Error("Ошибка при получении сводки");
+    return res.json();
+  },
+
+  getBuildingAgeStats: async () => {
+    const res = await fetch(`${BASE_URL}/healthcare/analytics/buildings/age-stats/`);
+    if (!res.ok) throw new Error("Ошибка при получении статистики зданий");
+    return res.json();
+  },
 };

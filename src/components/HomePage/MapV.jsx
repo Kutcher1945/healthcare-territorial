@@ -1,13 +1,12 @@
 "use client";
 
-import { useEffect, useRef } from 'react';
+import { forwardRef, useImperativeHandle, useEffect, useRef } from 'react';
 import maplibregl from 'maplibre-gl';
 import { useMapInitialization } from '../../hooks/useMapInitialization';
 import { useMapData } from '../../hooks/useMapData';
 import { MapLayersManager } from '../../utils/mapLayers';
 import { useHealthcareData } from '../../hooks/useHealthcareData';
 import { MapControls } from '../comps/MapControls';
-import { MapLegend } from '../comps/MapLegend';
 import { LoadingOverlay } from '../comps/LoadingOverlay';
 import {
   clearFeatureStates,
@@ -19,7 +18,7 @@ import {
 } from '../../utils/mapLayers';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
-export default function MapView({
+const MapView = forwardRef(({
   setBuildingData,
   setShowDetailCard,
   showDetailCard,
@@ -31,16 +30,54 @@ export default function MapView({
   setTotalPopulation,
   setAvgVisit,
   setAvgPerson,
-}) {
+  onDataUpdate
+}, ref) => {
   const mapContainer = useRef(null);
   const { mapRef, isLoading: mapLoading, zoomIn, zoomOut, resetView } = useMapInitialization(mapContainer);
   const { loadInitialData, filterData, loading: dataLoading } = useMapData(); 
+  const activePopupRef = useRef(null);
 
   const selectedMarkerRef = useRef(null);
   const polygonMappingRef = useRef({});
   const popupRef = useRef(null);
 
   const isLoading = mapLoading || dataLoading;
+
+  const removeExistingPopup = () => {
+    if (activePopupRef.current) {
+      activePopupRef.current.remove();
+      activePopupRef.current = null;
+    }
+  };
+
+  useImperativeHandle(ref, () => ({
+    zoomToLocation: (item) => {
+      if (!mapRef.current) return;
+
+      const lng = parseFloat(item.lng || item.longitude);
+      const lat = parseFloat(item.lat || item.latitude);
+
+      if (isNaN(lng) || isNaN(lat)) return;
+
+      removeExistingPopup();
+
+      mapRef.current.flyTo({
+        center: [lng, lat],
+        zoom: 14,
+        essential: true
+      });
+
+      activePopupRef.current = new maplibregl.Popup({ offset: 10, closeButton: true })
+        .setLngLat([lng, lat])
+        .setHTML(MapLayersManager.getPopupContent(item))
+        .addTo(mapRef.current);
+        
+      if (item.unified_id || item.id) {
+          setBuildingData(item);
+          setShowDetailCard(true);
+      }
+    }
+  }));
 
   useEffect(() => {
     if (!mapRef.current) return;
@@ -58,6 +95,7 @@ export default function MapView({
       });
 
       if (!data) return;
+      if (onDataUpdate) onDataUpdate(data);
 
       const isAll = selectedLayers.includes("Все слои");
 
@@ -104,7 +142,9 @@ export default function MapView({
           const feature = features[0];
           const props = feature.properties;
 
-          new maplibregl.Popup({ offset: 10, closeButton: false })
+          removeExistingPopup();
+
+          activePopupRef.current = new maplibregl.Popup({ offset: 10, closeButton: false })
             .setLngLat(e.lngLat)
             .setHTML(MapLayersManager.getPopupContent(props))
             .addTo(map);
@@ -144,9 +184,9 @@ export default function MapView({
         ref={mapContainer}
       />
 
-      <MapLegend />
-
       <LoadingOverlay isLoading={isLoading} />
     </div>
   );
-}
+});
+
+export default MapView;

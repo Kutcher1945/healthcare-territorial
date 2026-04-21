@@ -68,7 +68,7 @@ const updateIconPointLayer = (map, data, isVisible, id, color, showPlus = true) 
           'text-size': 18,
           'text-font': ['Open Sans Bold'],
           'text-allow-overlap': true,
-          'text-offset': [0, -0.1]
+          'text-offset': [0, 0]
         },
         paint: { 'text-color': '#ffffff' }
       });

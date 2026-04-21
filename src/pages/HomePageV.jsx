@@ -1,11 +1,13 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef } from "react"
 import Map from "../components/HomePage/MapV"
 import MapFilter from "../components/HomePage/MapFilter/MapFilter"
 import DetailedInfoRight from "../components/HomePage/DetailCard/DetailedInfoRight"
 import DistrictSummaryModal from "../components/HomePage/Modal/DistrictSummaryModal"
 import BuildingAgeModal from "../components/HomePage/Modal/BuildingAgeModal"
+import CriticalLoadPanel from "../components/HomePage/MapLegend/CriticalLoadPanel"
+import {MapLayersManager} from "../utils/mapLayers"
 
 export default function HomePage() {
   const [buildingData, setBuildingData] = useState([])
@@ -19,6 +21,8 @@ export default function HomePage() {
   const [selectedLayers, setSelectedLayers] = useState(["Все слои"])
   const [selectedAffiliations, setSelectedAffiliations] = useState(["Все принадлежности"])
   const [activeModal, setActiveModal] = useState(null);
+  const [mapData, setMapData] = useState(null);
+  const mapRef = useRef(null);
 
   const handleBackdropClick = () => {
     if (showDetailCard && buildingData?.id && window.innerWidth < 768) {
@@ -28,13 +32,6 @@ export default function HomePage() {
 
   return (
     <div className="relative h-full w-full overflow-hidden">
-      {showDetailCard && buildingData?.id && (
-        <div
-          className="md:hidden absolute inset-0 bg-black/20 z-20 transition-opacity duration-300"
-          onClick={handleBackdropClick}
-        />
-      )}
-
       <div className="h-full w-full">
         <Map
           setBuildingData={setBuildingData}
@@ -48,6 +45,9 @@ export default function HomePage() {
           setTotalPopulation={setTotalPopulation}
           setAvgVisit={setAvgVisit}
           setAvgPerson={setAvgPerson}
+
+          ref={mapRef}
+          onDataUpdate={setMapData}
         />
       </div>
 
@@ -79,11 +79,16 @@ export default function HomePage() {
             <BuildingAgeModal onClose={() => setActiveModal(null)} />
           )}
         </div>
-
       </div>
-      <div className="absolute top-[20px] right-4 z-20 w-[220px] md:w-[280px]">
-        <DetailedInfoRight
-          buildingData={buildingData}
+
+      <div className="absolute bottom-6 right-6 z-30">
+        <CriticalLoadPanel 
+          data={mapData?.pmsp} 
+          onZoomTo={(item) => {
+            if (mapRef.current) {
+              mapRef.current.zoomToLocation(item);
+            }
+          }} 
         />
       </div>
     </div>
