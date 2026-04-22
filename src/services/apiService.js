@@ -48,4 +48,10 @@ export const HealthcareService = {
     if (!res.ok) throw new Error("Ошибка при получении статистики зданий");
     return res.json();
   },
+
+  getInfrastructureAnalytics: async () => {
+    const res = await fetch(`${BASE_URL}/healthcare/analytics/buildings/`);
+    if (!res.ok) throw new Error("Ошибка загрузки аналитики зданий");
+    return res.json();
+  },
 };

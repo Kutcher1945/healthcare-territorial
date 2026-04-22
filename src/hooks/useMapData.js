@@ -98,7 +98,14 @@ export const useMapData = () => {
   const filterData = (filters) => {
     if (!cache) return null;
 
-    const { districts, visits, layers, affiliations } = filters;
+    const { 
+      districts = ["Все районы"], 
+      visits = ["Все посещения"], 
+      layers = ["Все слои"], 
+      affiliations = ["Все принадлежности"] 
+    } = filters;
+
+    // const { districts, visits, layers, affiliations } = filters;
     const isAllDistricts = districts.includes("Все районы");
     const normalizedSelectedDistricts = districts.map(d => normalize(d));
 

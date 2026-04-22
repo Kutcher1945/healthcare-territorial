@@ -153,7 +153,35 @@ export const MapLayersManager = {
   },
 
   getPopupContent: (props) => {
-    // 1. Попап для ЖК
+
+    if (props.bld_main_priority) {
+      const color = props.bld_main_priority === 'критично' ? '#C62828' : 
+                    props.bld_main_priority === 'риск' ? '#EF6C00' : '#2E7D32';
+      
+      return `
+        <div style="padding: 10px; min-width: 200px; font-family: sans-serif;">
+          <div style="font-weight: bold; font-size: 13px; margin-bottom: 5px; color: #333;">
+            ${props.name || 'Медицинский объект'}
+          </div>
+          <div style="display: flex; align-items: center; gap: 5px; margin-bottom: 8px;">
+            <span style="background: ${color}; color: white; font-size: 10px; padding: 2px 8px; border-radius: 12px; font-weight: bold; text-transform: uppercase;">
+              ${props.bld_main_priority}
+            </span>
+          </div>
+          <div style="font-size: 11px; color: #666; line-height: 1.4;">
+            <div>Район: <b>${props.district || '—'}</b></div>
+            <div>Площадь: <b>${props.total_area_sq_m_field || '—'} м²</b></div>
+            ${props.bld_year_built ? `<div>Год постройки: <b>${props.bld_year_built}</b></div>` : ''}
+          </div>
+          ${props.priority_reason ? `
+            <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #eee; font-size: 10px; color: #C62828; font-weight: bold;">
+              ⚠️ ${props.priority_reason}
+            </div>
+          ` : ''}
+        </div>
+      `;
+    }
+    
     if (props.layerType === 'zhkh') {
       return `
         <div style="padding: 8px; min-width: 200px;">
@@ -248,8 +276,65 @@ export const MapLayersManager = {
     }
     map.setLayoutProperty('service-zones-fill', 'visibility', isVisible ? 'visible' : 'none');
   },
-};
 
+  updateInfrastructureLayers: (map, data, isVisible) => {
+    const layerId = 'infra-points';
+    const sourceId = 'infra-source';
+
+    if (!map.getSource(sourceId)) {
+      map.addSource(sourceId, {
+        type: 'geojson',
+        data: data
+      });
+
+      map.addLayer({
+        id: layerId,
+        type: 'circle',
+        source: sourceId,
+        paint: {
+          // 1. Цвет круга в зависимости от состояния здания (priority)
+          'circle-color': [
+            'match',
+            ['get', 'bld_main_priority'],
+            'критично', '#C62828', // Красный
+            'риск', '#EF6C00',     // Оранжевый
+            'норма', '#2E7D32',    // Зеленый
+            '#9E9E9E'              // Серый (если нет данных)
+          ],
+          
+          // 2. Радиус круга в зависимости от площади здания (area)
+          'circle-radius': [
+            'step',
+            ['coalesce', ['get', 'total_area_sq_m_field'], 0],
+            6, 500,    // 6px если площадь < 500
+            8, 2000,   // 8px если площадь < 2000
+            11, 5000,  // 11px если площадь < 5000
+            14         // 14px если площадь больше 5000
+          ],
+          
+          'circle-stroke-width': 1.5,
+          'circle-stroke-color': '#fff',
+          'circle-opacity': 0.9
+        }
+      });
+    } else {
+      // Если источник уже есть, просто обновляем данные
+      map.getSource(sourceId).setData(data);
+    }
+
+    // Управление видимостью
+    const visibility = isVisible ? 'visible' : 'none';
+    if (map.getLayer(layerId)) {
+      map.setLayoutProperty(layerId, 'visibility', visibility);
+    }
+  },
+
+  hideServiceZones: (map) => {
+    if (map.getLayer('service-zones-fill')) {
+      map.setLayoutProperty('service-zones-fill', 'visibility', 'none');
+    }
+  }
+};
 
 export const setupAdminLayers = (map, cityData, districtsData) => {
   if (cityData && !map.getSource('city-boundary')) {

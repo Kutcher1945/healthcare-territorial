@@ -19,18 +19,19 @@ import {
 import 'maplibre-gl/dist/maplibre-gl.css';
 
 const MapView = forwardRef(({
-  setBuildingData,
-  setShowDetailCard,
+  setBuildingData = () => {},
+  setShowDetailCard = () => {},
   showDetailCard,
-  selectedDistrict,
-  selectedLayers,
-  selectedVisits,
-  selectedAffiliations, 
-  setTotalCount,
-  setTotalPopulation,
-  setAvgVisit,
-  setAvgPerson,
-  onDataUpdate
+  selectedDistrict = ["Все районы"],
+  selectedLayers = ["Все слои"],
+  selectedVisits = ["Все посещения"],
+  selectedAffiliations = ["Все принадлежности"], 
+  setTotalCount = () => {},
+  setTotalPopulation = () => {},
+  setAvgVisit = () => {},
+  setAvgPerson = () => {},
+  onDataUpdate = () => {},
+  mode = "load",
 }, ref) => {
   const mapContainer = useRef(null);
   const { mapRef, isLoading: mapLoading, zoomIn, zoomOut, resetView } = useMapInitialization(mapContainer);
@@ -115,7 +116,14 @@ const MapView = forwardRef(({
       const showZhk = isAll || selectedLayers.includes("Планируемые жилые объекты (ЖКХ)");
       MapLayersManager.updateZhkPoints(map, data.zhk, showZhk);
 
-      MapLayersManager.updatePmspPoints(map, data.pmsp, true);
+      if (mode === "infrastructure") {
+        MapLayersManager.updateInfrastructureLayers(map, data.pmsp, true);
+        MapLayersManager.hideServiceZones(map);
+        if (map.getLayer('pmsp-layer')) map.setLayoutProperty('pmsp-layer', 'visibility', 'none');
+      } else {
+        MapLayersManager.updatePmspPoints(map, data.pmsp, true);
+        if (map.getLayer('infra-points')) map.setLayoutProperty('infra-points', 'visibility', 'none');
+      }
 
       if (map.getLayer('planned-objs-cluster-circle')) {
         MapLayersManager.setupClusterClicks(map, 'planned-objs');
@@ -131,28 +139,33 @@ const MapView = forwardRef(({
 
       const onMapClick = (e) => {
         const layers = [
-          'pmsp-layer', 
+          'pmsp-layer',
+          'infra-points',
           'zhk-points-unclustered-circle', 
           'planned-objs-unclustered-circle'
         ];
 
-        const features = map.queryRenderedFeatures(e.point, { layers });
+        const activeLayers = layers.filter(layerId => map.getLayer(layerId));
+        if (activeLayers.length === 0) return;
 
+        // const features = map.queryRenderedFeatures(e.point, { layers });
+        const features = map.queryRenderedFeatures(e.point, { layers: activeLayers });
+        
         if (features.length > 0) {
           const feature = features[0];
           const props = feature.properties;
 
           removeExistingPopup();
 
-          activePopupRef.current = new maplibregl.Popup({ offset: 10, closeButton: false })
+          activePopupRef.current = new maplibregl.Popup({ offset: 10, closeButton: true })
             .setLngLat(e.lngLat)
             .setHTML(MapLayersManager.getPopupContent(props))
             .addTo(map);
 
-          if (feature.layer.id === 'pmsp-layer') {
-            setBuildingData(props);
-            setShowDetailCard(true);
-          }
+          // if (feature.layer.id === 'pmsp-layer'|| feature.layer.id === 'infra-points') {
+          //   setBuildingData(props);
+          //   setShowDetailCard(true);
+          // }
         }
       };
 
@@ -164,6 +177,12 @@ const MapView = forwardRef(({
       
       map.on('mouseenter', 'pmsp-layer', onMouseEnter);
       map.on('mouseleave', 'pmsp-layer', onMouseLeave);
+      map.on('mouseenter', 'infra-points', onMouseEnter);
+      map.on('mouseleave', 'infra-points', onMouseLeave);
+      map.on('mouseenter', 'zhk-points-unclustered-circle', onMouseEnter);
+      map.on('mouseleave', 'zhk-points-unclustered-circle', onMouseLeave);
+      map.on('mouseenter', 'planned-objs-unclustered-circle', onMouseEnter);
+      map.on('mouseleave', 'planned-objs-unclustered-circle', onMouseLeave);
     };
 
     if (mapRef.current.isStyleLoaded()) updateMap();
