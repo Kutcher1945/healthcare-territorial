@@ -6,6 +6,7 @@ import HomePage from './pages/HomePageV';
 import InfrastructurePage from './pages/InfrastructurePageV';
 import PersonalPage from './pages/PersonalPageV';
 import RecomendationsPage from './pages/RecomendationsPage';
+import GeoAnalysisPage from './pages/GeoAnalysisPage';
 
 function App() {
   const [selectedDistrict, setSelectedDistrict] = useState("Все районы");
@@ -16,9 +17,10 @@ function App() {
         <main className="flex-1 overflow-hidden">
           <Routes>
             <Route path="/" element={<HomePage selectedDistrict={selectedDistrict} />}/>
-            <Route path="/infrastructure" element={<InfrastructurePage/>}/>
+            <Route path="/buildings" element={<InfrastructurePage/>}/>
             <Route path="/personal" element={<PersonalPage selectedDistrict={selectedDistrict}/>}/>
-            <Route path="/recomendations" element={<RecomendationsPage/>}/>
+            {/* <Route path="/recomendations" element={<RecomendationsPage/>}/> */}
+            <Route path="/geo-analysis" element={<GeoAnalysisPage/>}/>
           </Routes>
         </main>
       </div>

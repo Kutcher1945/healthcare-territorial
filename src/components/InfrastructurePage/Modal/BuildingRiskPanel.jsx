@@ -18,15 +18,19 @@ export default function BuildingRiskPanel({ onClose, onZoomTo }) {
 
   if (loading) return <div className="p-10 flex justify-center bg-white rounded-xl shadow-lg"><Loader2 className="animate-spin" /></div>;
 
+  const totalPre1970 = data?.by_age.reduce((s, i) => s + i.pre1970, 0);
+  const total1970_2000 = data?.by_age.reduce((s, i) => s + i.y1970_2000, 0);
+  const totalAllDist = data?.by_age.reduce((s, i) => s + (i.pre1970 + i.y1970_2000 + i.post2000), 0);
+
   return (
     <div className="h-full bg-white shadow-2xl rounded-xl border border-gray-200 overflow-hidden flex flex-col">
         <div className="shrink-0">
             {/* Header */}
             <div className="bg-[#37474F] p-2.5 px-4 flex items-center justify-between text-white">
-                <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 text-orange-400" />
                 <span className="font-bold text-[13px]">Скрытый риск: здания без данных</span>
-                </div>
+              </div>
             </div>
 
             {/* KPI Blocks */}
@@ -38,10 +42,10 @@ export default function BuildingRiskPanel({ onClose, onZoomTo }) {
                 { label: 'Нет данных', val: data.by_priority['нет данных'], color: '#78909C' },
                 { label: 'До 1980 г.', val: data.by_age.reduce((s,i)=>s+i.pre1970,0), color: '#F57F17' },
                 ].map((k, i) => (
-                <div key={i} className="bg-white p-2 text-center">
+                  <div key={i} className="bg-white p-2 text-center">
                     <div className="text-lg font-bold leading-none mb-1" style={{ color: k.color }}>{k.val}</div>
                     <div className="text-[9px] text-gray-400 uppercase leading-tight">{k.label}</div>
-                </div>
+                  </div>
                 ))}
             </div>
         </div>
@@ -58,7 +62,13 @@ export default function BuildingRiskPanel({ onClose, onZoomTo }) {
           {activeTab === 'obj' ? (
             <>
               <thead className="bg-white sticky top-0 border-b text-gray-400">
-                <tr><th className="p-2 text-left">ПМСП</th><th className="p-2 text-center">Год</th><th className="p-2 text-center">Риск</th><th className="p-2 text-right">РПН</th></tr>
+                <tr>
+                  <th className="p-2 text-left">ПМСП</th>
+                  <th className="p-2 text-center">Год</th>
+                  <th className="p-2 text-center">Риск</th>
+                  <th className="p-2 text-right">Приоритет</th>
+                  {/* <th className="p-2 text-right">РПН</th> */}
+                </tr>
               </thead>
               <tbody>
                 {data.critical_list.map((r, i) => (
@@ -70,10 +80,17 @@ export default function BuildingRiskPanel({ onClose, onZoomTo }) {
                          {r.priority_reason}
                        </span>
                     </td>
-                    <td className="p-2 text-right text-blue-600 font-bold">{fmt(Math.floor(Math.random()*50000))}</td>
+                    <td className="p-2 text-right text-blue-600 font-bold">{r.bld_priority}</td>
+                    {/* <td className="p-2 text-right text-blue-600 font-bold">{fmt(Math.floor(Math.random()*50000))}</td> */}
                   </tr>
                 ))}
               </tbody>
+              <tfoot className="sticky bottom-0 bg-[#ECEFF1] border-t-2 border-[#546E7A] font-bold text-gray-700 z-10">
+                <tr>
+                  <td className="p-2 pl-4 text-left" colSpan="3">Итого: {data.critical_list.length} объектов</td>
+                  <td className="p-2 text-right pr-4 text-blue-900">Критично</td>
+                </tr>
+              </tfoot>
             </>
           ) : (
             <>
@@ -90,6 +107,14 @@ export default function BuildingRiskPanel({ onClose, onZoomTo }) {
                   </tr>
                 ))}
               </tbody>
+              <tfoot className="sticky bottom-0 bg-[#ECEFF1] border-t-2 border-[#546E7A] font-bold text-gray-700 z-10">
+                <tr>
+                  <td className="p-2 pl-4 text-left font-bold">Всего по городу</td>
+                  <td className="p-2 text-center text-red-700">{totalPre1970}</td>
+                  <td className="p-2 text-center text-gray-600">{total1970_2000}</td>
+                  <td className="p-2 text-right font-bold pr-4 text-gray-900">{totalAllDist}</td>
+                </tr>
+              </tfoot>
             </>
           )}
         </table>

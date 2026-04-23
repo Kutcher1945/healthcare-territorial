@@ -51,7 +51,7 @@ export default function CriticalLoadPanel({ data, onZoomTo }) {
     if (rows.length === 0) return null;
     const n = rows.length;
     if (activeTab === 'cap') {
-      const plan = rows.reduce((s, r) => s + (r.cap_plan_year || r.population * 2), 0);
+      const plan = rows.reduce((s, r) => s + (r.cap_planned*456), 0);
       const fact = rows.reduce((s, r) => s + (r.visits_fact || r.population * 2.4), 0);
       const pop = rows.reduce((s, r) => s + (r.population || 0), 0);
       return { n, plan, fact, diff: fact - plan, pop };
@@ -146,7 +146,7 @@ export default function CriticalLoadPanel({ data, onZoomTo }) {
 
                     {activeTab === 'cap' && (
                       <>
-                        <td className="p-2 text-right align-middle text-gray-500">{fmtNum(r.cap_plan_year || r.population * 2)}</td>
+                        <td className="p-2 text-right align-middle text-gray-500">{fmtNum(r.cap_planned * 456)}</td>
                         <td className="p-2 text-right align-middle font-bold pr-4">{fmtNum(r.visits_fact || r.population * 2.4)}</td>
                       </>
                     )}

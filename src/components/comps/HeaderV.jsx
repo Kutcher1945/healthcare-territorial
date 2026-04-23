@@ -1,7 +1,7 @@
 "use client"
 
 import { Link, useLocation } from "react-router-dom"
-import { HeartPulse, MapPinned, Menu, X, ChevronDown, Activity, Users } from "lucide-react"
+import { MapPinned, Menu, X, ChevronDown } from "lucide-react"
 import { useState, useEffect } from "react"
 import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose} from "../ui/dialog"
 import DoctorsCapacityMethodology from "../Methodology/DoctorsCapacityMethodology"
@@ -50,10 +50,11 @@ export default function Header({ setSelectedDistrict, selectedDistrict }) {
   }
 
   const navigationItems = [
-    { to: "/", label: "Главная", icon: Activity, color: "text-blue-500" },
-    { to: "/infrastructure", label: "Инфраструктура", icon: HeartPulse, color: "text-green-500" },
-    { to: "/personal", label: "Персонал", icon: Users, color: "text-purple-500" },
-    { to: "/recomendations", label: "Рекомендации", icon: MapPinned, color: "text-purple-500" },
+    { to: "/", label: "Главная" },
+    { to: "/buildings", label: "Здания"},
+    { to: "/personal", label: "Персонал"},
+    // { to: "/recomendations", label: "Рекомендации"},
+    { to: "/geo-analysis", label: "Гео-анализ"},
   ]
 
   return (
@@ -80,7 +81,7 @@ export default function Header({ setSelectedDistrict, selectedDistrict }) {
           <nav className="hidden lg:flex items-center gap-2">
               <button
                 onClick={() => setIsMethodologyOpen(true)}
-                className="rounded-md border border-gray-300 px-3 py-1.5 text-xs hover:bg-gray-50"
+                className="rounded-md border border-blue-500 text-blue-600 font-semibold px-3 py-1.5 text-xs hover:bg-blue-50"
               >
                 Методология
               </button>
@@ -142,7 +143,7 @@ export default function Header({ setSelectedDistrict, selectedDistrict }) {
                   setIsMethodologyOpen(true);
                   setMobileMenu(false);
                 }}
-                className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-xs font-semibold text-[#283353] hover:bg-[#ebf1ff] border border-transparent hover:border-[#c1d3ff] transition-colors w-full text-left"
+                className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-semibold border-blue-500 text-blue-600 hover:bg-blue-50 border border-transparent transition-colors w-full text-left"
               >
                 <span>Методология</span>
               </button>
