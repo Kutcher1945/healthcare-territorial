@@ -5,17 +5,8 @@ import maplibregl from 'maplibre-gl';
 import { useMapInitialization } from '../../hooks/useMapInitialization';
 import { useMapData } from '../../hooks/useMapData';
 import { MapLayersManager } from '../../utils/mapLayers';
-import { useHealthcareData } from '../../hooks/useHealthcareData';
 import { MapControls } from '../comps/MapControls';
 import { LoadingOverlay } from '../comps/LoadingOverlay';
-import {
-  clearFeatureStates,
-  setupPolygonLayers,
-  setupPointLayers,
-  createPopup,
-  updateFeatureStates,
-  setupAdminLayers,
-} from '../../utils/mapLayers';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
 const MapView = forwardRef(({
@@ -31,18 +22,14 @@ const MapView = forwardRef(({
   setAvgVisit = () => {},
   setAvgPerson = () => {},
   onDataUpdate = () => {},
+  geoMode = "",
   mode = "load",
 }, ref) => {
   const mapContainer = useRef(null);
   const { mapRef, isLoading: mapLoading, zoomIn, zoomOut, resetView } = useMapInitialization(mapContainer);
-  const { loadInitialData, filterData, loading: dataLoading } = useMapData(); 
+  const {filterData, isLoading: dataLoading, isReady, data: rawCacheData } = useMapData(mode); 
   const activePopupRef = useRef(null);
-
-  const selectedMarkerRef = useRef(null);
-  const polygonMappingRef = useRef({});
-  const popupRef = useRef(null);
-
-  const isLoading = mapLoading || dataLoading;
+  const showFullLoader = mapLoading || !isReady;
 
   const removeExistingPopup = () => {
     if (activePopupRef.current) {
@@ -81,12 +68,10 @@ const MapView = forwardRef(({
   }));
 
   useEffect(() => {
-    if (!mapRef.current) return;
+    if (!mapRef.current || !isReady) return;
 
     const updateMap = async () => {
       const map = mapRef.current;
-      
-      await loadInitialData();
       
       const data = filterData({
         districts: selectedDistrict,
@@ -95,32 +80,62 @@ const MapView = forwardRef(({
         affiliations: selectedAffiliations
       });
 
-      if (!data) return;
+      if (!data || !data.city) return;
       if (onDataUpdate) onDataUpdate(data);
+
+      MapLayersManager.setupCityBoundary(map, data.city);
+      MapLayersManager.updateDistricts(map, data.districts);
+
+      
 
       const isAll = selectedLayers.includes("Все слои");
 
-      MapLayersManager.setupCityBoundary(map, data.city);
-      
-      MapLayersManager.updateDistricts(map, data.districts);
-
       const showTransit = isAll || selectedLayers.includes("Зоны обслуживания МО");
-      MapLayersManager.updateServiceZones(map, data.serviceZones, showTransit);
+      // MapLayersManager.updateServiceZones(map, data.serviceZones, showTransit);
 
       const showGenplan = isAll || selectedLayers.includes("Зоны здравоохранения (генплан)");
-      MapLayersManager.updatePlannedZones(map, data.plannedZones, showGenplan);
+      // MapLayersManager.updatePlannedZones(map, data.plannedZones, showGenplan);
 
       const showPlannedObjs = isAll || selectedLayers.includes("Планируемые объекты здравоохранения");
-      MapLayersManager.updatePlannedObjects(map, data.plannedObjs, showPlannedObjs);
+      // MapLayersManager.updatePlannedObjects(map, data.plannedObjs, showPlannedObjs);
 
       const showZhk = isAll || selectedLayers.includes("Планируемые жилые объекты (ЖКХ)");
-      MapLayersManager.updateZhkPoints(map, data.zhk, showZhk);
+      // MapLayersManager.updateZhkPoints(map, data.zhk, showZhk);
+      if (data.serviceZones) {
+        MapLayersManager.updateServiceZones(map, data.serviceZones, showTransit);
+      }
+      if (data.plannedZones) {
+        MapLayersManager.updatePlannedZones(map, data.plannedZones, showGenplan);
+      }
+      if (data.plannedObjs) {
+        MapLayersManager.updatePlannedObjects(map, data.plannedObjs, showPlannedObjs);
+      }
+      if (data.zhk) {
+        MapLayersManager.updateZhkPoints(map, data.zhk, showZhk);
+      }
+
+      if (mode === "geo-analysis") {
+        MapLayersManager.hideServiceZones(map);
+        const isWalk = geoMode === "walkaccess";
+        const isDeficit = geoMode === "deficit";
+
+        if (data.grid) {
+          MapLayersManager.updateGridLayer(map, data.grid, isWalk);
+        }
+
+        if (data.heatDeficit && data.heatCoverage) {
+          MapLayersManager.updateHeatmapLayer(map, data.heatDeficit, isDeficit, 'deficit', ['#FDD835', '#EF6C00', '#C62828']);
+          MapLayersManager.updateHeatmapLayer(map, data.heatCoverage, isDeficit, 'coverage', ['#A5D6A7', '#43A047', '#1B5E20']);
+        }
+
+        MapLayersManager.updateGeoMarkers(map, data.pmsp, true);
+      }
 
       if (mode === "infrastructure") {
         MapLayersManager.updateInfrastructureLayers(map, data.pmsp, true);
         MapLayersManager.hideServiceZones(map);
         if (map.getLayer('pmsp-layer')) map.setLayoutProperty('pmsp-layer', 'visibility', 'none');
-      } else {
+      } else if (mode !== "geo-analysis") {
         MapLayersManager.updatePmspPoints(map, data.pmsp, true);
         if (map.getLayer('infra-points')) map.setLayoutProperty('infra-points', 'visibility', 'none');
       }
@@ -154,18 +169,11 @@ const MapView = forwardRef(({
         if (features.length > 0) {
           const feature = features[0];
           const props = feature.properties;
-
           removeExistingPopup();
-
           activePopupRef.current = new maplibregl.Popup({ offset: 10, closeButton: true })
             .setLngLat(e.lngLat)
             .setHTML(MapLayersManager.getPopupContent(props))
             .addTo(map);
-
-          // if (feature.layer.id === 'pmsp-layer'|| feature.layer.id === 'infra-points') {
-          //   setBuildingData(props);
-          //   setShowDetailCard(true);
-          // }
         }
       };
 
@@ -188,7 +196,7 @@ const MapView = forwardRef(({
     if (mapRef.current.isStyleLoaded()) updateMap();
     else mapRef.current.once('load', updateMap);
 
-  }, [selectedDistrict, selectedVisits, selectedLayers, selectedAffiliations, loadInitialData]);
+  }, [selectedDistrict, selectedVisits, selectedLayers, selectedAffiliations, mode, geoMode, filterData, isReady, rawCacheData]);
 
   return (
     <div className="relative w-full h-full">
@@ -203,7 +211,7 @@ const MapView = forwardRef(({
         ref={mapContainer}
       />
 
-      <LoadingOverlay isLoading={isLoading} />
+      <LoadingOverlay isLoading={showFullLoader} />
     </div>
   );
 });

@@ -11,9 +11,8 @@ export const HealthcareService = {
     return res.json();
   },
 
-  getPmsp: async (districts = []) => {
-    const query = districts.length > 0 ? `district=${encodeURIComponent(districts.join(","))}&` : "";
-    const res = await fetch(`${BASE_URL}/healthcare/pmsp/?${query}limit=500`);
+  getPmsp: async () => {
+    const res = await fetch(`${BASE_URL}/healthcare/pmsp/?limit=1000`);
     return res.json();
   },
 
@@ -54,4 +53,29 @@ export const HealthcareService = {
     if (!res.ok) throw new Error("Ошибка загрузки аналитики зданий");
     return res.json();
   },
+
+  getGridCells: async () => {
+    const res = await fetch(`${BASE_URL}/healthcare/geo/grid-cells/`);
+    return res.json();
+  },
+
+  getHeatmapData: async (type) => {
+    const res = await fetch(`${BASE_URL}/healthcare/analytics/heatmap/${type}/`);
+    const data = await res.json();
+    
+    return {
+      type: 'FeatureCollection',
+      features: data.map((point, idx) => ({
+        type: 'Feature',
+        id: idx,
+        geometry: {
+          type: 'Point',
+          coordinates: [point[1], point[0]]
+        },
+        properties: {
+          weight: point[2] || 1
+        }
+      }))
+    };
+  }
 };

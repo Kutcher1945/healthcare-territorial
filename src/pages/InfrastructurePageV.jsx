@@ -6,12 +6,14 @@ import { useState, useRef } from "react"
 // import Diagram from "../components/InfrastructurePage/DiagramV"
 import InfraTable from "../components/InfrastructurePage/InfraTableV"
 import MapView from "../components/HomePage/MapV"
+import MapFilter from "../components/HomePage/MapFilter/MapFilter"
 import BuildingRiskPanel from "../components/InfrastructurePage/Modal/BuildingRiskPanel"
 
 export default function InfrastructurePage() {
   const [selectedDistrict, setSelectedDistrict] = useState("")
   // const [selectedDecade, setSelectedDecade] = useState("")
   const [mapData, setMapData] = useState(null)
+  const [selectedLayers, setSelectedLayers] = useState(["Все слои"]);
   const mapRef = useRef(null)
   
   return (
@@ -60,10 +62,20 @@ export default function InfrastructurePage() {
             mode="infrastructure"
             ref={mapRef}
             selectedDistrict={selectedDistrict ? [selectedDistrict] : ["Все районы"]}
-            selectedLayers={["Все слои"]}
+            selectedLayers={selectedLayers}
             onDataUpdate={setMapData}
           />
         </div>
+
+        {/* <div className="absolute top-4 left-4 z-20 w-64">
+          <MapFilter 
+            selectedDistrict={selectedDistrict}
+            setSelectedDistrict={setSelectedDistrict}
+            selectedLayers={selectedLayers}
+            setSelectedLayers={setSelectedLayers}
+            // ... остальные пропсы (можно пустые заглушки)
+          />
+        </div> */}
 
         {/* Панель скрытого риска */}
         <div className="w-[500px] h-full overflow-hidden rounded-xl">

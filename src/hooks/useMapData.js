@@ -1,5 +1,5 @@
-import { useState, useCallback } from 'react';
-import { HealthcareService } from '../services/apiService';
+import { useCallback, useMemo } from 'react';
+import { useHealthcareQueries } from './useHealthcareQueries'; 
 
 const isPointInPolygon = (point, geometry) => {
   if (!geometry) return false;
@@ -19,9 +19,9 @@ const isPointInPolygon = (point, geometry) => {
   return inside;
 };
 
-export const useMapData = () => {
-  const [loading, setLoading] = useState(false);
-  const [cache, setCache] = useState(null);
+export const useMapData = (mode) => {
+
+  const { data: cache, isLoading, isFetching } = useHealthcareQueries(mode);
 
   const normalize = (name) => {
     if (!name) return "";
@@ -74,29 +74,8 @@ export const useMapData = () => {
     return Math.min(10, Math.max(4, Math.round(4 + Math.sqrt(f) * 0.18)));
   };
 
-  const loadInitialData = useCallback(async () => {
-    if (cache) return cache;
-    setLoading(true);
-    try {
-      const [city, dists, pmsp, plannedZones, plannedObjs, serviceZones, zhk] = await Promise.all([
-        HealthcareService.getCityBoundary(),
-        HealthcareService.getDistricts(),
-        HealthcareService.getPmsp([]), 
-        HealthcareService.getPlannedZones(),
-        HealthcareService.getPlannedObjects(),
-        HealthcareService.getServiceZones(),
-        HealthcareService.getZhk()
-      ]);
-      const data = { city, dists, pmsp, plannedZones, plannedObjs, serviceZones, zhk };
-      setCache(data);
-      return data;
-    } finally {
-      setLoading(false);
-    }
-  }, [cache]);
-
-  const filterData = (filters) => {
-    if (!cache) return null;
+  const filterData = useCallback((filters) => {
+    if (!cache.city || !cache.pmsp || !cache.dists) return null;
 
     const { 
       districts = ["Все районы"], 
@@ -105,7 +84,6 @@ export const useMapData = () => {
       affiliations = ["Все принадлежности"] 
     } = filters;
 
-    // const { districts, visits, layers, affiliations } = filters;
     const isAllDistricts = districts.includes("Все районы");
     const normalizedSelectedDistricts = districts.map(d => normalize(d));
 
@@ -137,7 +115,7 @@ export const useMapData = () => {
       }
     }));
 
-    const filteredServiceZones = {
+    const filteredServiceZones = cache.serviceZones ? {
       ...cache.serviceZones,
       features: cache.serviceZones.features
         .filter(f => checkDistrict(f.properties.district_name))
@@ -145,39 +123,27 @@ export const useMapData = () => {
           const clinicsInside = filteredPmspRaw.filter(clinic => 
             isPointInPolygon([clinic.lng, clinic.lat], zone.geometry)
           );
-
           let zoneColor = '#9E9E9E';
           let zoneOpacity = 0.05;
-
           if (clinicsInside.length > 0) {
             const avgLoad = clinicsInside.reduce((sum, c) => sum + (c.cap_load || 0), 0) / clinicsInside.length;
             zoneColor = getCapLoadColor(avgLoad);
             zoneOpacity = 0.25;
           }
-
           return {
             ...zone,
-            properties: {
-              ...zone.properties,
-              fill_color: zoneColor,
-              fill_opacity: zoneOpacity,
-              stroke_color: zoneColor,
-              clinics_count: clinicsInside.length
-            }
+            properties: { ...zone.properties, fill_color: zoneColor, fill_opacity: zoneOpacity, stroke_color: zoneColor, clinics_count: clinicsInside.length }
           };
         })
-    };
+    } : null;
 
-    const filteredPlannedObjs = {
+    const filteredPlannedObjs = cache.plannedObjs ? {
       ...cache.plannedObjs,
       features: cache.plannedObjs.features.filter(f => checkDistrict(f.properties.district))
-        .map(f => ({
-          ...f,
-          properties: { ...f.properties, layerType: 'planned' }
-        }))
-    };
+        .map(f => ({ ...f, properties: { ...f.properties, layerType: 'planned' } }))
+    } : null;
 
-    const filteredZhk = {
+    const filteredZhk = cache.zhk ? {
       type: 'FeatureCollection',
       features: cache.zhk.zhk_rows
         .filter(item => checkDistrict(item.district))
@@ -185,13 +151,9 @@ export const useMapData = () => {
           type: 'Feature',
           id: idx,
           geometry: { type: 'Point', coordinates: [item.lng, item.lat] },
-          properties: { 
-            ...item,
-            radius: calculateZhkRadius(item.flats),
-            layerType: 'zhkh'
-          }
+          properties: { ...item, radius: calculateZhkRadius(item.flats), layerType: 'zhkh' }
         }))
-    };
+    } : null;
 
     const stats = {
       totalCount: filteredPmspFeatures.length,
@@ -212,9 +174,26 @@ export const useMapData = () => {
       plannedObjs: filteredPlannedObjs,
       serviceZones: filteredServiceZones,
       zhk: filteredZhk,
+      grid: cache.grid,
+      heatDeficit: cache.heatDeficit,
+      heatCoverage: cache.heatCoverage,
       stats
     };
-  };
+  }, [cache]);
 
-  return { loadInitialData, filterData, loading };
+  const isReady = useMemo(() => {
+    if (!cache.city || !cache.pmsp || !cache.dists) return false;
+
+    if (mode === 'geo-analysis') {
+      return !!(cache.grid && cache.heatDeficit);
+    }
+    
+    if (mode === 'infrastructure' || mode === 'load') {
+      return !!(cache.plannedObjs || cache.zhk);
+    }
+
+    return true;
+  }, [cache, mode]);
+
+  return { filterData, isLoading, isFetching, isReady };
 };

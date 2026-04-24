@@ -87,6 +87,7 @@ const updateIconPointLayer = (map, data, isVisible, id, color, showPlus = true) 
 
 export const MapLayersManager = {
   setupCityBoundary: (map, data) => {
+    if (!data || !data.features) return; 
     if (map.getSource('city-source')) return;
     map.addSource('city-source', { type: 'geojson', data });
     map.addLayer({
@@ -98,6 +99,7 @@ export const MapLayersManager = {
   },
 
   updateDistricts: (map, data) => {
+    if (!data || !data.features) return; 
     if (!map.getSource('districts-source')) {
       map.addSource('districts-source', { type: 'geojson', data });
       map.addLayer({
@@ -112,6 +114,7 @@ export const MapLayersManager = {
   },
 
   updatePlannedZones: (map, data, isVisible) => {
+    if (!data || !data.features) return; 
     if (!map.getSource('planned-source')) {
       map.addSource('planned-source', { type: 'geojson', data });
       map.addLayer({
@@ -133,6 +136,7 @@ export const MapLayersManager = {
   },
 
   updatePmspPoints: (map, data, isVisible) => {
+    if (!data || !data.features) return; 
     if (!map.getSource('pmsp-source')) {
       map.addSource('pmsp-source', { type: 'geojson', data });
       map.addLayer({
@@ -231,10 +235,12 @@ export const MapLayersManager = {
   },
 
   updatePlannedObjects: (map, data, isVisible) => {
+    if (!data || !data.features) return; 
     updateIconPointLayer(map, data, isVisible, 'planned-objs', '#f97316', true);
   },
 
   updateZhkPoints: (map, data, isVisible) => {
+    if (!data || !data.features) return; 
     updateIconPointLayer(map, data, isVisible, 'zhk-points', '#3b82f6', false);
   },
 
@@ -259,6 +265,7 @@ export const MapLayersManager = {
   },
 
   updateServiceZones: (map, data, isVisible) => {
+    if (!data || !data.features) return; 
     if (!map.getSource('service-zones-source')) {
       map.addSource('service-zones-source', { type: 'geojson', data });
       map.addLayer({
@@ -278,6 +285,7 @@ export const MapLayersManager = {
   },
 
   updateInfrastructureLayers: (map, data, isVisible) => {
+    if (!data || !data.features) return; 
     const layerId = 'infra-points';
     const sourceId = 'infra-source';
 
@@ -296,10 +304,10 @@ export const MapLayersManager = {
           'circle-color': [
             'match',
             ['get', 'bld_main_priority'],
-            'критично', '#C62828', // Красный
-            'риск', '#EF6C00',     // Оранжевый
-            'норма', '#2E7D32',    // Зеленый
-            '#9E9E9E'              // Серый (если нет данных)
+            'критично', '#C62828',
+            'риск', '#EF6C00',
+            'норма', '#2E7D32',
+            '#9E9E9E'
           ],
           
           // 2. Радиус круга в зависимости от площади здания (area)
@@ -333,7 +341,101 @@ export const MapLayersManager = {
     if (map.getLayer('service-zones-fill')) {
       map.setLayoutProperty('service-zones-fill', 'visibility', 'none');
     }
+  }, 
+
+  updateGridLayer: (map, data, isVisible) => {
+    if (!data || !data.features) return; 
+    if (!map.getSource('grid-source')) {
+      map.addSource('grid-source', { type: 'geojson', data });
+      map.addLayer({
+        id: 'grid-layer-fill',
+        type: 'fill',
+        source: 'grid-source',
+        paint: {
+          'fill-color': [
+            'match', ['get', 'pmsp_access_cat'],
+            'g10', '#2E7D32',
+            'g15', '#66BB6A',
+            'ylw', '#FDD835',
+            'red', '#C62828',
+            '#9E9E9E'
+          ],
+          'fill-opacity': 0.4
+        }
+      });
+      // Тонкая обводка ячеек
+      // map.addLayer({
+      //   id: 'grid-layer-line',
+      //   type: 'line',
+      //   source: 'grid-source',
+      //   paint: { 'line-color': '#000', 'line-opacity': 0.1, 'line-width': 0.5 }
+      // });
+    } else {
+      map.getSource('grid-source').setData(data);
+    }
+    const val = isVisible ? 'visible' : 'none';
+    map.setLayoutProperty('grid-layer-fill', 'visibility', val);
+  },
+
+  updateGeoMarkers: (map, data, isVisible) => {
+    if (!data || !data.features) return; 
+    if (!map.getSource('geo-markers-source')) {
+      map.addSource('geo-markers-source', { type: 'geojson', data });
+      map.addLayer({
+        id: 'geo-markers-layer',
+        type: 'circle',
+        source: 'geo-markers-source',
+        paint: {
+          'circle-radius': 5,
+          'circle-color': ['get', 'color'],
+          'circle-stroke-width': 2,
+          'circle-stroke-color': '#fff'
+        }
+      });
+    } else {
+      map.getSource('geo-markers-source').setData(data);
+    }
+    map.setLayoutProperty('geo-markers-layer', 'visibility', isVisible ? 'visible' : 'none');
+  }, 
+
+  updateHeatmapLayer: (map, data, isVisible, id, colorScheme) => {
+    if (!data || !data.features) return; 
+    const sourceId = `${id}-source`;
+    const layerId = `${id}-heat`;
+
+    if (!map.getSource(sourceId)) {
+      map.addSource(sourceId, { type: 'geojson', data });
+      
+      const beforeId = map.getLayer('city-layer') ? 'city-layer' : undefined;
+
+      map.addLayer({
+        id: layerId,
+        type: 'heatmap',
+        source: sourceId,
+        paint: {
+          'heatmap-weight': ['interpolate', ['linear'], ['get', 'weight'], 0, 0, 6, 1],
+          'heatmap-intensity': ['interpolate', ['linear'], ['zoom'], 0, 1, 9, 3],
+          'heatmap-color': [
+            'interpolate', ['linear'], ['heatmap-density'],
+            0, 'rgba(0,0,0,0)',
+            0.2, colorScheme[0],
+            0.6, colorScheme[1],
+            1, colorScheme[2]
+          ],
+          'heatmap-radius': ['interpolate', ['linear'], ['zoom'], 0, 2, 9, 20],
+          'heatmap-opacity': 0.7
+          // 'heatmap-opacity': ['interpolate', ['linear'], ['zoom'], 7, 1, 9, 0]
+        }
+      }, beforeId);
+    } else {
+      map.getSource(sourceId).setData(data);
+    }
+    
+    if (map.getLayer(layerId)) {
+      map.setLayoutProperty(layerId, 'visibility', isVisible ? 'visible' : 'none');
+    }
   }
+  
 };
 
 export const setupAdminLayers = (map, cityData, districtsData) => {
