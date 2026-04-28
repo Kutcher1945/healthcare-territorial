@@ -7,6 +7,7 @@ import { useMapData } from '../../hooks/useMapData';
 import { MapLayersManager } from '../../utils/mapLayers';
 import { MapControls } from '../comps/MapControls';
 import { LoadingOverlay } from '../comps/LoadingOverlay';
+import { HealthcareService } from '../../services/apiService';
 import 'maplibre-gl/dist/maplibre-gl.css';
 
 const MapView = forwardRef(({
@@ -152,7 +153,7 @@ const MapView = forwardRef(({
       setAvgVisit(data.stats.avgVisit);
       setAvgPerson(data.stats.avgPerson);
 
-      const onMapClick = (e) => {
+      const onMapClick = async (e) => {
         const layers = [
           'pmsp-layer',
           'infra-points',
@@ -169,11 +170,41 @@ const MapView = forwardRef(({
         if (features.length > 0) {
           const feature = features[0];
           const props = feature.properties;
+          const { id, unified_id } = feature.properties;
+          const layerId = feature.layer.id;
+          const targetId = unified_id || id;
           removeExistingPopup();
-          activePopupRef.current = new maplibregl.Popup({ offset: 10, closeButton: true })
+          // const loadingPopup = new maplibregl.Popup({ offset: 10, closeButton: true })
+          //   .setLngLat(e.lngLat)
+          //   .setHTML('<div style="padding:20px; text-align:center;">Загрузка данных...</div>')
+          //   .addTo(map);
+          const popup = new maplibregl.Popup({ 
+            offset: 10, 
+            closeButton: true, 
+            maxWidth: '450px'
+          })
             .setLngLat(e.lngLat)
-            .setHTML(MapLayersManager.getPopupContent(props))
+            .setHTML(MapLayersManager.getPopupContent(props)) // Сначала базовый контент
             .addTo(map);
+          activePopupRef.current = popup;
+          if (layerId === 'pmsp-layer' || layerId === 'infra-points') {
+            try {
+              popup.setHTML(MapLayersManager.getPopupContent(props) + 
+                '<div style="text-align:center; color:#1565C0; font-size:10px; padding:5px;">⌛ Загрузка деталей...</div>');
+
+              const detailedData = await HealthcareService.getPmspDetail(targetId);
+              
+              popup.setHTML(MapLayersManager.getPopupContent(detailedData));
+              
+              // Синхронизируем с правой карточкой
+              // setBuildingData(detailedData);
+              // setShowDetailCard(true);
+
+            } catch (err) {
+              console.error("Ошибка загрузки:", err);
+              popup.setHTML(MapLayersManager.getPopupContent(props)); // Оставляем базовые если ошибка
+            }
+          }
         }
       };
 

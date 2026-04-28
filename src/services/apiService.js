@@ -16,6 +16,12 @@ export const HealthcareService = {
     return res.json();
   },
 
+  getPmspDetail: async (id) => {
+    const res = await fetch(`${BASE_URL}/healthcare/pmsp/${id}/`);
+    if (!res.ok) throw new Error("Ошибка загрузки деталей ПМСП");
+    return res.json();
+  },
+
   getPlannedZones: async () => {
     const res = await fetch(`${BASE_URL}/healthcare/geo/planned-zones/`);
     return res.json();

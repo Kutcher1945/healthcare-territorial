@@ -156,82 +156,198 @@ export const MapLayersManager = {
     map.setLayoutProperty('pmsp-layer', 'visibility', isVisible ? 'visible' : 'none');
   },
 
-  getPopupContent: (props) => {
+  _getBadge: (val, thresholds, labels, classes) => {
+    for (let i = 0; i < thresholds.length; i++) {
+      if (val < thresholds[i]) return `<span class="badge ${classes[i]}">${labels[i]}</span>`;
+    }
+    return `<span class="badge ${classes[classes.length - 1]}">${labels[labels.length - 1]}</span>`;
+  },
 
-    if (props.bld_main_priority) {
-      const color = props.bld_main_priority === 'критично' ? '#C62828' : 
-                    props.bld_main_priority === 'риск' ? '#EF6C00' : '#2E7D32';
-      
+  getPopupContent: (d) => {
+    if (d.layerType === 'zhkh') {
+      const details = [
+        d.flats > 0 ? `Квартир: <b>${d.flats}</b>` : '',
+        d.floors > 0 ? `Этажей: <b>${d.floors}</b>` : '',
+        d.blocks > 0 ? `Секций: <b>${d.blocks}</b>` : '',
+      ].filter(Boolean).join(' &nbsp;·&nbsp; ');
+
       return `
-        <div style="padding: 10px; min-width: 200px; font-family: sans-serif;">
-          <div style="font-weight: bold; font-size: 13px; margin-bottom: 5px; color: #333;">
-            ${props.name || 'Медицинский объект'}
+        <div style="padding: 10px; min-width: 320px; font-family: sans-serif; line-height: 1.5; text-align:left;">
+          <div style="font-weight: bold; font-size: 15px; color: #333; margin-bottom: 8px; display: flex; align-items: flex-start; gap: 8px;">
+            <span style="font-size: 18px;">🏠</span> 
+            <span>${d.name}</span>
           </div>
-          <div style="display: flex; align-items: center; gap: 5px; margin-bottom: 8px;">
-            <span style="background: ${color}; color: white; font-size: 10px; padding: 2px 8px; border-radius: 12px; font-weight: bold; text-transform: uppercase;">
-              ${props.bld_main_priority}
+          
+          <div style="margin-bottom: 12px;">
+            <span style="background: #E3F2FD; color: #1565C0; padding: 3px 10px; border-radius: 12px; font-size: 11px; font-weight: bold;">
+              МЖК / Жилой дом
             </span>
           </div>
-          <div style="font-size: 11px; color: #666; line-height: 1.4;">
-            <div>Район: <b>${props.district || '—'}</b></div>
-            <div>Площадь: <b>${props.total_area_sq_m_field || '—'} м²</b></div>
-            ${props.bld_year_built ? `<div>Год постройки: <b>${props.bld_year_built}</b></div>` : ''}
+
+          <div style="font-size: 13px; color: #333; margin-bottom: 6px; display: flex; align-items: flex-start; gap: 6px;">
+            <span style="color: #d32f2f;">📍</span>
+            <b>${d.district}</b> ${d.address ? ' · ' + d.address : ''}
           </div>
-          ${props.priority_reason ? `
-            <div style="margin-top: 8px; padding-top: 8px; border-top: 1px solid #eee; font-size: 10px; color: #C62828; font-weight: bold;">
-              ⚠️ ${props.priority_reason}
+
+          <div style="font-size: 13px; color: #555; margin-bottom: 4px;">
+            ${details}
+          </div>
+
+          ${d.deadline ? `
+            <div style="font-size: 13px; color: #333; margin-bottom: 8px;">
+              Срок сдачи: <b>${d.deadline}</b>
             </div>
           ` : ''}
+
+          <div style="font-size: 11px; color: #aaa; border-top: 1px solid #eee; pt-2; margin-top: 8px;">
+            Реестр МЖКХ г. Алматы
+          </div>
+        </div>`;
+    }
+
+    if (d.layerType === 'planned') {
+      const workTypeColors = {
+        'Строительство':      '#1565C0',
+        'Реконструкция':      '#6A1B9A',
+        'Капитальный ремонт': '#E65100',
+        'Сейсмоусиление':     '#BF360C',
+        'Пристройка':         '#4527A0',
+        'Экспертиза/ПСД':     '#37474F',
+      };
+      
+      // Определяем цвет по статусу или типу работ
+      const wtLabel = d.status || d.work_type || 'Объект';
+      const wtColor = workTypeColors[wtLabel] || '#1565C0';
+      const phaseColor = '#E65100'; // Для фазы/статуса из фото
+
+      return `
+        <div style="padding: 10px; min-width: 350px; font-family: sans-serif; line-height: 1.4;  text-align:left;">
+          <div style="font-weight: bold; font-size: 15px; color: #333; margin-bottom: 10px; display: flex; align-items: flex-start; gap: 8px;">
+            <span style="font-size: 18px;">🏥</span> 
+            <span>${d.name}</span>
+          </div>
+
+          <div style="display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 12px;">
+            <span style="background: ${wtColor}22; color: ${wtColor}; padding: 3px 10px; border-radius: 12px; font-size: 10px; font-weight: bold;">
+              ${wtLabel}
+            </span>
+            <span style="background: ${phaseColor}22; color: ${phaseColor}; padding: 3px 10px; border-radius: 12px; font-size: 10px; font-weight: bold;">
+              ${d.phase || 'В планах'}
+            </span>
+            <span style="background: #eceff1; color: #546e7a; padding: 3px 10px; border-radius: 12px; font-size: 10px; font-weight: bold;">
+              ${d.obj_type}
+            </span>
+          </div>
+
+          <div style="font-size: 13px; color: #333; margin-bottom: 6px;">
+            <b>${d.district}</b> ${d.address ? ' · ' + d.address : ''}
+          </div>
+
+          ${d.capacity ? `<div style="font-size: 13px; color: #333; margin-bottom: 4px;">Мощность: <b>${d.capacity} посещений/смену</b></div>` : ''}
+          ${d.year ? `<div style="font-size: 13px; color: #333; margin-bottom: 6px;">Год завершения: <b>${d.year}</b></div>` : ''}
+
+          ${d.addresses_deficit || d.is_pmsp ? `
+            <div style="font-size: 12px; color: #333; margin-top: 8px;">
+              <b>Решает дефицит ПМСП:</b> <span style="color: #2e7d32; font-weight: bold;">Да — новая ПМСП в новом мкр.</span>
+            </div>
+          ` : ''}
+
+          <div style="font-size: 11px; color: #aaa; border-top: 1px solid #eee; padding-top: 8px; margin-top: 8px;">
+            Источник: ${d.source || 'МБ'} · Бюджет города Алматы
+          </div>
+        </div>`;
+    }
+
+    if (d.cap_load !== undefined) {
+      const nurseDiff = (d.norm_nurses || 0) - (d.nurse_fact || 0);
+      
+      const gapValue = Math.abs((d.doctor_load || 0) - d.cap_load);
+      const gapBlock = gapValue >= 30 ? `
+        <div style="background:#FFF3E0; border:1px solid #FFB74D; border-radius:6px; padding:8px; margin-bottom:10px; font-size:11px; color:#E65100;">
+          <div style="display:flex; align-items:center; gap:5px;">
+            <span>⚠️</span> <b>Разрыв: ${gapValue.toFixed(0)}%</b> — 
+            ${d.doctor_load > d.cap_load ? 'Нагрузка на врачей выше посещаемости' : 'Посещаемость выше нагрузки на врачей'}
+            (+${gapValue.toFixed(0)}%)
+          </div>
+        </div>
+      ` : '';
+
+      const demoBars = d.demo_stats?.bars ? `
+        <div style="margin-top:10px;">
+          <div style="display:flex; align-items:center; gap:5px; font-size:11px; margin-bottom:5px;">
+            <span>👥</span> <b>Демография:</b> дети ${d.demo_stats.pct_children}% · ${d.demo_stats.pct_elderly}% пожилых
+          </div>
+          <div style="display:flex; align-items:flex-end; gap:2px; height:30px; background:#f9f9f9; padding:2px; border-radius:4px;">
+            ${d.demo_stats.bars.map((bar, i) => {
+              const colors = ['#81C784', '#81C784', '#64B5F6', '#64B5F6', '#64B5F6', '#FFB74D', '#FFB74D', '#E57373', '#E57373'];
+              return `<div title="Группа ${i}: ${bar}%" style="flex:1; height:${bar}%; background:${colors[i] || '#ccc'}; border-radius:1px 1px 0 0;"></div>`;
+            }).join('')}
+          </div>
+          <div style="display:flex; justify-content:space-between; font-size:8px; color:#aaa; margin-top:2px;">
+            <span>0</span><span>20</span><span>40</span><span>60</span><span>80+</span>
+          </div>
+        </div>
+      ` : '';
+
+      const corpusBadge = d.total_locs > 1
+        ? `<div style="font-size:11px;background:#E3F2FD;border-radius:4px;padding:3px 8px;margin-bottom:5px;color:#1565C0">
+                Корпус МО · точек на карте: <b>${d.total_locs}</b>
+               ${d.bld_count>1 ? ` · зданий в точке: <b>${d.bld_count}</b>`:''}
+           </div>`
+        : d.bld_count > 1
+        ? `<div style="font-size:11px;color:#888;margin-bottom:4px"> ${d.bld_count} зданий в этой точке</div>`
+        : ''
+      ;
+
+      const visBadge = MapLayersManager._getBadge(d.cap_load, [90, 110, 130, 150, 999], 
+        ['Хорошо','Норма','Выше нормы','Перегруз','КРИТИЧНО'], ['bg-green','bg-lightgreen','bg-yellow','bg-orange','bg-red']);
+
+      const docBadge = MapLayersManager._getBadge(d.doctor_load, [80, 100, 115, 130, 999], 
+        ['Хорошо','Норма','Умеренно','Высокая','ПЕРЕГРУЗ'], ['bg-green','bg-lightgreen','bg-yellow','bg-orange','bg-red']);
+
+      return `
+        <div style="padding:5px; min-width:300px; font-family:sans-serif; line-height:1.4; text-align:left;">
+          <div style="font-weight:bold; font-size:15px; color:#333;">${d.name}</div>
+          <div style="font-size:12px; color:#888;">${d.district} | ${d.ownership}</div>
+          ${corpusBadge}
+          ${gapBlock}
+
+          <div style="margin-bottom:8px; border-top:1px solid #eee; pt-2;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-size:13px; font-weight:semibold">Посещаемость:</span>
+              ${visBadge}
+              <span style="font-weight:bold; font-size:13px;">${d.cap_load}%</span>
+            </div>
+            <div style="font-size:11px; color:#666;">Пл. мощность: ${d.cap_planned} | Факт: ${Math.round(d.visits_fact / 250)}</div>
+          </div>
+
+          <div style="margin-bottom:8px; border-top:1px solid #eee; pt-2;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+              <span style="font-size:13px; font-weight:semibold">Нагрузка врачей:</span>
+              ${docBadge}
+              <span style="font-weight:bold; font-size:13px;">${d.doctor_load}%</span>
+            </div>
+            <div style="font-size:11px; color:#666;">РПН: <b>${(d.population||0).toLocaleString()}</b> / Норматив: <b>${(d.norm_capacity||0).toLocaleString()}</b></div>
+            <div style="font-size:10px; color:#999; margin-top:2px;">ВОП ${d.vop}×1700 | Тер. ${d.therapist}×2200 | Пед. ${d.pediatr}×900</div>
+          </div>
+
+          <div style="font-size:12px; margin-bottom:8px;">
+            🩺 Медсёстры: норма ${d.norm_nurses} / факт ${d.nurse_fact}
+            ${nurseDiff > 0 ? `<span style="color:#E65100; font-weight:bold;"> ⚠️ нехватка: ${nurseDiff}</span>` : `<span style="color:#2E7D32;"> ✓</span>`}
+          </div>
+
+          <div style="font-size:11px; color:#666; padding:6px; background:#f5f5f5; border-radius:6px;">
+            🏗 Гл. здание — износ: <b>${d.bld_main_wear || '-'}%</b> 
+            <span style="background:${d.bld_main_priority === 'норма' ? '#2E7D32' : '#C62828'}; color:white; padding:1px 6px; border-radius:10px; font-size:9px; text-transform:uppercase; margin-left:5px;">
+              ${d.bld_main_priority}
+            </span>
+          </div>
+
+          ${demoBars}
         </div>
       `;
     }
-    
-    if (props.layerType === 'zhkh') {
-      return `
-        <div style="padding: 8px; min-width: 200px;">
-          <div style="font-weight: bold; color: #1565C0; margin-bottom: 4px;">🏠 ${props.name}</div>
-          <div style="font-size: 10px; color: #666; margin-bottom: 6px;">📍 ${props.district}</div>
-          <div style="font-size: 11px; line-height: 1.4;">
-            ${props.flats ? `<div>Квартир: <b>${props.flats}</b></div>` : ''}
-            ${props.floors ? `<div>Этажей: <b>${props.floors}</b></div>` : ''}
-            ${props.deadline ? `<div style="margin-top:4px">Срок: <b>${props.deadline}</b></div>` : ''}
-          </div>
-        </div>`;
-    }
-
-    // 2. Попап для Планируемых объектов
-    if (props.layerType === 'planned') {
-      return `
-        <div style="padding: 8px; min-width: 220px;">
-          <div style="font-weight: bold; margin-bottom: 4px;">📋 ${props.name}</div>
-          <div style="display: flex; gap: 4px; margin-bottom: 8px;">
-            <span style="background: #e3f2fd; color: #1565c0; font-size: 9px; padding: 2px 6px; border-radius: 4px; font-weight: bold;">
-              ${props.work_type || 'Объект'}
-            </span>
-          </div>
-          <div style="font-size: 11px;">
-            <div>Район: <b>${props.district}</b></div>
-            ${props.capacity ? `<div style="margin-top:2px text-blue-600">Мощность: <b>${props.capacity} пос/см.</b></div>` : ''}
-          </div>
-        </div>`;
-    }
-
-    // 3. Попап для PMSP (Текущие)
-    return `
-      <div style="padding: 8px; min-width: 180px;">
-        <div style="font-weight: bold; font-size: 13px; margin-bottom: 2px;">${props.name}</div>
-        <div style="font-size: 10px; color: #888; margin-bottom: 8px;">${props.district} район</div>
-        <div style="display: grid; grid-cols: 2; gap: 10px; border-top: 1px solid #eee; pt-2;">
-           <div>
-             <div style="font-size: 9px; color: #aaa; text-transform: uppercase;">Посещ.</div>
-             <div style="font-weight: bold; color: #C62828;">${props.cap_load}%</div>
-           </div>
-           <div>
-             <div style="font-size: 9px; color: #aaa; text-transform: uppercase;">Врачи</div>
-             <div style="font-weight: bold; color: #EF6C00;">${props.doctor_load}%</div>
-           </div>
-        </div>
-      </div>`;
+    return `<div style="padding:10px">Объект: ${d.name}</div>`;
   },
 
   updatePlannedObjects: (map, data, isVisible) => {
@@ -363,13 +479,6 @@ export const MapLayersManager = {
           'fill-opacity': 0.4
         }
       });
-      // Тонкая обводка ячеек
-      // map.addLayer({
-      //   id: 'grid-layer-line',
-      //   type: 'line',
-      //   source: 'grid-source',
-      //   paint: { 'line-color': '#000', 'line-opacity': 0.1, 'line-width': 0.5 }
-      // });
     } else {
       map.getSource('grid-source').setData(data);
     }
