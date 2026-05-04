@@ -11,10 +11,10 @@ import GeoAnalysisPage from './pages/GeoAnalysisPage';
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      staleTime: Infinity, // Данные считаются "свежими" всегда (не перезапрашивать)
-      gcTime: 1000 * 60 * 60 * 24, // Хранить в памяти 24 часа
-      refetchOnWindowFocus: false, // Не делать запрос при возврате на вкладку
-      retry: 1, // Повторить 1 раз при ошибке
+      staleTime: Infinity,
+      gcTime: 1000 * 60 * 60 * 24,
+      refetchOnWindowFocus: false,
+      retry: 1,
     },
   },
 });

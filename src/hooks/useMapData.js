@@ -19,6 +19,12 @@ const isPointInPolygon = (point, geometry) => {
   return inside;
 };
 
+const fastDistM = (lat1, lng1, lat2, lng2) => {
+  const dlat = (lat2 - lat1) * 111320;
+  const dlng = (lng2 - lng1) * 81375;
+  return Math.sqrt(dlat * dlat + dlng * dlng);
+};
+
 export const useMapData = (mode) => {
 
   const { data: cache, isLoading, isFetching } = useHealthcareQueries(mode);
@@ -79,10 +85,62 @@ export const useMapData = (mode) => {
 
     const { 
       districts = ["Все районы"], 
+      activeScenario = 'current',
       visits = ["Все посещения"], 
       layers = ["Все слои"], 
-      affiliations = ["Все принадлежности"] 
+      affiliations = ["all"]
     } = filters;
+
+    const currentFacs = cache.pmsp.results.map(f => ({
+      lat: f.lat, lng: f.lng, name: f.name, own_type: f.ownership, isPlanned: false
+    }));
+
+    let activeFacsForGrid = [...currentFacs];
+
+    if (activeScenario !== 'current' && cache.plannedObjs) {
+      const plannedFacs = cache.plannedObjs.features
+        .filter(f => f.properties.is_pmsp) // Только те, что ПМСП
+        .map(f => ({
+          lat: f.geometry.coordinates[1],
+          lng: f.geometry.coordinates[0],
+          name: f.properties.name,
+          isPlanned: true
+        }));
+      activeFacsForGrid = [...activeFacsForGrid, ...plannedFacs];
+    }
+
+    const recomputedGrid = cache.grid ? {
+      ...cache.grid,
+      features: cache.grid.features.map(cell => {
+        const cLat = (cell.geometry.coordinates[0][0][0][1] + cell.geometry.coordinates[0][0][2][1]) / 2;
+        const cLng = (cell.geometry.coordinates[0][0][0][0] + cell.geometry.coordinates[0][0][2][0]) / 2;
+        
+        let minDist = Infinity;
+        for (const fac of activeFacsForGrid) {
+          const d = fastDistM(cLat, cLng, fac.lat, fac.lng);
+          if (d < minDist) minDist = d;
+        }
+
+        // Определяем новую категорию
+        const newCat = minDist <= 800 ? 'g10' : minDist <= 1200 ? 'g15' : minDist <= 1600 ? 'ylw' : 'red';
+        const origCat = cell.properties.pmsp_access_cat;
+        
+        // Флаг улучшения: была в дефиците (red/ylw), стала в норме (g10/g15)
+        const improved = (origCat === 'red' || origCat === 'ylw') && (newCat === 'g10' || newCat === 'g15');
+
+        return {
+          ...cell,
+          properties: {
+            ...cell.properties,
+            pmsp_access_cat: newCat,
+            improved: improved, // Важно для стиля (пунктир)
+            distance: Math.round(minDist)
+          }
+        };
+      })
+    } : null;
+
+    const popMultiplier = activeScenario === '2028' ? 1.03 : 1; 
 
     const isAllDistricts = districts.includes("Все районы");
     const normalizedSelectedDistricts = districts.map(d => normalize(d));
@@ -100,7 +158,7 @@ export const useMapData = (mode) => {
     const filteredPmspRaw = cache.pmsp.results.filter(item => {
       const matchDist = checkDistrict(item.district);
       const matchVisit = visits.includes("Все посещения") || visits.includes(getVisitCategory(item.cap_load));
-      const matchAffiliation = affiliations.includes("Все принадлежности") || affiliations.includes(item.ownership);
+      const matchAffiliation = affiliations.includes("all") || affiliations.includes(item.own_type);      
       return matchDist && matchVisit && matchAffiliation;
     });
 
@@ -174,7 +232,8 @@ export const useMapData = (mode) => {
       plannedObjs: filteredPlannedObjs,
       serviceZones: filteredServiceZones,
       zhk: filteredZhk,
-      grid: cache.grid,
+      // grid: cache.grid,
+      grid: recomputedGrid,
       heatDeficit: cache.heatDeficit,
       heatCoverage: cache.heatCoverage,
       stats

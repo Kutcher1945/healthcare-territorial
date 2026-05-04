@@ -1,23 +1,18 @@
-import { useEffect, useState } from "react";
-import MapFilterIndicators from "./Indicators";
-import Analytics from "./Analytics";
+import React, { useState, useEffect } from 'react';
+import { ChartLine, ChevronDown, RotateCcw, Bus, Tram } from 'lucide-react';
+import PlanningToolList from './PlanningToolList';
+import Indicators from '../HomePage/MapFilter/Indicators';
 
-export default function MapFilter({
-  setSelectedDistrict,
-  setSelectedVisits,
-  setSelectedLayers,
-  setSelectedAffiliations,
-  selectedDistrict,
-  selectedVisits,
-  selectedLayers,
-  selectedAffiliations,
-  totalCount,
-  totalPopulation, 
-  avgVisit, 
-  avgPerson,
-  setActiveModal, 
-  activeModal,
+export default function GeoFilterPanel({
+  selectedDistrict, setSelectedDistrict,
+  selectedLayers, setSelectedLayers,
+  selectedVisits, setSelectedVisits,
+  selectedAffiliations, setSelectedAffiliations,
+  totalCount, totalPopulation, avgPerson, avgVisit,
+  activeScenario, setActiveScenario,
+  onReset
 }) {
+  const [isPlanningOpen, setIsPlanningOpen] = useState(false);
   const [filtersHidden, setFiltersHidden] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState(null);
 
@@ -41,7 +36,7 @@ export default function MapFilter({
 
   const allLayers = [
     "Все слои", 
-    "Зоны обслуживания МО", 
+    // "Зоны обслуживания МО", 
     "Зоны здравоохранения (генплан)", 
     "Планируемые объекты здравоохранения", 
     "Планируемые жилые объекты (ЖКХ)",
@@ -125,19 +120,10 @@ export default function MapFilter({
     </span>
   );
 
-  const handleReset = () => {
-    setSelectedDistrict(["Все районы"]);
-    setSelectedVisits(["Все посещения"]);
-    setSelectedLayers(["Все слои"]);
-    setSelectedAffiliations(["all"]);
-    if (setActiveModal) setActiveModal(null);
-  };
-
   return (
-    <div className="relative">
-      <div className="flex flex-col max-h-[calc(100vh-100px)] bg-white/95 backdrop-blur-sm rounded-xl border shadow-lg overflow-y-auto overflow-x-hidden scrollbar-hide text-xs">
-        
-        <div className="sticky top-0 z-20 bg-white/95 backdrop-blur-sm ">
+    <div className="flex flex-col max-h-[calc(100vh-100px)] bg-white/95 backdrop-blur-sm rounded-xl border shadow-lg overflow-hidden scrollbar-hide text-xs">
+      
+      <div className="sticky top-0 z-20 bg-white/95 backdrop-blur-sm ">
           <div className="flex items-center justify-between px-3 py-2 pt-3 font-bold text-gray-800">
             <span className="text-sm">Фильтры</span>
             <button
@@ -278,21 +264,81 @@ export default function MapFilter({
             filtersHidden ? "max-h-0 opacity-0 overflow-hidden" : "max-h-screen opacity-100"
           }`}
         >
+          
           <div className="flex-none bg-white z-10 shadow-sm relative">
-            <MapFilterIndicators
+            <Indicators
               totalCount={totalCount}
               totalPopulation={totalPopulation}
               avgVisit={avgVisit}
               avgPerson={avgPerson}
             />
-            <Analytics 
-              activeModal={activeModal}
-              setActiveModal={setActiveModal}
-              onReset={handleReset} 
-            />
+          </div>
+
+          <div className="p-3 border-t bg-gray-50/30">
+            <h3 className="font-bold text-gray-400 text-left uppercase text-[10px] mb-2">Сценарий анализа</h3>
+            <div className="flex gap-1">
+              {[
+                { id: 'current', label: 'Текущее' },
+                { id: 'planned', label: 'С планами' },
+                { id: '2028', label: '2026-2028' },
+              ].map(s => (
+                <button
+                  key={s.id}
+                  onClick={() => setActiveScenario(s.id)}
+                  className={`flex-1 py-1.5 rounded-lg border text-[11px] font-bold transition-all ${
+                    activeScenario === s.id 
+                    ? 'bg-emerald-50 border-emerald-600 text-emerald-800 shadow-sm' 
+                    : 'bg-white border-gray-200 text-gray-500 hover:bg-gray-50'
+                  }`}
+                >
+                  {s.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* 3. ТРАНСПОРТ (Чекбокс) */}
+          <div className="px-4 py-2 space-y-2">
+            <label className="flex items-center gap-2 cursor-pointer group">
+              <input type="checkbox" className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 w-4 h-4" />
+              <span className="text-[11px] text-gray-700 group-hover:text-black transition-colors">Маршруты ОТ (автобус / троллейбус)</span>
+            </label>
+            <div className="flex items-center gap-4 ml-6">
+              <div className="flex items-center gap-1.5 text-[10px] text-gray-500">
+                <div className="w-6 h-1 rounded bg-blue-500"></div> <span>Автобус</span>
+              </div>
+              <div className="flex items-center gap-1.5 text-[10px] text-gray-500">
+                <div className="w-6 h-1 rounded bg-purple-600"></div> <span>Троллейбус</span>
+              </div>
+            </div>
+          </div>
+
+          {/* 4. ИНСТРУМЕНТ ПЛАНИРОВАНИЯ (Аккордеон) */}
+          <div className="mt-2 border-t">
+            <button 
+              onClick={() => setIsPlanningOpen(!isPlanningOpen)}
+              className="w-full bg-blue-600 hover:bg-blue-700 text-white p-3 flex items-center justify-between transition-colors shadow-inner"
+            >
+              <div className="flex items-center gap-2">
+                <ChartLine className="w-4 h-4" />
+                <span className="font-bold text-[12px]">Инструмент планирования</span>
+              </div>
+              <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isPlanningOpen ? 'rotate-180' : ''}`} />
+            </button>
+            
+            {isPlanningOpen && <PlanningToolList />}
           </div>
         </div>
-      </div>
+
+        <div className="p-2 bg-gray-50 border-t shrink-0">
+          <button 
+            onClick={onReset}
+            className="w-full py-2 flex items-center justify-center gap-2 bg-white border border-gray-200 rounded-lg text-gray-500 font-bold hover:bg-gray-100 active:scale-95 transition-all shadow-sm"
+          >
+            <RotateCcw className="w-4 h-4 text-gray-400" />
+            <span>Сбросить фильтры</span>
+          </button>
+        </div>
     </div>
   );
 }

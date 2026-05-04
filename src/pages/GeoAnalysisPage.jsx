@@ -2,14 +2,52 @@
 import { useState, useRef, useEffect } from "react"
 import MapView from "../components/HomePage/MapV"
 import { HealthcareService } from "../services/apiService"
+import GeoFilterPanel from "../components/GeoAnalysisPage/GeoFilterPanel"
 
 export default function GeoAnalysisPage() {
   const [geoMode, setGeoMode] = useState("walkaccess");
   const [mapData, setMapData] = useState(null);
+  const [totalCount, setTotalCount] = useState(0);
+  const [totalPopulation, setTotalPopulation] = useState(0);
+  const [avgVisit, setAvgVisit] = useState(0);
+  const [avgPerson, setAvgPerson] = useState(0);
+  const [selectedDistrict, setSelectedDistrict] = useState(["Все районы"]);
+  const [selectedVisits, setSelectedVisits] = useState(["Все посещения"]);
+  const [selectedLayers, setSelectedLayers] = useState(["Все слои"]);
+  const [selectedAffiliations, setSelectedAffiliations] = useState(["all"]);
+  const [activeScenario, setActiveScenario] = useState('current');
   const mapRef = useRef();
+
+  const handleReset = () => {
+    setSelectedDistrict(["Все районы"]);
+    setSelectedVisits(["Все посещения"]);
+    setSelectedLayers(["Все слои"]);
+    setSelectedAffiliations(["all"]);
+    setActiveScenario('current');
+    // if (setActiveModal) setActiveModal(null);
+  };
 
   return (
     <div className="relative w-full h-screen overflow-hidden">
+      <div className="absolute top-6 left-6 z-20 w-[300px]">
+        <GeoFilterPanel 
+          selectedDistrict={selectedDistrict}
+          setSelectedDistrict={setSelectedDistrict}
+          selectedLayers={selectedLayers}
+          setSelectedLayers={setSelectedLayers}
+          selectedVisits={selectedVisits} 
+          setSelectedVisits={setSelectedVisits}
+          selectedAffiliations={selectedAffiliations}
+          setSelectedAffiliations={setSelectedAffiliations}
+          totalCount={totalCount}
+          totalPopulation={totalPopulation}
+          avgVisit={avgVisit}
+          avgPerson={avgPerson}
+          activeScenario={activeScenario}
+          setActiveScenario={setActiveScenario}
+          onReset={() => handleReset()}
+        />
+      </div>
       <div className="absolute top-6 left-1/2 -translate-x-1/2 z-20 flex shadow-2xl gap-2">
         {[
           { id: 'walkaccess', label: 'Пешая доступность' },
@@ -35,6 +73,16 @@ export default function GeoAnalysisPage() {
           ref={mapRef}
           geoMode={geoMode}
           onDataUpdate={setMapData}
+
+          selectedDistrict={selectedDistrict}
+          selectedVisits={selectedVisits}
+          selectedLayers={selectedLayers}
+          selectedAffiliations={selectedAffiliations}
+          setTotalCount={setTotalCount}
+          setTotalPopulation={setTotalPopulation}
+          setAvgVisit={setAvgVisit}
+          setAvgPerson={setAvgPerson}
+          activeScenario={activeScenario}
         />
       </div>
     </div>

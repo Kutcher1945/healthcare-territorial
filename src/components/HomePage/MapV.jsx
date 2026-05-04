@@ -17,7 +17,7 @@ const MapView = forwardRef(({
   selectedDistrict = ["Все районы"],
   selectedLayers = ["Все слои"],
   selectedVisits = ["Все посещения"],
-  selectedAffiliations = ["Все принадлежности"], 
+  selectedAffiliations = ["all"], 
   setTotalCount = () => {},
   setTotalPopulation = () => {},
   setAvgVisit = () => {},
@@ -25,6 +25,7 @@ const MapView = forwardRef(({
   onDataUpdate = () => {},
   geoMode = "",
   mode = "load",
+  activeScenario = 'current'
 }, ref) => {
   const mapContainer = useRef(null);
   const { mapRef, isLoading: mapLoading, zoomIn, zoomOut, resetView } = useMapInitialization(mapContainer);
@@ -78,7 +79,8 @@ const MapView = forwardRef(({
         districts: selectedDistrict,
         visits: selectedVisits,
         layers: selectedLayers,
-        affiliations: selectedAffiliations
+        affiliations: selectedAffiliations, 
+        activeScenario: activeScenario
       });
 
       if (!data || !data.city) return;
@@ -86,34 +88,6 @@ const MapView = forwardRef(({
 
       MapLayersManager.setupCityBoundary(map, data.city);
       MapLayersManager.updateDistricts(map, data.districts);
-
-      
-
-      const isAll = selectedLayers.includes("Все слои");
-
-      const showTransit = isAll || selectedLayers.includes("Зоны обслуживания МО");
-      // MapLayersManager.updateServiceZones(map, data.serviceZones, showTransit);
-
-      const showGenplan = isAll || selectedLayers.includes("Зоны здравоохранения (генплан)");
-      // MapLayersManager.updatePlannedZones(map, data.plannedZones, showGenplan);
-
-      const showPlannedObjs = isAll || selectedLayers.includes("Планируемые объекты здравоохранения");
-      // MapLayersManager.updatePlannedObjects(map, data.plannedObjs, showPlannedObjs);
-
-      const showZhk = isAll || selectedLayers.includes("Планируемые жилые объекты (ЖКХ)");
-      // MapLayersManager.updateZhkPoints(map, data.zhk, showZhk);
-      if (data.serviceZones) {
-        MapLayersManager.updateServiceZones(map, data.serviceZones, showTransit);
-      }
-      if (data.plannedZones) {
-        MapLayersManager.updatePlannedZones(map, data.plannedZones, showGenplan);
-      }
-      if (data.plannedObjs) {
-        MapLayersManager.updatePlannedObjects(map, data.plannedObjs, showPlannedObjs);
-      }
-      if (data.zhk) {
-        MapLayersManager.updateZhkPoints(map, data.zhk, showZhk);
-      }
 
       if (mode === "geo-analysis") {
         MapLayersManager.hideServiceZones(map);
@@ -128,15 +102,42 @@ const MapView = forwardRef(({
           MapLayersManager.updateHeatmapLayer(map, data.heatDeficit, isDeficit, 'deficit', ['#FDD835', '#EF6C00', '#C62828']);
           MapLayersManager.updateHeatmapLayer(map, data.heatCoverage, isDeficit, 'coverage', ['#A5D6A7', '#43A047', '#1B5E20']);
         }
+      }
 
-        MapLayersManager.updateGeoMarkers(map, data.pmsp, true);
+      const isAll = selectedLayers.includes("Все слои");
+
+      if (mode !== "geo-analysis") {
+        const showTransit = isAll || selectedLayers.includes("Зоны обслуживания МО");
+        if (data.serviceZones) {
+          MapLayersManager.updateServiceZones(map, data.serviceZones, showTransit);
+        }
+      }
+
+      // const showTransit = isAll || selectedLayers.includes("Зоны обслуживания МО");
+      const showGenplan = isAll || selectedLayers.includes("Зоны здравоохранения (генплан)");
+      const showPlannedObjs = isAll || selectedLayers.includes("Планируемые объекты здравоохранения");
+      const showZhk = isAll || selectedLayers.includes("Планируемые жилые объекты (ЖКХ)");
+
+      // if (data.serviceZones) {
+      //   MapLayersManager.updateServiceZones(map, data.serviceZones, showTransit);
+      // }
+      if (data.plannedZones) {
+        MapLayersManager.updatePlannedZones(map, data.plannedZones, showGenplan);
+      }
+      if (data.plannedObjs) {
+        MapLayersManager.updatePlannedObjects(map, data.plannedObjs, showPlannedObjs);
+      }
+      if (data.zhk) {
+        MapLayersManager.updateZhkPoints(map, data.zhk, showZhk);
       }
 
       if (mode === "infrastructure") {
         MapLayersManager.updateInfrastructureLayers(map, data.pmsp, true);
         MapLayersManager.hideServiceZones(map);
         if (map.getLayer('pmsp-layer')) map.setLayoutProperty('pmsp-layer', 'visibility', 'none');
-      } else if (mode !== "geo-analysis") {
+      } else if (mode === "geo-analysis") {
+        MapLayersManager.updateGeoMarkers(map, data.pmsp, true);
+      } else {
         MapLayersManager.updatePmspPoints(map, data.pmsp, true);
         if (map.getLayer('infra-points')) map.setLayoutProperty('infra-points', 'visibility', 'none');
       }
@@ -158,7 +159,8 @@ const MapView = forwardRef(({
           'pmsp-layer',
           'infra-points',
           'zhk-points-unclustered-circle', 
-          'planned-objs-unclustered-circle'
+          'planned-objs-unclustered-circle', 
+          'geo-markers-layer'
         ];
 
         const activeLayers = layers.filter(layerId => map.getLayer(layerId));
@@ -174,35 +176,27 @@ const MapView = forwardRef(({
           const layerId = feature.layer.id;
           const targetId = unified_id || id;
           removeExistingPopup();
-          // const loadingPopup = new maplibregl.Popup({ offset: 10, closeButton: true })
-          //   .setLngLat(e.lngLat)
-          //   .setHTML('<div style="padding:20px; text-align:center;">Загрузка данных...</div>')
-          //   .addTo(map);
           const popup = new maplibregl.Popup({ 
             offset: 10, 
             closeButton: true, 
             maxWidth: '450px'
           })
             .setLngLat(e.lngLat)
-            .setHTML(MapLayersManager.getPopupContent(props)) // Сначала базовый контент
+            .setHTML(MapLayersManager.getPopupContent(props, mode)) // Сначала базовый контент
             .addTo(map);
           activePopupRef.current = popup;
-          if (layerId === 'pmsp-layer' || layerId === 'infra-points') {
+          if (layerId === 'pmsp-layer' || layerId === 'infra-points' || layerId === 'geo-markers-layer') {
             try {
               popup.setHTML(MapLayersManager.getPopupContent(props) + 
                 '<div style="text-align:center; color:#1565C0; font-size:10px; padding:5px;">⌛ Загрузка деталей...</div>');
 
               const detailedData = await HealthcareService.getPmspDetail(targetId);
               
-              popup.setHTML(MapLayersManager.getPopupContent(detailedData));
-              
-              // Синхронизируем с правой карточкой
-              // setBuildingData(detailedData);
-              // setShowDetailCard(true);
+              popup.setHTML(MapLayersManager.getPopupContent(detailedData, mode));
 
             } catch (err) {
               console.error("Ошибка загрузки:", err);
-              popup.setHTML(MapLayersManager.getPopupContent(props)); // Оставляем базовые если ошибка
+              popup.setHTML(MapLayersManager.getPopupContent(props));
             }
           }
         }
@@ -218,6 +212,8 @@ const MapView = forwardRef(({
       map.on('mouseleave', 'pmsp-layer', onMouseLeave);
       map.on('mouseenter', 'infra-points', onMouseEnter);
       map.on('mouseleave', 'infra-points', onMouseLeave);
+      map.on('mouseenter', 'geo-markers-layer', onMouseEnter);
+      map.on('mouseleave', 'geo-markers-layer', onMouseLeave);
       map.on('mouseenter', 'zhk-points-unclustered-circle', onMouseEnter);
       map.on('mouseleave', 'zhk-points-unclustered-circle', onMouseLeave);
       map.on('mouseenter', 'planned-objs-unclustered-circle', onMouseEnter);

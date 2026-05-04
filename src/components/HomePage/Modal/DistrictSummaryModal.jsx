@@ -15,17 +15,70 @@ export default function DistrictSummaryModal({ onClose }) {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
+    // useEffect(() => {
+    //     const loadData = async () => {
+    //         try {
+    //             setLoading(true);
+    //             const data = await HealthcareService.getDistrictSummary();
+                
+    //             const sortedData = data.sort((a, b) => 
+    //                 parseFloat(b.avg_cap_load) - parseFloat(a.avg_cap_load)
+    //             );
+                
+    //             setDistData(sortedData);
+    //         } catch (err) {
+    //             setError("Не удалось загрузить данные");
+    //             console.error(err);
+    //         } finally {
+    //             setLoading(false);
+    //         }
+    //     };
+
+    //     loadData();
+    // }, []);
+
     useEffect(() => {
         const loadData = async () => {
             try {
                 setLoading(true);
                 const data = await HealthcareService.getDistrictSummary();
                 
-                const sortedData = data.sort((a, b) => 
-                    parseFloat(b.avg_cap_load) - parseFloat(a.avg_cap_load)
-                );
+                const mergedMap = {};
+
+                data.forEach(item => {
+                    const cleanName = item.district.replace(/ район/gi, "").trim();
+
+                    if (!mergedMap[cleanName]) {
+                        mergedMap[cleanName] = {
+                            district: cleanName,
+                            count: 0,
+                            pop: 0,
+                            sumCap: 0,
+                            sumDoc: 0,
+                            itemsInGroup: 0
+                        };
+                    }
+
+                    const group = mergedMap[cleanName];
+                    group.count += parseInt(item.count || 0);
+                    group.pop += parseFloat(item.pop || 0);
+                    
+                    group.sumCap += parseFloat(item.avg_cap_load || 0) * (item.count || 1);
+                    group.sumDoc += parseFloat(item.avg_doc_load || 0) * (item.count || 1);
+                    group.itemsInGroup += (item.count || 1);
+                });
+
+                const finalData = Object.values(mergedMap).map(r => ({
+                    district: r.district,
+                    count: r.count,
+                    pop: r.pop,
+                    avg_cap_load: (r.sumCap / r.itemsInGroup).toFixed(1),
+                    avg_doc_load: (r.sumDoc / r.itemsInGroup).toFixed(1)
+                }));
+
+                finalData.sort((a, b) => parseFloat(b.avg_cap_load) - parseFloat(a.avg_cap_load));
                 
-                setDistData(sortedData);
+                setDistData(finalData);
             } catch (err) {
                 setError("Не удалось загрузить данные");
                 console.error(err);
@@ -39,7 +92,6 @@ export default function DistrictSummaryModal({ onClose }) {
 
     return (
         <div className="w-[400px] bg-white shadow-2xl rounded-xl border border-gray-200 overflow-hidden animate-in fade-in slide-in-from-left-2">
-            {/* Header */}
             <div className="bg-[#1565C0] p-2 px-3 flex items-center justify-between text-white">
                 <div className="flex items-center gap-2">
                     <ClipboardList className="w-4 h-4" />
@@ -72,7 +124,7 @@ export default function DistrictSummaryModal({ onClose }) {
                         <tbody>
                             {distData.map((r, i) => (
                                 <tr key={i} className="border-b last:border-0 hover:bg-gray-50 transition-colors">
-                                    <td className="p-2 font-medium text-gray-700">
+                                    <td className="p-2 font-medium text-gray-700 text-left">
                                         {r.district?.replace(" район", "") || "—"}
                                     </td>
                                     <td className="p-2 text-center text-gray-600">{r.count}</td>
@@ -91,7 +143,7 @@ export default function DistrictSummaryModal({ onClose }) {
                     </table>
                 )}
             </div>
-            <div className="p-2 bg-gray-50 text-[9px] text-gray-400 italic border-t">
+            <div className="p-2 bg-gray-50 text-[9px] text-left text-gray-400 italic border-t">
                 * Данные обновляются в реальном времени на основе текущей нагрузки.
             </div>
         </div>

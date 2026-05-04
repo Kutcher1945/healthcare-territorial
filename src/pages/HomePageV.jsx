@@ -19,7 +19,7 @@ export default function HomePage() {
   const [selectedDistrict, setSelectedDistrict] = useState(["Все районы"])
   const [selectedVisits, setSelectedVisits] = useState(["Все посещения"])
   const [selectedLayers, setSelectedLayers] = useState(["Все слои"])
-  const [selectedAffiliations, setSelectedAffiliations] = useState(["Все принадлежности"])
+  const [selectedAffiliations, setSelectedAffiliations] = useState(["all"])
   const [activeModal, setActiveModal] = useState(null);
   const [mapData, setMapData] = useState(null);
   const mapRef = useRef(null);
