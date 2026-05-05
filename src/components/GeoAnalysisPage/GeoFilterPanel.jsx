@@ -10,7 +10,8 @@ export default function GeoFilterPanel({
   selectedAffiliations, setSelectedAffiliations,
   totalCount, totalPopulation, avgPerson, avgVisit,
   activeScenario, setActiveScenario,
-  onReset
+  onReset, setIsPlanningActive, isPlanningActive, plannedZonesData,
+  onZoomTo
 }) {
   const [isPlanningOpen, setIsPlanningOpen] = useState(false);
   const [filtersHidden, setFiltersHidden] = useState(false);
@@ -264,15 +265,17 @@ export default function GeoFilterPanel({
             filtersHidden ? "max-h-0 opacity-0 overflow-hidden" : "max-h-screen opacity-100"
           }`}
         >
-          
-          <div className="flex-none bg-white z-10 shadow-sm relative">
-            <Indicators
-              totalCount={totalCount}
-              totalPopulation={totalPopulation}
-              avgVisit={avgVisit}
-              avgPerson={avgPerson}
-            />
-          </div>
+
+          {!isPlanningActive &&
+            <div className="flex-none bg-white z-10 shadow-sm relative">
+              <Indicators
+                totalCount={totalCount}
+                totalPopulation={totalPopulation}
+                avgVisit={avgVisit}
+                avgPerson={avgPerson}
+              />
+            </div>
+          }
 
           <div className="p-3 border-t bg-gray-50/30">
             <h3 className="font-bold text-gray-400 text-left uppercase text-[10px] mb-2">Сценарий анализа</h3>
@@ -298,7 +301,7 @@ export default function GeoFilterPanel({
           </div>
 
           {/* 3. ТРАНСПОРТ (Чекбокс) */}
-          <div className="px-4 py-2 space-y-2">
+          {/* <div className="px-4 py-2 space-y-2">
             <label className="flex items-center gap-2 cursor-pointer group">
               <input type="checkbox" className="rounded border-gray-300 text-blue-600 focus:ring-blue-500 w-4 h-4" />
               <span className="text-[11px] text-gray-700 group-hover:text-black transition-colors">Маршруты ОТ (автобус / троллейбус)</span>
@@ -311,12 +314,12 @@ export default function GeoFilterPanel({
                 <div className="w-6 h-1 rounded bg-purple-600"></div> <span>Троллейбус</span>
               </div>
             </div>
-          </div>
+          </div> */}
 
           {/* 4. ИНСТРУМЕНТ ПЛАНИРОВАНИЯ (Аккордеон) */}
           <div className="mt-2 border-t">
             <button 
-              onClick={() => setIsPlanningOpen(!isPlanningOpen)}
+              onClick={() => setIsPlanningActive(!isPlanningActive)}
               className="w-full bg-blue-600 hover:bg-blue-700 text-white p-3 flex items-center justify-between transition-colors shadow-inner"
             >
               <div className="flex items-center gap-2">
@@ -326,7 +329,12 @@ export default function GeoFilterPanel({
               <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isPlanningOpen ? 'rotate-180' : ''}`} />
             </button>
             
-            {isPlanningOpen && <PlanningToolList />}
+            {isPlanningActive &&
+              <PlanningToolList 
+                data={plannedZonesData}
+                onZoomTo={onZoomTo}
+              />
+            }
           </div>
         </div>
 

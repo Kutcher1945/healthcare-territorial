@@ -81,7 +81,7 @@ export const useMapData = (mode) => {
   };
 
   const filterData = useCallback((filters) => {
-    if (!cache.city || !cache.pmsp || !cache.dists) return null;
+    if (!cache.city || !cache.pmsp || !cache.dists || !cache.plannedZones) return null;
 
     const { 
       districts = ["Все районы"], 
@@ -108,6 +108,35 @@ export const useMapData = (mode) => {
         }));
       activeFacsForGrid = [...activeFacsForGrid, ...plannedFacs];
     }
+
+    const getCentroid = (geom) => {
+      if (!geom || !geom.coordinates) return { lat: 0, lng: 0 };
+      try {
+          let ring = geom.type === 'MultiPolygon' 
+              ? geom.coordinates[0][0] 
+              : geom.coordinates[0];
+          
+          if (!ring || ring.length === 0) return { lat: 0, lng: 0 };
+          
+          let sumLng = 0, sumLat = 0;
+          ring.forEach(c => { sumLng += c[0]; sumLat += c[1]; });
+          
+          return { lng: sumLng / ring.length, lat: sumLat / ring.length };
+      } catch (e) {
+          return { lat: 0, lng: 0 };
+      }
+    };
+
+    const deficitCells = (cache.grid?.features || [])
+        .filter(f => {
+            const cat = f.properties.pmsp_access_cat;
+            return cat === 'red' || cat === 'ylw';
+        })
+        .map(f => ({
+            ...getCentroid(f.geometry),
+            pop: parseFloat(f.properties.population || 0),
+            cat: f.properties.pmsp_access_cat
+        }));
 
     const recomputedGrid = cache.grid ? {
       ...cache.grid,
@@ -139,6 +168,126 @@ export const useMapData = (mode) => {
         };
       })
     } : null;
+
+    // const recomputePlannedZones = (() => {
+    //   if (!cache.grid) {
+    //     return cache.plannedZones;
+    //   }
+
+    //   const deficitCells = cache.grid.features
+    //     .map(f => ({
+    //       lat: (f.geometry.coordinates[0][0][0][1] + f.geometry.coordinates[0][0][2][1]) / 2,
+    //       lng: (f.geometry.coordinates[0][0][0][0] + f.geometry.coordinates[0][0][2][0]) / 2,
+    //       pop: f.properties.population || 0,
+    //       isRed: f.properties.pmsp_access_cat === 'red'
+    //     }))
+    //     .filter(c => c.pop > 0);
+
+    //   // 2. Анализируем каждую зону генплана
+    //   const analyzedFeatures = cache.plannedZones.features.map(zone => {
+    //     const center = getCentroid(zone.geometry);
+    //     let redCnt = 0, totalNearbyPop = 0, totalCells = 0;
+
+    //     deficitCells.forEach(cell => {
+    //       const dist = fastDistM(center.lat, center.lng, cell.lat, cell.lng);
+    //       if (dist <= 1200) { // Радиус 1.2 км (15 мин)
+    //         totalCells++;
+    //         totalNearbyPop += cell.pop;
+    //         if (cell.isRed) redCnt++;
+    //       }
+    //     });
+
+    //     // Определение приоритета
+    //     const pctRed = totalCells > 0 ? redCnt / totalCells : 0;
+    //     let priority = { lbl: 'Низкий', col: '#90A4AE', fill: '#CFD8DC' };
+        
+    //     if (totalCells > 0) {
+    //       if (pctRed > 0.7) priority = { lbl: 'Критичный', col: '#4A148C', fill: '#7B1FA2' };
+    //       else if (pctRed > 0.3) priority = { lbl: 'Высокий', col: '#0D47A1', fill: '#0039FF' };
+    //       else priority = { lbl: 'Умеренный', col: '#1565C0', fill: '#1976D2' };
+    //     }
+
+    //     // Что именно строить?
+    //     let rec = 'Объект не требуется';
+    //     if (totalNearbyPop >= 30000) rec = 'Поликлиника';
+    //     else if (totalNearbyPop >= 1500) rec = 'Врачебная амбулатория';
+
+    //     return {
+    //       ...zone,
+    //       properties: {
+    //         ...zone.properties,
+    //         lbl: priority.lbl,
+    //         ...priority,
+    //         defPop: Math.round(totalNearbyPop),
+    //         recommendation: rec,
+    //         hasDeficit: totalCells > 0
+    //       }
+    //     };
+    //   });
+
+    //   return { type: 'FeatureCollection', features: analyzedFeatures };
+    // })();
+
+    const finalPlannedZones = {
+      ...cache.plannedZones,
+      features: cache.plannedZones.features.map(zone => {
+        if (!cache.grid) return zone; // На главной просто возвращаем
+
+        const zoneCenter = getCentroid(zone.geometry);
+        let redCnt = 0, ylwCnt = 0, totalPopNearby = 0;
+        const MATCH_R = 1200; // 15 минут пешком
+
+        // Проверяем каждую дефицитную ячейку рядом с этим полигоном генплана
+        deficitCells.forEach(cell => {
+          const dist = fastDistM(zoneCenter.lat, zoneCenter.lng, cell.lat, cell.lng);
+          if (dist <= MATCH_R) {
+            totalPopNearby += cell.pop;
+            if (cell.cat === 'red') redCnt++;
+            else ylwCnt++;
+          }
+        });
+
+        const totalBadCells = redCnt + ylwCnt;
+          
+        // Если рядом есть хоть одна плохая ячейка, зона перестает быть "Нормой" (серой)
+        if (totalBadCells > 0) {
+          const pctRed = redCnt / totalBadCells;
+          let priority;
+          
+          if (pctRed > 0.7) {
+              priority = { lbl: 'Критичный', col: '#6A1B9A', fill: '#7B1FA2' };
+          } else if (pctRed > 0.3) {
+              priority = { lbl: 'Высокий', col: '#0039FF', fill: '#0039FF' };
+          } else {
+              priority = { lbl: 'Умеренный', col: '#1565C0', fill: '#1976D2' };
+          }
+
+          let rec = 'Объект не требуется';
+          if (totalPopNearby >= 30000) rec = 'Поликлиника';
+          else if (totalPopNearby >= 1500) rec = 'Врачебная амбулатория';
+
+          return {
+            ...zone,
+            properties: {
+              ...zone.properties,
+              ...priority,
+              defPop: Math.round(totalPopNearby),
+              recommendation: rec,
+              hasDeficit: true
+            }
+          };
+        }
+
+        // Иначе возвращаем как "Норма" (Серый)
+        return {
+          ...zone,
+          properties: {
+            ...zone.properties,
+            lbl: 'Норма', col: '#90A4AE', fill: '#CFD8DC', hasDeficit: false, defPop: 0
+          }
+        };
+      })
+    };
 
     const popMultiplier = activeScenario === '2028' ? 1.03 : 1; 
 
@@ -226,13 +375,12 @@ export const useMapData = (mode) => {
 
     return {
       city: cache.city,
-      plannedZones: cache.plannedZones,
+      plannedZones: finalPlannedZones,
       districts: filteredDistricts,
       pmsp: { type: 'FeatureCollection', features: filteredPmspFeatures },
       plannedObjs: filteredPlannedObjs,
       serviceZones: filteredServiceZones,
       zhk: filteredZhk,
-      // grid: cache.grid,
       grid: recomputedGrid,
       heatDeficit: cache.heatDeficit,
       heatCoverage: cache.heatCoverage,
@@ -241,7 +389,7 @@ export const useMapData = (mode) => {
   }, [cache]);
 
   const isReady = useMemo(() => {
-    if (!cache.city || !cache.pmsp || !cache.dists) return false;
+    if (!cache.city || !cache.pmsp || !cache.dists || !cache.plannedZones) return false;
 
     if (mode === 'geo-analysis') {
       return !!(cache.grid && cache.heatDeficit);

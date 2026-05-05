@@ -113,22 +113,67 @@ export const MapLayersManager = {
     }
   },
 
-  updatePlannedZones: (map, data, isVisible) => {
+  updatePlannedZones: (map, data, isVisible, isCategorized = false) => {
     if (!data || !data.features) return; 
-    if (!map.getSource('planned-source')) {
-      map.addSource('planned-source', { type: 'geojson', data });
+    const fillLayerId = 'planned-fill';
+    const lineLayerId = 'planned-line';
+    const sourceId = 'planned-source';
+
+    // 1. Создание или обновление источника
+    if (!map.getSource(sourceId)) {
+      map.addSource(sourceId, { type: 'geojson', data });
+
+      // СЛОЙ ЗАЛИВКИ
       map.addLayer({
-        id: 'planned-fill',
+        id: fillLayerId,
         type: 'fill',
-        source: 'planned-source',
-        paint: { 'fill-color': '#ef4444', 'fill-opacity': 0.15 }
+        source: sourceId,
+        paint: {
+          'fill-color': '#ef4444', // По умолчанию красный
+          'fill-opacity': 0.15
+        }
       });
+
+      // СЛОЙ ЛИНИЙ
       map.addLayer({
-        id: 'planned-line',
+        id: lineLayerId,
         type: 'line',
-        source: 'planned-source',
-        paint: { 'line-color': '#b91c1c', 'line-width': 2, 'line-dasharray': [2, 2] }
+        source: sourceId,
+        paint: {
+          'line-color': '#b91c1c', // По умолчанию темно-красный
+          'line-width': 1.5,
+          'line-dasharray': [2, 2]
+        }
       });
+    } else {
+      map.getSource(sourceId).setData(data);
+    }
+
+    if (map.getLayer(fillLayerId)) {
+      if (isCategorized) {
+        map.setPaintProperty(fillLayerId, 'fill-color', [
+          'match', ['get', 'lbl'],
+          'Критичный', '#7B1FA2',
+          'Высокий',   '#0039FF',
+          'Умеренный', '#1976D2',
+          '#CFD8DC'
+        ]);
+        map.setPaintProperty(fillLayerId, 'fill-opacity', 0.6);
+
+        map.setPaintProperty(lineLayerId, 'line-color', [
+          'match', ['get', 'lbl'],
+          'Критичный', '#4A148C',
+          'Высокий',   '#0D47A1',
+          'Умеренный', '#1565C0',
+          '#90A4AE'
+        ]);
+        map.setPaintProperty(lineLayerId, 'line-width', 2.5);
+      } else {
+        map.setPaintProperty(fillLayerId, 'fill-color', '#ef4444');
+        map.setPaintProperty(fillLayerId, 'fill-opacity', 0.15);
+        map.setPaintProperty(lineLayerId, 'line-color', '#b91c1c');
+        map.setPaintProperty(lineLayerId, 'line-width', 1.5);
+      }
     }
     const visibility = isVisible ? 'visible' : 'none';
     map.setLayoutProperty('planned-fill', 'visibility', visibility);
@@ -177,6 +222,54 @@ export const MapLayersManager = {
   },
 
   getPopupContent: (d, mode="load") => {
+    if (d.hasDeficit !== undefined) {
+      const isCritical = d.lbl === 'Критичный';
+      const boxBg = isCritical ? '#F3E5F5' : '#E8EAF6'; // Светло-фиолетовый или светло-синий
+      
+      // Расчет количества единиц (как в HTML)
+      let unitCount = 1;
+      if (d.defPop >= 30000) unitCount = Math.floor(d.defPop / 30000);
+      else if (d.defPop >= 1500) unitCount = Math.ceil(d.defPop / 10000);
+
+      return `
+        <div style="padding: 10px; min-width: 320px; font-family: sans-serif; line-height: 1.4;">
+          <div style="display: flex; align-items: center; gap: 8px; color: ${d.col}; font-weight: bold; font-size: 15px; margin-bottom: 5px;">
+            <span style="font-size: 18px;">📍</span> Рекомендуемое место размещения
+          </div>
+          <div style="font-size: 12px; color: #555; margin-bottom: 10px;">
+            ${d.note || 'Зона здравоохранения'} (индекс: ${d.zone_index || '—'})
+          </div>
+
+          <div style="background: ${boxBg}; border-left: 4px solid ${d.col}; border-radius: 4px; padding: 10px; margin-bottom: 12px;">
+            <div style="font-size: 11px; color: ${d.col}; line-height: 1.5;">
+              Рекомендуемое место размещения согласно прогнозу нагрузки 2026-2028<br>
+              <b style="font-size: 12px;">(СН РК 3.01-01-2013)</b>
+            </div>
+          </div>
+
+          <table style="width: 100%; font-size: 12px; margin-bottom: 12px; border-collapse: collapse;">
+            <tr style="border-bottom: 1px solid #f0f0f0;"><td style="color: #888; py-1;">Приоритет</td><td style="text-align: right; font-weight: bold; color: ${d.col};">${d.lbl}</td></tr>
+            <tr style="border-bottom: 1px solid #f0f0f0;"><td style="color: #888; py-1;">Ячеек >20 мин (крит.)</td><td style="text-align: right; font-weight: bold; color: #C62828;">${d.redCnt || 0}</td></tr>
+            <tr style="border-bottom: 1px solid #f0f0f0;"><td style="color: #888; py-1;">Ячеек 15–20 мин</td><td style="text-align: right; font-weight: bold; color: #E65100;">${d.ylwCnt || 0}</td></tr>
+            <tr><td style="color: #888; py-1;">Нас. вне доступности</td><td style="text-align: right; font-weight: bold;">≈${d.defPop?.toLocaleString() || 0} чел.</td></tr>
+          </table>
+
+          <div style="border-top: 1px dashed #ccc; padding-top: 10px;">
+            <div style="display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: bold; color: #333; margin-bottom: 8px;">
+               <span style="font-size: 14px;">📐</span> ЧТО ТРЕБУЕТСЯ НА ЭТОЙ ПЛОЩАДКЕ
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: bold; color: #2E7D32; margin-bottom: 10px;">
+               <span>🏥</span> ${d.recommendation} × ${unitCount} ед.
+            </div>
+            <div style="background: #F9FBE7; border-left: 3px solid #81C784; padding: 8px; font-size: 11px; color: #555; line-height: 1.5;">
+              Обоснование: ≈<b>${d.defPop?.toLocaleString()}</b> жителей не имеют доступа к ПМСП в пределах 15 мин пешком.<br>
+              По нормативу: ${d.defPop >= 30000 ? '≥ 30 000 чел. на 1 поликлинику' : '1 500 – 10 000 чел. на 1 ед.'}
+            </div>
+            <div style="font-size: 9px; color: #aaa; margin-top: 5px;">СН РК 3.01-01-2013, Табл. 5</div>
+          </div>
+        </div>`;
+    }
+    
     if (d.layerType === 'zhkh') {
       const details = [
         d.flats > 0 ? `Квартир: <b>${d.flats}</b>` : '',

@@ -16,6 +16,7 @@ export default function GeoAnalysisPage() {
   const [selectedLayers, setSelectedLayers] = useState(["Все слои"]);
   const [selectedAffiliations, setSelectedAffiliations] = useState(["all"]);
   const [activeScenario, setActiveScenario] = useState('current');
+  const [isPlanningActive, setIsPlanningActive] = useState(false);
   const mapRef = useRef();
 
   const handleReset = () => {
@@ -46,6 +47,11 @@ export default function GeoAnalysisPage() {
           activeScenario={activeScenario}
           setActiveScenario={setActiveScenario}
           onReset={() => handleReset()}
+          plannedZonesData={mapData?.plannedZones}
+          isPlanningActive={isPlanningActive}
+          setIsPlanningActive={setIsPlanningActive}
+          onZoomTo={(zone) => mapRef.current?.zoomToLocation(zone)}
+          
         />
       </div>
       <div className="absolute top-6 left-1/2 -translate-x-1/2 z-20 flex shadow-2xl gap-2">
@@ -83,6 +89,7 @@ export default function GeoAnalysisPage() {
           setAvgVisit={setAvgVisit}
           setAvgPerson={setAvgPerson}
           activeScenario={activeScenario}
+          isPlanningActive={isPlanningActive}
         />
       </div>
     </div>
