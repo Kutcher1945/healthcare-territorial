@@ -237,7 +237,9 @@ export const useMapData = (mode) => {
               ...priority,
               defPop: Math.round(totalPopNearby),
               recommendation: rec,
-              hasDeficit: true
+              hasDeficit: true, 
+              redCnt: redCnt, 
+              ylwCnt: ylwCnt
             }
           };
         }
