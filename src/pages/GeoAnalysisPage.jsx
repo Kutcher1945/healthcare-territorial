@@ -3,6 +3,7 @@ import { useState, useRef, useEffect } from "react"
 import MapView from "../components/HomePage/MapV"
 import { HealthcareService } from "../services/apiService"
 import GeoFilterPanel from "../components/GeoAnalysisPage/GeoFilterPanel"
+import AnalyticsPanel from "../components/GeoAnalysisPage/MapLegend/AnalyticsPanel"
 
 export default function GeoAnalysisPage() {
   const [geoMode, setGeoMode] = useState("walkaccess");
@@ -73,7 +74,7 @@ export default function GeoAnalysisPage() {
         ))}
       </div>
 
-      <div className="w-full h-full">
+      <div className="h-full w-full">
         <MapView 
           mode="geo-analysis"
           ref={mapRef}
@@ -90,6 +91,17 @@ export default function GeoAnalysisPage() {
           setAvgPerson={setAvgPerson}
           activeScenario={activeScenario}
           isPlanningActive={isPlanningActive}
+        />
+      </div>
+
+      <div className="absolute bottom-20 right-6 z-30">
+        <AnalyticsPanel 
+          data={mapData?.pmsp} 
+          onZoomTo={(item) => {
+            if (mapRef.current) {
+              mapRef.current.zoomToLocation(item);
+            }
+          }} 
         />
       </div>
     </div>
