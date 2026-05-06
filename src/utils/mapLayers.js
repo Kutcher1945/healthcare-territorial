@@ -349,7 +349,7 @@ export const MapLayersManager = {
 
           ${d.addresses_deficit || d.is_pmsp ? `
             <div style="font-size: 12px; color: #333; margin-top: 8px;">
-              <b>Решает дефицит ПМСП:</b> <span style="color: #2e7d32; font-weight: bold;">Да — новая ПМСП в новом мкр.</span>
+              <b>Решает дефицит ПМСП:</b> <span style="color: #2e7d32; font-weight: bold;">${d.addresses_deficit || 'Да — новая ПМСП в новом мкр.'}</span>
             </div>
           ` : ''}
 
@@ -747,19 +747,58 @@ export const MapLayersManager = {
         id: layerId,
         type: 'heatmap',
         source: sourceId,
+        // paint: {
+        //   'heatmap-weight': ['interpolate', ['linear'], ['get', 'weight'], 0, 0, 6, 1],
+        //   'heatmap-intensity': ['interpolate', ['linear'], ['zoom'], 0, 1, 9, 3],
+        //   'heatmap-color': [
+        //     'interpolate', ['linear'], ['heatmap-density'],
+        //     0, 'rgba(0,0,0,0)',
+        //     0.2, colorScheme[0],
+        //     0.6, colorScheme[1],
+        //     1, colorScheme[2]
+        //   ],
+        //   'heatmap-radius': ['interpolate', ['linear'], ['zoom'], 0, 2, 9, 20],
+        //   'heatmap-opacity': 0.7
+        //   // 'heatmap-opacity': ['interpolate', ['linear'], ['zoom'], 7, 1, 9, 0]
+        // }
         paint: {
-          'heatmap-weight': ['interpolate', ['linear'], ['get', 'weight'], 0, 0, 6, 1],
-          'heatmap-intensity': ['interpolate', ['linear'], ['zoom'], 0, 1, 9, 3],
+          'heatmap-weight': ['interpolate', ['linear'], ['get', 'weight'], 0, 0, 1, 1],
+
+          'heatmap-intensity': [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            0, 1,
+            8, 1,
+            15, 3
+          ],
+
           'heatmap-color': [
             'interpolate', ['linear'], ['heatmap-density'],
             0, 'rgba(0,0,0,0)',
-            0.2, colorScheme[0],
-            0.6, colorScheme[1],
+            0.1, 'rgba(255,255,255,0)',
+            0.3, colorScheme[0],
+            0.7, colorScheme[1],
             1, colorScheme[2]
           ],
-          'heatmap-radius': ['interpolate', ['linear'], ['zoom'], 0, 2, 9, 20],
-          'heatmap-opacity': 0.7
-          // 'heatmap-opacity': ['interpolate', ['linear'], ['zoom'], 7, 1, 9, 0]
+
+          'heatmap-radius': [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            0, 2,    // На зуме 0 радиус 2 пикселя
+            8, 4,    // На зуме 8 (город издалека) радиус всего 4 пикселя
+            11, 16,  // На зуме 11 (стандартный вид) радиус 16 пикселей
+            15, 45   // При сильном приближении радиус 45 пикселей (мягкое пятно)
+          ],
+
+          'heatmap-opacity': [
+            'interpolate',
+            ['linear'],
+            ['zoom'],
+            8, 0.3,  // На отдалении слой более прозрачный
+            12, 0.5  // На рабочем зуме плотность 50%
+          ]
         }
       }, beforeId);
     } else {
