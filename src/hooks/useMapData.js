@@ -99,7 +99,7 @@ export const useMapData = (mode) => {
 
     if (activeScenario !== 'current' && cache.plannedObjs) {
       const plannedFacs = cache.plannedObjs.features
-        .filter(f => f.properties.is_pmsp) // Только те, что ПМСП
+        .filter(f => f.properties.is_pmsp)
         .map(f => ({
           lat: f.geometry.coordinates[1],
           lng: f.geometry.coordinates[0],
@@ -108,6 +108,20 @@ export const useMapData = (mode) => {
         }));
       activeFacsForGrid = [...activeFacsForGrid, ...plannedFacs];
     }
+
+    const isAllDistricts = districts.includes("Все районы");
+    const normalizedSelectedDistricts = districts.map(d => normalize(d));
+    
+    const checkDistrict = (itemDistrict) => {
+      if (isAllDistricts) return true;
+      return normalizedSelectedDistricts.includes(normalize(itemDistrict));
+    };
+
+    const filteredDistricts = {
+      ...cache.dists,
+      features: cache.dists.features.filter(f => checkDistrict(f.properties.name_ru))
+    };
+
 
     const getCentroid = (geom) => {
       if (!geom || !geom.coordinates) return { lat: 0, lng: 0 };
@@ -127,117 +141,68 @@ export const useMapData = (mode) => {
       }
     };
 
+    // const deficitCells = (cache.grid?.features || [])
+    //     .filter(f => {
+    //         const cat = f.properties.pmsp_access_cat;
+    //         return cat === 'red' || cat === 'ylw';
+    //     })
+    //     .map(f => ({
+    //         ...getCentroid(f.geometry),
+    //         pop: parseFloat(f.properties.population || 0),
+    //         cat: f.properties.pmsp_access_cat
+    //     }));
+
     const deficitCells = (cache.grid?.features || [])
-        .filter(f => {
-            const cat = f.properties.pmsp_access_cat;
-            return cat === 'red' || cat === 'ylw';
-        })
-        .map(f => ({
-            ...getCentroid(f.geometry),
-            pop: parseFloat(f.properties.population || 0),
-            cat: f.properties.pmsp_access_cat
-        }));
+      .filter(f => {
+        const cat = f.properties.pmsp_access_cat;
+        return (cat === 'red' || cat === 'ylw') && checkDistrict(f.properties.district);
+      })
+      .map(f => ({
+        ...getCentroid(f.geometry),
+        pop: parseFloat(f.properties.population || 0),
+        cat: f.properties.pmsp_access_cat
+      }));
 
     const recomputedGrid = cache.grid ? {
       ...cache.grid,
-      features: cache.grid.features.map(cell => {
-        const cLat = (cell.geometry.coordinates[0][0][0][1] + cell.geometry.coordinates[0][0][2][1]) / 2;
-        const cLng = (cell.geometry.coordinates[0][0][0][0] + cell.geometry.coordinates[0][0][2][0]) / 2;
-        
-        let minDist = Infinity;
-        for (const fac of activeFacsForGrid) {
-          const d = fastDistM(cLat, cLng, fac.lat, fac.lng);
-          if (d < minDist) minDist = d;
-        }
-
-        // Определяем новую категорию
-        const newCat = minDist <= 800 ? 'g10' : minDist <= 1200 ? 'g15' : minDist <= 1600 ? 'ylw' : 'red';
-        const origCat = cell.properties.pmsp_access_cat;
-        
-        // Флаг улучшения: была в дефиците (red/ylw), стала в норме (g10/g15)
-        const improved = (origCat === 'red' || origCat === 'ylw') && (newCat === 'g10' || newCat === 'g15');
-
-        return {
-          ...cell,
-          properties: {
-            ...cell.properties,
-            pmsp_access_cat: newCat,
-            improved: improved, // Важно для стиля (пунктир)
-            distance: Math.round(minDist)
+      features: cache.grid.features
+        .filter(cell => checkDistrict(cell.properties.district))
+        .map(cell => {
+          const cLat = (cell.geometry.coordinates[0][0][0][1] + cell.geometry.coordinates[0][0][2][1]) / 2;
+          const cLng = (cell.geometry.coordinates[0][0][0][0] + cell.geometry.coordinates[0][0][2][0]) / 2;
+          
+          let minDist = Infinity;
+          for (const fac of activeFacsForGrid) {
+            const d = fastDistM(cLat, cLng, fac.lat, fac.lng);
+            if (d < minDist) minDist = d;
           }
-        };
-      })
+
+          const newCat = minDist <= 800 ? 'g10' : minDist <= 1200 ? 'g15' : minDist <= 1600 ? 'ylw' : 'red';
+          const origCat = cell.properties.pmsp_access_cat;
+          
+          const improved = (origCat === 'red' || origCat === 'ylw') && (newCat === 'g10' || newCat === 'g15');
+
+          return {
+            ...cell,
+            properties: {
+              ...cell.properties,
+              pmsp_access_cat: newCat,
+              improved: improved,
+              distance: Math.round(minDist)
+            }
+          };
+        })
     } : null;
-
-    // const recomputePlannedZones = (() => {
-    //   if (!cache.grid) {
-    //     return cache.plannedZones;
-    //   }
-
-    //   const deficitCells = cache.grid.features
-    //     .map(f => ({
-    //       lat: (f.geometry.coordinates[0][0][0][1] + f.geometry.coordinates[0][0][2][1]) / 2,
-    //       lng: (f.geometry.coordinates[0][0][0][0] + f.geometry.coordinates[0][0][2][0]) / 2,
-    //       pop: f.properties.population || 0,
-    //       isRed: f.properties.pmsp_access_cat === 'red'
-    //     }))
-    //     .filter(c => c.pop > 0);
-
-    //   // 2. Анализируем каждую зону генплана
-    //   const analyzedFeatures = cache.plannedZones.features.map(zone => {
-    //     const center = getCentroid(zone.geometry);
-    //     let redCnt = 0, totalNearbyPop = 0, totalCells = 0;
-
-    //     deficitCells.forEach(cell => {
-    //       const dist = fastDistM(center.lat, center.lng, cell.lat, cell.lng);
-    //       if (dist <= 1200) { // Радиус 1.2 км (15 мин)
-    //         totalCells++;
-    //         totalNearbyPop += cell.pop;
-    //         if (cell.isRed) redCnt++;
-    //       }
-    //     });
-
-    //     // Определение приоритета
-    //     const pctRed = totalCells > 0 ? redCnt / totalCells : 0;
-    //     let priority = { lbl: 'Низкий', col: '#90A4AE', fill: '#CFD8DC' };
-        
-    //     if (totalCells > 0) {
-    //       if (pctRed > 0.7) priority = { lbl: 'Критичный', col: '#4A148C', fill: '#7B1FA2' };
-    //       else if (pctRed > 0.3) priority = { lbl: 'Высокий', col: '#0D47A1', fill: '#0039FF' };
-    //       else priority = { lbl: 'Умеренный', col: '#1565C0', fill: '#1976D2' };
-    //     }
-
-    //     // Что именно строить?
-    //     let rec = 'Объект не требуется';
-    //     if (totalNearbyPop >= 30000) rec = 'Поликлиника';
-    //     else if (totalNearbyPop >= 1500) rec = 'Врачебная амбулатория';
-
-    //     return {
-    //       ...zone,
-    //       properties: {
-    //         ...zone.properties,
-    //         lbl: priority.lbl,
-    //         ...priority,
-    //         defPop: Math.round(totalNearbyPop),
-    //         recommendation: rec,
-    //         hasDeficit: totalCells > 0
-    //       }
-    //     };
-    //   });
-
-    //   return { type: 'FeatureCollection', features: analyzedFeatures };
-    // })();
 
     const finalPlannedZones = {
       ...cache.plannedZones,
       features: cache.plannedZones.features.map(zone => {
-        if (!cache.grid) return zone; // На главной просто возвращаем
+        if (!cache.grid) return zone;
 
         const zoneCenter = getCentroid(zone.geometry);
         let redCnt = 0, ylwCnt = 0, totalPopNearby = 0;
-        const MATCH_R = 1200; // 15 минут пешком
+        const MATCH_R = 1200;
 
-        // Проверяем каждую дефицитную ячейку рядом с этим полигоном генплана
         deficitCells.forEach(cell => {
           const dist = fastDistM(zoneCenter.lat, zoneCenter.lng, cell.lat, cell.lng);
           if (dist <= MATCH_R) {
@@ -249,7 +214,6 @@ export const useMapData = (mode) => {
 
         const totalBadCells = redCnt + ylwCnt;
           
-        // Если рядом есть хоть одна плохая ячейка, зона перестает быть "Нормой" (серой)
         if (totalBadCells > 0) {
           const pctRed = redCnt / totalBadCells;
           let priority;
@@ -278,7 +242,6 @@ export const useMapData = (mode) => {
           };
         }
 
-        // Иначе возвращаем как "Норма" (Серый)
         return {
           ...zone,
           properties: {
@@ -290,19 +253,6 @@ export const useMapData = (mode) => {
     };
 
     const popMultiplier = activeScenario === '2028' ? 1.03 : 1; 
-
-    const isAllDistricts = districts.includes("Все районы");
-    const normalizedSelectedDistricts = districts.map(d => normalize(d));
-
-    const checkDistrict = (itemDistrict) => {
-      if (isAllDistricts) return true;
-      return normalizedSelectedDistricts.includes(normalize(itemDistrict));
-    };
-
-    const filteredDistricts = {
-      ...cache.dists,
-      features: cache.dists.features.filter(f => checkDistrict(f.properties.name_ru))
-    };
 
     const filteredPmspRaw = cache.pmsp.results.filter(item => {
       const matchDist = checkDistrict(item.district);

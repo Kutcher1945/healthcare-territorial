@@ -119,28 +119,25 @@ export const MapLayersManager = {
     const lineLayerId = 'planned-line';
     const sourceId = 'planned-source';
 
-    // 1. Создание или обновление источника
     if (!map.getSource(sourceId)) {
       map.addSource(sourceId, { type: 'geojson', data });
 
-      // СЛОЙ ЗАЛИВКИ
       map.addLayer({
         id: fillLayerId,
         type: 'fill',
         source: sourceId,
         paint: {
-          'fill-color': '#ef4444', // По умолчанию красный
+          'fill-color': '#ef4444',
           'fill-opacity': 0.15
         }
       });
 
-      // СЛОЙ ЛИНИЙ
       map.addLayer({
         id: lineLayerId,
         type: 'line',
         source: sourceId,
         paint: {
-          'line-color': '#b91c1c', // По умолчанию темно-красный
+          'line-color': '#b91c1c',
           'line-width': 1.5,
           'line-dasharray': [2, 2]
         }
@@ -224,9 +221,8 @@ export const MapLayersManager = {
   getPopupContent: (d, mode="load") => {
     if (d.hasDeficit !== undefined) {
       const isCritical = d.lbl === 'Критичный';
-      const boxBg = isCritical ? '#F3E5F5' : '#E8EAF6'; // Светло-фиолетовый или светло-синий
+      const boxBg = isCritical ? '#F3E5F5' : '#E8EAF6';
       
-      // Расчет количества единиц (как в HTML)
       let unitCount = 1;
       if (d.defPop >= 30000) unitCount = Math.floor(d.defPop / 30000);
       else if (d.defPop >= 1500) unitCount = Math.ceil(d.defPop / 10000);
