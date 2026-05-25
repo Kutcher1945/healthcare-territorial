@@ -8,6 +8,7 @@ import DistrictSummaryModal from "../components/HomePage/Modal/DistrictSummaryMo
 import BuildingAgeModal from "../components/HomePage/Modal/BuildingAgeModal"
 import CriticalLoadPanel from "../components/HomePage/MapLegend/CriticalLoadPanel"
 import {MapLayersManager} from "../utils/mapLayers"
+import HomeLegendPanel from "../components/HomePage/MapLegend/HomeLegendPanel"
 
 export default function HomePage() {
   const [buildingData, setBuildingData] = useState([])
@@ -20,6 +21,7 @@ export default function HomePage() {
   const [selectedVisits, setSelectedVisits] = useState(["Все посещения"])
   const [selectedLayers, setSelectedLayers] = useState(["Все слои"])
   const [selectedAffiliations, setSelectedAffiliations] = useState(["all"])
+  const [activePanel, setActivePanel] = useState(null); 
   const [activeModal, setActiveModal] = useState(null);
   const [mapData, setMapData] = useState(null);
   const mapRef = useRef(null);
@@ -29,6 +31,10 @@ export default function HomePage() {
       setShowDetailCard(false)
     }
   }
+
+  const togglePanel = (panelName) => {
+    setActivePanel(prev => (prev === panelName ? null : panelName));
+  };
 
   return (
     <div className="relative h-full w-full overflow-hidden">
@@ -81,7 +87,8 @@ export default function HomePage() {
         </div>
       </div>
 
-      <div className="absolute bottom-6 right-6 z-30">
+      <div className="absolute bottom-6 right-6 z-30 flex flex-col gap-4 items-end">
+        <HomeLegendPanel isMinimized={activePanel !== 'legend'} setIsMinimized={() => togglePanel('legend')} />
         <CriticalLoadPanel 
           data={mapData?.pmsp} 
           onZoomTo={(item) => {
@@ -89,7 +96,10 @@ export default function HomePage() {
               mapRef.current.zoomToLocation(item);
             }
           }} 
+          isMinimized={activePanel !== 'critical'}
+          setIsMinimized={() => togglePanel('critical')}
         />
+
       </div>
     </div>
   )

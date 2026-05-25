@@ -17,8 +17,7 @@ const getPctClass = (val) => {
   return 'text-[#2E7D32]';
 };
 
-export default function CriticalLoadPanel({ data, onZoomTo }) {
-  const [isMinimized, setIsMinimized] = useState(false);
+export default function CriticalLoadPanel({ data, onZoomTo, isMinimized, setIsMinimized }) {
   const [activeTab, setActiveTab] = useState('cap');
 
   const pmspBase = useMemo(() => {

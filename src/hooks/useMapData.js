@@ -337,7 +337,6 @@ export const useMapData = (mode) => {
     }
     
     if (mode === 'infrastructure' || mode === 'load') {
-      // return !!(cache.plannedObjs || cache.zhk);
       return !!(cache.serviceZones && cache.plannedZones); 
     }
 

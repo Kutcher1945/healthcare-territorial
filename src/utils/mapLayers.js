@@ -606,26 +606,6 @@ export const MapLayersManager = {
     map.on('mouseleave', clusterLayerId, () => { map.getCanvas().style.cursor = ''; });
   },
 
-  // updateServiceZones: (map, data, isVisible) => {
-  //   if (!data || !data.features) return; 
-  //   if (!map.getSource('service-zones-source')) {
-  //     map.addSource('service-zones-source', { type: 'geojson', data });
-  //     map.addLayer({
-  //       id: 'service-zones-fill',
-  //       type: 'fill',
-  //       source: 'service-zones-source',
-  //       paint: {
-  //         'fill-color': ['get', 'fill_color'],
-  //         'fill-opacity': ['get', 'fill_opacity'],
-  //         'fill-outline-color': ['get', 'stroke_color']
-  //       }
-  //     });
-  //   } else {
-  //     map.getSource('service-zones-source').setData(data);
-  //   }
-  //   map.setLayoutProperty('service-zones-fill', 'visibility', isVisible ? 'visible' : 'none');
-  // },
-
   updateServiceZones: (map, data, isVisible) => {
     if (!data || !data.features) return; 
     const layerId = 'service-zones-fill';
@@ -802,20 +782,6 @@ export const MapLayersManager = {
         id: layerId,
         type: 'heatmap',
         source: sourceId,
-        // paint: {
-        //   'heatmap-weight': ['interpolate', ['linear'], ['get', 'weight'], 0, 0, 6, 1],
-        //   'heatmap-intensity': ['interpolate', ['linear'], ['zoom'], 0, 1, 9, 3],
-        //   'heatmap-color': [
-        //     'interpolate', ['linear'], ['heatmap-density'],
-        //     0, 'rgba(0,0,0,0)',
-        //     0.2, colorScheme[0],
-        //     0.6, colorScheme[1],
-        //     1, colorScheme[2]
-        //   ],
-        //   'heatmap-radius': ['interpolate', ['linear'], ['zoom'], 0, 2, 9, 20],
-        //   'heatmap-opacity': 0.7
-        //   // 'heatmap-opacity': ['interpolate', ['linear'], ['zoom'], 7, 1, 9, 0]
-        // }
         paint: {
           'heatmap-weight': ['interpolate', ['linear'], ['get', 'weight'], 0, 0, 1, 1],
 
@@ -841,18 +807,18 @@ export const MapLayersManager = {
             'interpolate',
             ['linear'],
             ['zoom'],
-            0, 2,    // На зуме 0 радиус 2 пикселя
-            8, 4,    // На зуме 8 (город издалека) радиус всего 4 пикселя
-            11, 16,  // На зуме 11 (стандартный вид) радиус 16 пикселей
-            15, 45   // При сильном приближении радиус 45 пикселей (мягкое пятно)
+            0, 2,
+            8, 4,
+            11, 16,
+            15, 45
           ],
 
           'heatmap-opacity': [
             'interpolate',
             ['linear'],
             ['zoom'],
-            8, 0.3,  // На отдалении слой более прозрачный
-            12, 0.5  // На рабочем зуме плотность 50%
+            8, 0.3,
+            12, 0.5
           ]
         }
       }, beforeId);
@@ -864,7 +830,6 @@ export const MapLayersManager = {
       map.setLayoutProperty(layerId, 'visibility', isVisible ? 'visible' : 'none');
     }
   }
-  
 };
 
 export const setupAdminLayers = (map, cityData, districtsData) => {
