@@ -141,17 +141,6 @@ export const useMapData = (mode) => {
       }
     };
 
-    // const deficitCells = (cache.grid?.features || [])
-    //     .filter(f => {
-    //         const cat = f.properties.pmsp_access_cat;
-    //         return cat === 'red' || cat === 'ylw';
-    //     })
-    //     .map(f => ({
-    //         ...getCentroid(f.geometry),
-    //         pop: parseFloat(f.properties.population || 0),
-    //         cat: f.properties.pmsp_access_cat
-    //     }));
-
     const deficitCells = (cache.grid?.features || [])
       .filter(f => {
         const cat = f.properties.pmsp_access_cat;
@@ -348,7 +337,8 @@ export const useMapData = (mode) => {
     }
     
     if (mode === 'infrastructure' || mode === 'load') {
-      return !!(cache.plannedObjs || cache.zhk);
+      // return !!(cache.plannedObjs || cache.zhk);
+      return !!(cache.serviceZones && cache.plannedZones); 
     }
 
     return true;
