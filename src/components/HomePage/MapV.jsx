@@ -223,6 +223,8 @@ const MapView = forwardRef(({
         MapLayersManager.updatePmspPoints(map, data.pmsp, true);
       }
 
+      MapLayersManager.applyLayerOrder(map);
+
       if (map.getLayer('planned-objs-cluster-circle')) MapLayersManager.setupClusterClicks(map, 'planned-objs');
       if (map.getLayer('zhk-points-cluster-circle')) MapLayersManager.setupClusterClicks(map, 'zhk-points');
 

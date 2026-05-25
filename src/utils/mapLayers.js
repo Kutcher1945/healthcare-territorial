@@ -606,14 +606,37 @@ export const MapLayersManager = {
     map.on('mouseleave', clusterLayerId, () => { map.getCanvas().style.cursor = ''; });
   },
 
+  // updateServiceZones: (map, data, isVisible) => {
+  //   if (!data || !data.features) return; 
+  //   if (!map.getSource('service-zones-source')) {
+  //     map.addSource('service-zones-source', { type: 'geojson', data });
+  //     map.addLayer({
+  //       id: 'service-zones-fill',
+  //       type: 'fill',
+  //       source: 'service-zones-source',
+  //       paint: {
+  //         'fill-color': ['get', 'fill_color'],
+  //         'fill-opacity': ['get', 'fill_opacity'],
+  //         'fill-outline-color': ['get', 'stroke_color']
+  //       }
+  //     });
+  //   } else {
+  //     map.getSource('service-zones-source').setData(data);
+  //   }
+  //   map.setLayoutProperty('service-zones-fill', 'visibility', isVisible ? 'visible' : 'none');
+  // },
+
   updateServiceZones: (map, data, isVisible) => {
     if (!data || !data.features) return; 
-    if (!map.getSource('service-zones-source')) {
-      map.addSource('service-zones-source', { type: 'geojson', data });
+    const layerId = 'service-zones-fill';
+    const sourceId = 'service-zones-source';
+
+    if (!map.getSource(sourceId)) {
+      map.addSource(sourceId, { type: 'geojson', data });
       map.addLayer({
-        id: 'service-zones-fill',
+        id: layerId,
         type: 'fill',
-        source: 'service-zones-source',
+        source: sourceId,
         paint: {
           'fill-color': ['get', 'fill_color'],
           'fill-opacity': ['get', 'fill_opacity'],
@@ -621,9 +644,41 @@ export const MapLayersManager = {
         }
       });
     } else {
-      map.getSource('service-zones-source').setData(data);
+      map.getSource(sourceId).setData(data);
     }
-    map.setLayoutProperty('service-zones-fill', 'visibility', isVisible ? 'visible' : 'none');
+    map.setLayoutProperty(layerId, 'visibility', isVisible ? 'visible' : 'none');
+  },
+
+  applyLayerOrder: (map) => {
+    const backgroundLayers = [
+      'districts-layer-line',
+      'service-zones-fill',
+      'planned-fill',
+      'grid-layer-fill',
+      'deficit-heat',
+      'coverage-heat',
+      'city-layer',
+    ];
+
+    const pointLayers = [
+      'planned-objs-cluster-circle',
+      'zhk-points-cluster-circle',
+      'planned-objs-cluster-count',
+      'zhk-points-cluster-count',
+      'pmsp-layer',
+      'infra-points',
+      'geo-markers-layer',
+      'zhk-points-unclustered-circle',
+      'planned-objs-unclustered-circle',
+      'unclustered-plus',
+      'planned-objs-unclustered-plus'
+    ];
+
+    [...backgroundLayers, ...pointLayers].forEach(id => {
+      if (map.getLayer(id)) {
+        map.moveLayer(id); 
+      }
+    });
   },
 
   updateInfrastructureLayers: (map, data, isVisible) => {
