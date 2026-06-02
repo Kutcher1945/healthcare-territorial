@@ -363,16 +363,16 @@ export const MapLayersManager = {
       if (mode === "geo-analysis") {
         const nurseDiff = (d.norm_nurses || 0) - (d.nurse_fact || 0);
         
-        const gapValue = Math.abs((d.doctor_load || 0) - d.cap_load);
-        const gapBlock = gapValue >= 30 ? `
-          <div style="background:#FFF3E0; border:1px solid #FFB74D; border-radius:6px; padding:8px; margin-bottom:10px; font-size:11px; color:#E65100;">
-            <div style="display:flex; align-items:center; gap:5px;">
-              <span>⚠️</span> <b>Разрыв: ${gapValue.toFixed(0)}%</b> — 
-              ${d.doctor_load > d.cap_load ? 'Нагрузка на врачей выше посещаемости' : 'Посещаемость выше нагрузки на врачей'}
-              (+${gapValue.toFixed(0)}%)
-            </div>
-          </div>
-        ` : '';
+        // const gapValue = Math.abs((d.doctor_load || 0) - d.cap_load);
+        // const gapBlock = gapValue >= 30 ? `
+        //   <div style="background:#FFF3E0; border:1px solid #FFB74D; border-radius:6px; padding:8px; margin-bottom:10px; font-size:11px; color:#E65100;">
+        //     <div style="display:flex; align-items:center; gap:5px;">
+        //       <span>⚠️</span> <b>Разрыв: ${gapValue.toFixed(0)}%</b> — 
+        //       ${d.doctor_load > d.cap_load ? 'Нагрузка на врачей выше посещаемости' : 'Посещаемость выше нагрузки на врачей'}
+        //       (+${gapValue.toFixed(0)}%)
+        //     </div>
+        //   </div>
+        // ` : '';
 
         const demoBars = d.demo_stats?.bars ? `
           <div style="margin-top:10px;">
@@ -418,14 +418,6 @@ export const MapLayersManager = {
               🩺 Медсёстры: норма ${d.norm_nurses} / факт ${d.nurse_fact}
               ${nurseDiff > 0 ? `<span style="color:#E65100; font-weight:bold;"> ⚠️ нехватка: ${nurseDiff}</span>` : `<span style="color:#2E7D32;"> ✓</span>`}
             </div>
-
-            <div style="font-size:11px; color:#666; padding:6px; background:#f5f5f5; border-radius:6px;">
-              🏗 Гл. здание — износ: <b>${d.bld_main_wear || '-'}%</b> 
-              <span style="background:${d.bld_main_priority === 'норма' ? '#2E7D32' : '#C62828'}; color:white; padding:1px 6px; border-radius:10px; font-size:9px; text-transform:uppercase; margin-left:5px;">
-                ${d.bld_main_priority}
-              </span>
-            </div>
-
             ${demoBars}
           </div>
         `;
@@ -560,14 +552,6 @@ export const MapLayersManager = {
               🩺 Медсёстры: норма ${d.norm_nurses} / факт ${d.nurse_fact}
               ${nurseDiff > 0 ? `<span style="color:#E65100; font-weight:bold;"> ⚠️ нехватка: ${nurseDiff}</span>` : `<span style="color:#2E7D32;"> ✓</span>`}
             </div>
-
-            <div style="font-size:11px; color:#666; padding:6px; background:#f5f5f5; border-radius:6px;">
-              🏗 Гл. здание — износ: <b>${d.bld_main_wear || '-'}%</b> 
-              <span style="background:${d.bld_main_priority === 'норма' ? '#2E7D32' : '#C62828'}; color:white; padding:1px 6px; border-radius:10px; font-size:9px; text-transform:uppercase; margin-left:5px;">
-                ${d.bld_main_priority}
-              </span>
-            </div>
-
             ${demoBars}
           </div>
         `;

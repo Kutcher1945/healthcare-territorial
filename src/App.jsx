@@ -6,7 +6,7 @@ import Header from './components/comps/HeaderV';
 import HomePage from './pages/HomePageV';
 import InfrastructurePage from './pages/InfrastructurePageV';
 import PersonalPage from './pages/PersonalPageV';
-import GeoAnalysisPage from './pages/GeoAnalysisPage';
+import RecomendationsPage from './pages/RecomendationsPage';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -29,9 +29,9 @@ function App() {
           <main className="flex-1 overflow-hidden">
             <Routes>
               <Route path="/" element={<HomePage selectedDistrict={selectedDistrict} />}/>
-              <Route path="/buildings" element={<InfrastructurePage/>}/>
+              <Route path="/infrastructure" element={<InfrastructurePage/>}/>
               <Route path="/personal" element={<PersonalPage selectedDistrict={selectedDistrict}/>}/>
-              <Route path="/geo-analysis" element={<GeoAnalysisPage/>}/>
+              <Route path="/recomendations" element={<RecomendationsPage/>}/>
             </Routes>
           </main>
         </div>

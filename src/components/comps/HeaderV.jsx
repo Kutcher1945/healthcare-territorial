@@ -51,10 +51,10 @@ export default function Header({ setSelectedDistrict, selectedDistrict }) {
 
   const navigationItems = [
     { to: "/", label: "Главная" },
-    { to: "/buildings", label: "Здания"},
+    { to: "/infrastructure", label: "Инфраструктура" },
     { to: "/personal", label: "Персонал"},
-    // { to: "/recomendations", label: "Рекомендации"},
-    { to: "/geo-analysis", label: "Гео-анализ"},
+    { to: "/recomendations", label: "Рекомендации"},
+    // { to: "/geo-analysis", label: "Гео-анализ"},
   ]
 
   return (
