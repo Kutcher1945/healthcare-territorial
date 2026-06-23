@@ -91,7 +91,7 @@ export const useMapData = (mode) => {
       affiliations = ["all"]
     } = filters;
 
-    const currentFacs = cache.pmsp.results.map(f => ({
+    const currentFacs = (cache.pmsp?.results || []).map(f => ({
       lat: f.lat, lng: f.lng, name: f.name, own_type: f.ownership, isPlanned: false
     }));
 
@@ -265,7 +265,7 @@ export const useMapData = (mode) => {
 
     const filteredServiceZones = cache.serviceZones ? {
       ...cache.serviceZones,
-      features: cache.serviceZones.features
+      features: (cache.serviceZones?.features || [])
         .filter(f => checkDistrict(f.properties.district_name))
         .map(zone => {
           const clinicsInside = filteredPmspRaw.filter(clinic => 
@@ -293,7 +293,7 @@ export const useMapData = (mode) => {
 
     const filteredZhk = cache.zhk ? {
       type: 'FeatureCollection',
-      features: cache.zhk.zhk_rows
+      features: (cache.zhk?.zhk_rows || [])
         .filter(item => checkDistrict(item.district))
         .map((item, idx) => ({
           type: 'Feature',
@@ -303,14 +303,30 @@ export const useMapData = (mode) => {
         }))
     } : null;
 
+    // const stats = {
+    //   totalCount: filteredPmspFeatures.length,
+    //   totalPopulation: filteredPmspFeatures.reduce((s, f) => s + (f.properties.population || 0), 0),
+    //   avgVisit: filteredPmspFeatures.length > 0 
+    //     ? (filteredPmspFeatures.reduce((s, f) => s + (f.properties.cap_load || 0), 0) / filteredPmspFeatures.length).toFixed(1)
+    //     : 0,
+    //   avgPerson: filteredPmspFeatures.length > 0
+    //     ? (filteredPmspFeatures.reduce((s, f) => s + (f.properties.doctor_load || 0), 0) / filteredPmspFeatures.length).toFixed(1)
+    //     : 0
+    // };
+
+    const totals = (filteredPmspFeatures || []).reduce((acc, f) => {
+      const p = f.properties;
+      acc.rpn += (p.population || 0);
+      acc.capacity += (p.cap_planned || 0);
+      return acc;
+    }, { rpn: 0, capacity: 0 });
+
     const stats = {
       totalCount: filteredPmspFeatures.length,
-      totalPopulation: filteredPmspFeatures.reduce((s, f) => s + (f.properties.population || 0), 0),
-      avgVisit: filteredPmspFeatures.length > 0 
-        ? (filteredPmspFeatures.reduce((s, f) => s + (f.properties.cap_load || 0), 0) / filteredPmspFeatures.length).toFixed(1)
-        : 0,
-      avgPerson: filteredPmspFeatures.length > 0
-        ? (filteredPmspFeatures.reduce((s, f) => s + (f.properties.doctor_load || 0), 0) / filteredPmspFeatures.length).toFixed(1)
+      totalPopulation: totals.rpn || 0,
+      avgVisit: totals.capacity || 0,
+      avgPerson: totals.capacity > 0 
+        ? Math.round((totals.rpn / (totals.capacity * 47.5)) * 100)
         : 0
     };
 

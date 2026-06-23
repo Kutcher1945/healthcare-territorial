@@ -3,6 +3,8 @@ import { ChevronDown, ChevronUp, BarChart3 } from 'lucide-react';
 
 export default function HomeLegendPanel({ isMinimized, setIsMinimized }) {
 
+  // const [isMinimized, setIsMinimized] = useState(false);
+
   return (
     <div className={`w-[300px] bg-white shadow-2xl rounded-xl border border-gray-200 overflow-hidden transition-all duration-300 flex flex-col ${isMinimized ? 'h-[40px]' : 'max-h-[85vh]'}`}>
       

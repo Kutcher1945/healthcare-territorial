@@ -6,34 +6,37 @@ export default function Indicators({ totalCount, totalPopulation, avgVisit, avgP
   };
 
   const formatAvg = (value) => Math.ceil(value * 10) / 10;
+  const formatAvgVisit = (value) => {
+    return value?.toLocaleString('ru-RU') || '0';
+  };
 
   return (
-    <div className="space-y-1.5 text-[11px] bg-white/95 p-2 md:px-3 md:py-2 border-t">
+    <div className="space-y-1.5 text-[11px] bg-white/95 md:px-3 md:py-2 border-t border-gray-200">
       <div className="grid grid-cols-2 gap-1.5">
-        <div className="text-center rounded-lg border bg-white shadow-sm p-1.5">
+        <div className="text-center rounded-lg border border-gray-200 bg-white shadow-sm p-1.5">
           <div className="font-bold text-blue-900 text-sm md:text-base leading-none">{totalCount || '-'}</div>
           <p className="text-[9px] md:text-[10px] text-gray-500">Всего поликлиник</p>
         </div>
 
-        <div className="text-center rounded-lg border bg-white shadow-sm p-1.5">
+        <div className="text-center rounded-lg border border-gray-200 bg-white shadow-sm p-1.5">
           <div className="font-bold text-blue-900 text-sm md:text-base leading-none">
             {formatPopulation(totalPopulation)}
           </div>
-          <p className="text-[9px] md:text-[10px] text-gray-500">Население</p>
+          <p className="text-[9px] md:text-[10px] text-gray-500">Прикреп. население</p>
         </div>
 
-        <div className="text-center rounded-lg border bg-white shadow-sm p-1.5">
+        <div className="text-center rounded-lg border border-gray-200 bg-white shadow-sm p-1.5">
           <div className="font-bold text-blue-900 text-sm md:text-base leading-none">
-            {formatAvg(avgVisit) || '-'}
+            {formatAvgVisit(avgVisit) || '-'}
           </div>
-          <p className="text-[9px] md:text-[10px] text-gray-500">Посещ. на пол-ку</p>
+          <p className="text-[9px] md:text-[10px] text-gray-500">Сумм. мощность</p>
         </div>
 
-        <div className="text-center rounded-lg border bg-white shadow-sm p-1.5">
+        <div className="text-center rounded-lg border border-gray-200 bg-white shadow-sm p-1.5">
           <div className="font-bold text-blue-900 text-sm md:text-base leading-none">
             {formatAvg(avgPerson) || '-'}
           </div>
-          <p className="text-[9px] md:text-[10px] text-gray-500">Посещ. на чел.</p>
+          <p className="text-[9px] md:text-[10px] text-gray-500">Ср. загруженность (%)</p>
         </div>
       </div>
 

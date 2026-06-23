@@ -41,35 +41,6 @@ const MapView = forwardRef(({
     }
   };
 
-  // useImperativeHandle(ref, () => ({
-  //   zoomToLocation: (item) => {
-  //     if (!mapRef.current) return;
-
-  //     const lng = parseFloat(item.lng || item.longitude);
-  //     const lat = parseFloat(item.lat || item.latitude);
-
-  //     if (isNaN(lng) || isNaN(lat)) return;
-
-  //     removeExistingPopup();
-
-  //     mapRef.current.flyTo({
-  //       center: [lng, lat],
-  //       zoom: 14,
-  //       essential: true
-  //     });
-
-  //     activePopupRef.current = new maplibregl.Popup({ offset: 10, closeButton: true })
-  //       .setLngLat([lng, lat])
-  //       .setHTML(MapLayersManager.getPopupContent(item))
-  //       .addTo(mapRef.current);
-        
-  //     if (item.unified_id || item.id) {
-  //         setBuildingData(item);
-  //         setShowDetailCard(true);
-  //     }
-  //   }
-  // }));
-
   useImperativeHandle(ref, () => ({
     zoomToLocation: (item) => {
       if (!mapRef.current) return;
@@ -171,12 +142,12 @@ const MapView = forwardRef(({
       if (features.length > 0) {
         const f = features[0];
         if (f.layer.id === 'planned-fill' && !isPlanningActive) {
-          map.getCanvas().style.cursor = '';
+          map.getCanvas()?.style && (map.getCanvas().style.cursor = '')
         } else {
           map.getCanvas().style.cursor = 'pointer';
         }
       } else {
-        map.getCanvas().style.cursor = '';
+        map.getCanvas()?.style && (map.getCanvas().style.cursor = '')
       }
     };
 
@@ -243,9 +214,14 @@ const MapView = forwardRef(({
     if (!isPlanningActive && activePopupRef.current) removeExistingPopup();
 
     return () => {
-      map.off('click', handleMapClick);
-      map.off('mousemove', handleMouseMove);
-      map.getCanvas().style.cursor = '';
+      if (map && map.getCanvas) {
+        map.off('click', handleMapClick);
+        map.off('mousemove', handleMouseMove);
+        const canvas = map.getCanvas();
+        if (canvas && canvas.style) {
+          canvas.style.cursor = '';
+        }
+      }
     };
 
   }, [selectedDistrict, selectedVisits, selectedLayers, selectedAffiliations, isPlanningActive, mode, geoMode, filterData, isReady, rawCacheData, activeScenario]);
@@ -263,7 +239,7 @@ const MapView = forwardRef(({
         ref={mapContainer}
       />
 
-      <LoadingOverlay isLoading={showFullLoader} />
+      <LoadingOverlay data-testid="loading-overlay" isLoading={showFullLoader} />
     </div>
   );
 });

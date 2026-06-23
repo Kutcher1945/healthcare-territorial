@@ -6,7 +6,7 @@ const fmt = (n) => new Intl.NumberFormat('ru-RU').format(n || 0);
 
 export default function BuildingRiskPanel({ onClose, onZoomTo }) {
   const [data, setData] = useState(null);
-  const [activeTab, setActiveTab] = useState('obj'); // 'obj' | 'dist'
+  const [activeTab, setActiveTab] = useState('obj');
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -21,11 +21,16 @@ export default function BuildingRiskPanel({ onClose, onZoomTo }) {
   const totalPre1970 = data?.by_age.reduce((s, i) => s + i.pre1970, 0);
   const total1970_2000 = data?.by_age.reduce((s, i) => s + i.y1970_2000, 0);
   const totalAllDist = data?.by_age.reduce((s, i) => s + (i.pre1970 + i.y1970_2000 + i.post2000), 0);
+  const techLabel = selectedTechConditions.length === 0 
+    ? "Все состояния" 
+    : TECH_CONDITIONS
+      .filter(t => selectedTechConditions.includes(t.id))
+      .map(t => t.label)
+      .join(", ");
 
   return (
     <div className="h-full bg-white shadow-2xl rounded-xl border border-gray-200 overflow-hidden flex flex-col">
         <div className="shrink-0">
-            {/* Header */}
             <div className="bg-[#37474F] p-2.5 px-4 flex items-center justify-between text-white">
               <div className="flex items-center gap-2">
                 <AlertCircle className="w-4 h-4 text-orange-400" />
@@ -33,7 +38,6 @@ export default function BuildingRiskPanel({ onClose, onZoomTo }) {
               </div>
             </div>
 
-            {/* KPI Blocks */}
             <div className="grid grid-cols-5 gap-px bg-gray-100 border-b">
                 {[
                 { label: 'Аварийных', val: data.emergency_count, color: '#7B1FA2' },
@@ -50,13 +54,11 @@ export default function BuildingRiskPanel({ onClose, onZoomTo }) {
             </div>
         </div>
 
-      {/* Tabs */}
       <div className="flex bg-gray-50 border-b text-[11px] font-bold uppercase">
         <button onClick={() => setActiveTab('obj')} className={`flex-1 py-2 ${activeTab === 'obj' ? 'bg-white border-b-2 border-[#37474F]' : 'text-gray-400'}`}>По объектам</button>
         <button onClick={() => setActiveTab('dist')} className={`flex-1 py-2 ${activeTab === 'dist' ? 'bg-white border-b-2 border-[#37474F]' : 'text-gray-400'}`}>По районам</button>
       </div>
 
-      {/* Body */}
       <div className="flex-1 overflow-y-auto custom-scrollbar bg-white">
         <table className="w-full text-[10px] border-collapse">
           {activeTab === 'obj' ? (
@@ -67,7 +69,6 @@ export default function BuildingRiskPanel({ onClose, onZoomTo }) {
                   <th className="p-2 text-center">Год</th>
                   <th className="p-2 text-center">Риск</th>
                   <th className="p-2 text-right">Приоритет</th>
-                  {/* <th className="p-2 text-right">РПН</th> */}
                 </tr>
               </thead>
               <tbody>
@@ -81,7 +82,6 @@ export default function BuildingRiskPanel({ onClose, onZoomTo }) {
                        </span>
                     </td>
                     <td className="p-2 text-right text-blue-600 font-bold">{r.bld_priority}</td>
-                    {/* <td className="p-2 text-right text-blue-600 font-bold">{fmt(Math.floor(Math.random()*50000))}</td> */}
                   </tr>
                 ))}
               </tbody>

@@ -15,37 +15,21 @@ export default function DistrictSummaryModal({ onClose }) {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
-    // useEffect(() => {
-    //     const loadData = async () => {
-    //         try {
-    //             setLoading(true);
-    //             const data = await HealthcareService.getDistrictSummary();
-                
-    //             const sortedData = data.sort((a, b) => 
-    //                 parseFloat(b.avg_cap_load) - parseFloat(a.avg_cap_load)
-    //             );
-                
-    //             setDistData(sortedData);
-    //         } catch (err) {
-    //             setError("Не удалось загрузить данные");
-    //             console.error(err);
-    //         } finally {
-    //             setLoading(false);
-    //         }
-    //     };
-
-    //     loadData();
-    // }, []);
-
     useEffect(() => {
         const loadData = async () => {
             try {
                 setLoading(true);
                 const data = await HealthcareService.getDistrictSummary();
+
+                if (!data || !Array.isArray(data)) {
+                    setDistData([]);
+                    return;
+                }
                 
                 const mergedMap = {};
 
                 data.forEach(item => {
+                    if (!item || !item.district) return;
                     const cleanName = item.district.replace(/ район/gi, "").trim();
 
                     if (!mergedMap[cleanName]) {
@@ -72,8 +56,8 @@ export default function DistrictSummaryModal({ onClose }) {
                     district: r.district,
                     count: r.count,
                     pop: r.pop,
-                    avg_cap_load: (r.sumCap / r.itemsInGroup).toFixed(1),
-                    avg_doc_load: (r.sumDoc / r.itemsInGroup).toFixed(1)
+                    avg_cap_load: r.itemsInGroup > 0 ? (r.sumCap / r.itemsInGroup).toFixed(1) : "0.0",
+                    avg_doc_load: r.itemsInGroup > 0 ? (r.sumDoc / r.itemsInGroup).toFixed(1) : "0.0"
                 }));
 
                 finalData.sort((a, b) => parseFloat(b.avg_cap_load) - parseFloat(a.avg_cap_load));
@@ -122,23 +106,31 @@ export default function DistrictSummaryModal({ onClose }) {
                             </tr>
                         </thead>
                         <tbody>
-                            {distData.map((r, i) => (
-                                <tr key={i} className="border-b last:border-0 hover:bg-gray-50 transition-colors">
-                                    <td className="p-2 font-medium text-gray-700 text-left">
-                                        {r.district?.replace(" район", "") || "—"}
-                                    </td>
-                                    <td className="p-2 text-center text-gray-600">{r.count}</td>
-                                    <td className="p-2 text-center text-gray-600">
-                                        {r.pop ? (r.pop >= 1000 ? `${Math.round(r.pop / 1000)}K` : r.pop) : "—"}
-                                    </td>
-                                    <td className={`p-2 text-center ${getPctClass(r.avg_cap_load)}`}>
-                                        {r.avg_cap_load ? `${r.avg_cap_load}%` : "—"}
-                                    </td>
-                                    <td className={`p-2 text-center ${getPctClass(r.avg_doc_load)}`}>
-                                        {r.avg_doc_load ? `${r.avg_doc_load}%` : "—"}
+                            {distData.length === 0 ? (
+                                <tr>
+                                    <td colSpan="5" className="p-10 text-center text-gray-400 text-xs">
+                                        Нет данных для отображения
                                     </td>
                                 </tr>
-                            ))}
+                            ) : (
+                                distData.map((r, i) => (
+                                    <tr key={i} className="border-b last:border-0 hover:bg-gray-50 transition-colors">
+                                        <td className="p-2 font-medium text-gray-700 text-left">
+                                            {r.district?.replace(" район", "") || "—"}
+                                        </td>
+                                        <td className="p-2 text-center text-gray-600">{r.count}</td>
+                                        <td className="p-2 text-center text-gray-600">
+                                            {r.pop ? (r.pop >= 1000 ? `${Math.round(r.pop / 1000)}K` : r.pop) : "—"}
+                                        </td>
+                                        <td className={`p-2 text-center ${getPctClass(r.avg_cap_load)}`}>
+                                            {r.avg_cap_load ? `${r.avg_cap_load}%` : "—"}
+                                        </td>
+                                        <td className={`p-2 text-center ${getPctClass(r.avg_doc_load)}`}>
+                                            {r.avg_doc_load ? `${r.avg_doc_load}%` : "—"}
+                                        </td>
+                                    </tr>
+                                ))
+                            )}  
                         </tbody>
                     </table>
                 )}
