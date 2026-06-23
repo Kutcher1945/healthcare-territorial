@@ -105,7 +105,7 @@ export default function Header({ setSelectedDistrict, selectedDistrict }) {
 
           <div className="flex lg:hidden items-center gap-2">
             <div className="relative dropdown-container sm:hidden">
-              <button
+              {/* <button
                 className="flex items-center gap-1 rounded-lg border border-[#c1d3ff] bg-[#ebf1ff] px-2 py-1.5 text-xs font-semibold text-[#283353] hover:bg-[#e1eaff] transition-colors"
                 onClick={() => setOpenDropDown(!openDropDown)}
               >
@@ -114,7 +114,7 @@ export default function Header({ setSelectedDistrict, selectedDistrict }) {
                 <ChevronDown
                   className={`h-3 w-3 transition-transform ${openDropDown ? "rotate-180" : ""}`}
                 />
-              </button>
+              </button> */}
 
               {openDropDown && (
                 <div className="absolute top-full right-0 mt-2 w-48 rounded-lg border-2 border-[#c1d3ff] bg-white shadow-xl z-50">
