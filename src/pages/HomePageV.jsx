@@ -1,9 +1,14 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useRef } from "react"
 import Map from "../components/HomePage/MapV"
-import MapFilter from "../components/HomePage/MapFilter"
-import DetailedInfoRight from "../components/HomePage/DetailedInfoRight"
+import MapFilter from "../components/HomePage/MapFilter/MapFilter"
+import DetailedInfoRight from "../components/HomePage/DetailCard/DetailedInfoRight"
+import DistrictSummaryModal from "../components/HomePage/Modal/DistrictSummaryModal"
+import BuildingAgeModal from "../components/HomePage/Modal/BuildingAgeModal"
+import CriticalLoadPanel from "../components/HomePage/MapLegend/CriticalLoadPanel"
+import {MapLayersManager} from "../utils/mapLayers"
+import HomeLegendPanel from "../components/HomePage/MapLegend/HomeLegendPanel"
 
 export default function HomePage() {
   const [buildingData, setBuildingData] = useState([])
@@ -13,7 +18,13 @@ export default function HomePage() {
   const [avgVisit, setAvgVisit] = useState(0)
   const [avgPerson, setAvgPerson] = useState(0)
   const [selectedDistrict, setSelectedDistrict] = useState(["Все районы"])
-  const [districtDropdownOpen, setDistrictDropdownOpen] = useState(false)
+  const [selectedVisits, setSelectedVisits] = useState(["Все посещения"])
+  const [selectedLayers, setSelectedLayers] = useState(["Все слои"])
+  const [selectedAffiliations, setSelectedAffiliations] = useState(["all"])
+  const [activePanel, setActivePanel] = useState(null); 
+  const [activeModal, setActiveModal] = useState(null);
+  const [mapData, setMapData] = useState(null);
+  const mapRef = useRef(null);
 
   const handleBackdropClick = () => {
     if (showDetailCard && buildingData?.id && window.innerWidth < 768) {
@@ -21,44 +32,74 @@ export default function HomePage() {
     }
   }
 
+  const togglePanel = (panelName) => {
+    setActivePanel(prev => (prev === panelName ? null : panelName));
+  };
+
   return (
     <div className="relative h-full w-full overflow-hidden">
-      {showDetailCard && buildingData?.id && (
-        <div
-          className="md:hidden absolute inset-0 bg-black/20 z-20 transition-opacity duration-300"
-          onClick={handleBackdropClick}
-        />
-      )}
-
       <div className="h-full w-full">
         <Map
           setBuildingData={setBuildingData}
           setShowDetailCard={setShowDetailCard}
           showDetailCard={showDetailCard}
           selectedDistrict={selectedDistrict}
+          selectedLayers={selectedLayers}
+          selectedVisits={selectedVisits}
+          selectedAffiliations={selectedAffiliations}
           setTotalCount={setTotalCount}
           setTotalPopulation={setTotalPopulation}
           setAvgVisit={setAvgVisit}
           setAvgPerson={setAvgPerson}
+
+          ref={mapRef}
+          onDataUpdate={setMapData}
         />
       </div>
 
-      <div className="absolute top-[40px] left-4 z-20 w-44 sm:w-64 md:w-80">
+      <div className="absolute top-[20px] left-4 z-20 w-[220px] md:w-[280px]">
         <MapFilter
           selectedDistrict={selectedDistrict}
           setSelectedDistrict={setSelectedDistrict}
-          districtDropdownOpen={districtDropdownOpen}
-          setDistrictDropdownOpen={setDistrictDropdownOpen}
+          selectedVisits={selectedVisits}
+          setSelectedVisits={setSelectedVisits}
+          selectedLayers={selectedLayers}
+          setSelectedLayers={setSelectedLayers}
+          selectedAffiliations={selectedAffiliations}
+          setSelectedAffiliations={setSelectedAffiliations}
+
           totalCount={totalCount}
           totalPopulation={totalPopulation}
           avgVisit={avgVisit}
           avgPerson={avgPerson}
+
+          activeModal={activeModal}
+          setActiveModal={setActiveModal}
         />
+
+        <div className="absolute left-[102%] top-0"> 
+          {activeModal === 'summary' && (
+            <DistrictSummaryModal onClose={() => setActiveModal(null)} />
+          )}
+          {activeModal === 'age' && (
+            <BuildingAgeModal onClose={() => setActiveModal(null)} />
+          )}
+        </div>
       </div>
-      <div className="absolute top-[40px] right-4 z-20 w-44 sm:w-64 md:w-80">
-        <DetailedInfoRight
-          buildingData={buildingData}
+
+      <div className="absolute bottom-6 right-6 z-30 flex flex-col gap-4 items-end">
+        <HomeLegendPanel isMinimized={activePanel !== 'legend'} setIsMinimized={() => togglePanel('legend')} />
+        <CriticalLoadPanel 
+          data={mapData?.pmsp} 
+          onZoomTo={(item) => {
+            if (mapRef.current) {
+              mapRef.current.zoomToLocation(item);
+            }
+          }} 
+          isMinimized={activePanel !== 'critical'}
+          setIsMinimized={() => togglePanel('critical')}
         />
+
       </div>
     </div>
   )

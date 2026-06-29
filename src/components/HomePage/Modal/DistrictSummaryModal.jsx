@@ -1,0 +1,143 @@
+import { useEffect, useState } from "react";
+import { X, ClipboardList, Loader2 } from "lucide-react";
+import { HealthcareService } from "../../../services/apiService";
+
+const getPctClass = (val) => {
+    const num = parseFloat(val);
+    if (num >= 120) return "text-red-700 font-bold";
+    if (num >= 100) return "text-orange-600 font-bold";
+    if (num >= 90) return "text-green-600 font-bold";
+    return "text-green-800";
+};
+
+export default function DistrictSummaryModal({ onClose }) {
+    const [distData, setDistData] = useState([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+
+    useEffect(() => {
+        const loadData = async () => {
+            try {
+                setLoading(true);
+                const data = await HealthcareService.getDistrictSummary();
+
+                if (!data || !Array.isArray(data)) {
+                    setDistData([]);
+                    return;
+                }
+                
+                const mergedMap = {};
+
+                data.forEach(item => {
+                    if (!item || !item.district) return;
+                    const cleanName = item.district.replace(/ район/gi, "").trim();
+
+                    if (!mergedMap[cleanName]) {
+                        mergedMap[cleanName] = {
+                            district: cleanName,
+                            count: 0,
+                            pop: 0,
+                            sumCap: 0,
+                            sumDoc: 0,
+                            itemsInGroup: 0
+                        };
+                    }
+
+                    const group = mergedMap[cleanName];
+                    group.count += parseInt(item.count || 0);
+                    group.pop += parseFloat(item.pop || 0);
+                    
+                    group.sumCap += parseFloat(item.avg_cap_load || 0) * (item.count || 1);
+                    group.sumDoc += parseFloat(item.avg_doc_load || 0) * (item.count || 1);
+                    group.itemsInGroup += (item.count || 1);
+                });
+
+                const finalData = Object.values(mergedMap).map(r => ({
+                    district: r.district,
+                    count: r.count,
+                    pop: r.pop,
+                    avg_cap_load: r.itemsInGroup > 0 ? (r.sumCap / r.itemsInGroup).toFixed(1) : "0.0",
+                    avg_doc_load: r.itemsInGroup > 0 ? (r.sumDoc / r.itemsInGroup).toFixed(1) : "0.0"
+                }));
+
+                finalData.sort((a, b) => parseFloat(b.avg_cap_load) - parseFloat(a.avg_cap_load));
+                
+                setDistData(finalData);
+            } catch (err) {
+                setError("Не удалось загрузить данные");
+                console.error(err);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        loadData();
+    }, []);
+
+    return (
+        <div className="w-[400px] bg-white shadow-2xl rounded-xl border border-gray-200 overflow-hidden animate-in fade-in slide-in-from-left-2">
+            <div className="bg-[#1565C0] p-2 px-3 flex items-center justify-between text-white">
+                <div className="flex items-center gap-2">
+                    <ClipboardList className="w-4 h-4" />
+                    <span className="font-bold text-sm">Сводка по районам</span>
+                </div>
+                <button onClick={onClose} className="hover:bg-white/20 rounded-full p-1 transition-colors">
+                    <X className="w-5 h-5" />
+                </button>
+            </div>
+            
+            <div className="max-h-[500px] overflow-y-auto">
+                {loading ? (
+                    <div className="flex flex-col items-center justify-center p-10 gap-2">
+                        <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
+                        <span className="text-[10px] text-gray-400">Загрузка данных...</span>
+                    </div>
+                ) : error ? (
+                    <div className="p-10 text-center text-red-500 text-xs">{error}</div>
+                ) : (
+                    <table className="w-full text-[11px] md:text-xs">
+                        <thead className="bg-blue-50 text-blue-800 border-b sticky top-0 z-10">
+                            <tr>
+                                <th className="p-2 text-left">Район</th>
+                                <th className="p-2 text-center">ПМСП</th>
+                                <th className="p-2 text-center">Нас.</th>
+                                <th className="p-2 text-center">Ср% посещ.</th>
+                                <th className="p-2 text-center">Ср% врачи</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {distData.length === 0 ? (
+                                <tr>
+                                    <td colSpan="5" className="p-10 text-center text-gray-400 text-xs">
+                                        Нет данных для отображения
+                                    </td>
+                                </tr>
+                            ) : (
+                                distData.map((r, i) => (
+                                    <tr key={i} className="border-b last:border-0 hover:bg-gray-50 transition-colors">
+                                        <td className="p-2 font-medium text-gray-700 text-left">
+                                            {r.district?.replace(" район", "") || "—"}
+                                        </td>
+                                        <td className="p-2 text-center text-gray-600">{r.count}</td>
+                                        <td className="p-2 text-center text-gray-600">
+                                            {r.pop ? (r.pop >= 1000 ? `${Math.round(r.pop / 1000)}K` : r.pop) : "—"}
+                                        </td>
+                                        <td className={`p-2 text-center ${getPctClass(r.avg_cap_load)}`}>
+                                            {r.avg_cap_load ? `${r.avg_cap_load}%` : "—"}
+                                        </td>
+                                        <td className={`p-2 text-center ${getPctClass(r.avg_doc_load)}`}>
+                                            {r.avg_doc_load ? `${r.avg_doc_load}%` : "—"}
+                                        </td>
+                                    </tr>
+                                ))
+                            )}  
+                        </tbody>
+                    </table>
+                )}
+            </div>
+            <div className="p-2 bg-gray-50 text-[9px] text-left text-gray-400 italic border-t">
+                * Данные обновляются в реальном времени на основе текущей нагрузки.
+            </div>
+        </div>
+    );
+}

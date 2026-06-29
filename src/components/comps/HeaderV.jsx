@@ -1,7 +1,7 @@
 "use client"
 
 import { Link, useLocation } from "react-router-dom"
-import { HeartPulse, MapPinned, Menu, X, ChevronDown, Activity, Users } from "lucide-react"
+import { MapPinned, Menu, X, ChevronDown } from "lucide-react"
 import { useState, useEffect } from "react"
 import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose} from "../ui/dialog"
 import DoctorsCapacityMethodology from "../Methodology/DoctorsCapacityMethodology"
@@ -50,10 +50,11 @@ export default function Header({ setSelectedDistrict, selectedDistrict }) {
   }
 
   const navigationItems = [
-    { to: "/", label: "Главная", icon: Activity, color: "text-blue-500" },
-    { to: "/infrastructure", label: "Инфраструктура", icon: HeartPulse, color: "text-green-500" },
-    { to: "/personal", label: "Персонал", icon: Users, color: "text-purple-500" },
-    { to: "/recomendations", label: "Рекомендации", icon: MapPinned, color: "text-purple-500" },
+    { to: "/", label: "Главная" },
+    { to: "/infrastructure", label: "Инфраструктура" },
+    { to: "/personal", label: "Персонал"},
+    { to: "/recomendations", label: "Рекомендации"},
+    // { to: "/geo-analysis", label: "Гео-анализ"},
   ]
 
   return (
@@ -70,7 +71,7 @@ export default function Header({ setSelectedDistrict, selectedDistrict }) {
 
           <div className="min-w-0">
             <h1 className="text-sm sm:text-base font-bold text-[#1b1b1b] truncate">
-              Территориальное разделение поликлиник 2025
+              Система мониторинга Здравоохранения
             </h1>
           </div>
 
@@ -80,7 +81,7 @@ export default function Header({ setSelectedDistrict, selectedDistrict }) {
           <nav className="hidden lg:flex items-center gap-2">
               <button
                 onClick={() => setIsMethodologyOpen(true)}
-                className="rounded-md border border-gray-300 px-3 py-1.5 text-xs hover:bg-gray-50"
+                className="rounded-md border border-blue-500 text-blue-600 font-semibold px-3 py-1.5 text-xs hover:bg-blue-50"
               >
                 Методология
               </button>
@@ -104,17 +105,6 @@ export default function Header({ setSelectedDistrict, selectedDistrict }) {
 
           <div className="flex lg:hidden items-center gap-2">
             <div className="relative dropdown-container sm:hidden">
-              <button
-                className="flex items-center gap-1 rounded-lg border border-[#c1d3ff] bg-[#ebf1ff] px-2 py-1.5 text-xs font-semibold text-[#283353] hover:bg-[#e1eaff] transition-colors"
-                onClick={() => setOpenDropDown(!openDropDown)}
-              >
-                <MapPinned className="h-3 w-3 text-[#3772ff]" />
-                <span className="max-w-16 truncate">{selectedDistrict}</span>
-                <ChevronDown
-                  className={`h-3 w-3 transition-transform ${openDropDown ? "rotate-180" : ""}`}
-                />
-              </button>
-
               {openDropDown && (
                 <div className="absolute top-full right-0 mt-2 w-48 rounded-lg border-2 border-[#c1d3ff] bg-white shadow-xl z-50">
                   <div className="p-1">
@@ -142,7 +132,7 @@ export default function Header({ setSelectedDistrict, selectedDistrict }) {
                   setIsMethodologyOpen(true);
                   setMobileMenu(false);
                 }}
-                className="flex items-center gap-2.5 rounded-lg px-3 py-2.5 text-xs font-semibold text-[#283353] hover:bg-[#ebf1ff] border border-transparent hover:border-[#c1d3ff] transition-colors w-full text-left"
+                className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-xs font-semibold border-blue-500 text-blue-600 hover:bg-blue-50 border border-transparent transition-colors w-full text-left"
               >
                 <span>Методология</span>
               </button>
