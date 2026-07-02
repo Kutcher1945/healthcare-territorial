@@ -23,7 +23,7 @@ function App() {
   const [selectedDistrict, setSelectedDistrict] = useState("Все районы");
   return (
     <QueryClientProvider client={queryClient}>
-      <Router>
+      <Router basename="/healthcare-territorial">
         <div className="App h-full w-full flex flex-col overflow-hidden">
           <Header setSelectedDistrict={setSelectedDistrict} selectedDistrict={selectedDistrict}/>
           <main className="flex-1 overflow-hidden">
